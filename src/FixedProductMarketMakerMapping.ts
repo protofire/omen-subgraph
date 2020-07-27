@@ -25,15 +25,26 @@ function requireAccount(accountAddress: string): void {
   }
 }
 
-function recordParticipation(fpmmAddress: string, participantAddress: string): void {
+function recordParticipation(fpmm: FixedProductMarketMaker, participantAddress: string): void {
   requireAccount(participantAddress);
 
-  let fpmmParticipationId = fpmmAddress.concat(participantAddress);
+  let fpmmParticipationId = fpmm.id.concat(participantAddress);
   let fpmmParticipation = FpmmParticipation.load(fpmmParticipationId);
   if (fpmmParticipation == null) {
     fpmmParticipation = new FpmmParticipation(fpmmParticipationId);
-    fpmmParticipation.fpmm = fpmmAddress;
+    fpmmParticipation.fpmm = fpmm.id;
     fpmmParticipation.participant = participantAddress;
+
+    fpmmParticipation.creationTimestamp = fpmm.creationTimestamp;
+    fpmmParticipation.collateralToken = fpmm.collateralToken;
+    fpmmParticipation.fee = fpmm.fee;
+
+    fpmmParticipation.category = fpmm.category;
+    fpmmParticipation.language = fpmm.language;
+    fpmmParticipation.arbitrator = fpmm.arbitrator;
+    fpmmParticipation.openingTimestamp = fpmm.openingTimestamp;
+    fpmmParticipation.timeout = fpmm.timeout;
+  
     fpmmParticipation.save();
   }
 }
@@ -127,7 +138,7 @@ export function handleBuy(event: FPMMBuy): void {
 
   fpmm.save();
 
-  recordParticipation(fpmmAddress, event.params.buyer.toHexString());
+  recordParticipation(fpmm as FixedProductMarketMaker, event.params.buyer.toHexString());
 }
 
 export function handleSell(event: FPMMSell): void {
@@ -172,7 +183,7 @@ export function handleSell(event: FPMMSell): void {
 
   fpmm.save();
 
-  recordParticipation(fpmmAddress, event.params.seller.toHexString());
+  recordParticipation(fpmm as FixedProductMarketMaker, event.params.seller.toHexString());
 }
 
 export function handlePoolShareTransfer(event: Transfer): void {
