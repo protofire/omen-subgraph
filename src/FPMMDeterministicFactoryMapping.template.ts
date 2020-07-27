@@ -52,6 +52,8 @@ export function handleFixedProductMarketMakerCreation(event: FixedProductMarketM
   fixedProductMarketMaker.outcomeSlotCount = outcomeTokenCount;
   fixedProductMarketMaker.indexedOnQuestion = false;
 
+  fixedProductMarketMaker.curatedByDxDao = false;
+
   if(conditionIdStrs.length == 1) {
     let conditionIdStr = conditionIdStrs[0];
     fixedProductMarketMaker.condition = conditionIdStr;

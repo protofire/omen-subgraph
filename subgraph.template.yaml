@@ -68,7 +68,7 @@ dataSources:
       apiVersion: 0.0.3
       language: wasm/assemblyscript
       entities:
-        - TokenRegistry
+        - FixedProductMarketMaker
       abis:
         - name: DXTokenRegistry
           file: ./abis/DXTokenRegistry.json
