@@ -110,6 +110,18 @@ type FpmmParticipation @entity {
   id: ID!
   fpmm: FixedProductMarketMaker!
   participant: Account!
+
+  # lifted from fpmm
+  creationTimestamp: BigInt!
+  collateralToken: Bytes!
+  fee: BigInt!
+
+  # lifted from fpmm's condition's question
+  category: String
+  language: String
+  arbitrator: Bytes
+  openingTimestamp: BigInt
+  timeout: BigInt
 }
 
 type Account @entity {
