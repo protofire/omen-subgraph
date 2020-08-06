@@ -1,33 +1,33 @@
+import { log } from '@graphprotocol/graph-ts'
 import { AddToken, RemoveToken } from '../generated/DXTokenRegistry/DXTokenRegistry'
-import { TokenRegistry } from '../generated/schema'
+import { FixedProductMarketMaker } from '../generated/schema'
 
 export function handleAddToken(event: AddToken): void {
-  const id = event.params.listId
+  if(event.params.listId.toI32() == 4) {
+    let fpmmAddress = event.params.token.toHex();
+    let fpmm = FixedProductMarketMaker.load(fpmmAddress);
 
-  if(id.toI32() == 4) {
-    let idHex = id.toHex()
-    let tcr = TokenRegistry.load(idHex)
-
-    if(tcr != null) {
-      tcr = new TokenRegistry(idHex)
-      tcr.markets = []
+    if (fpmm == null) {
+      log.warning("could not register FPMM {} as curated by dxDAO", [fpmmAddress]);
+      return;
     }
 
-    tcr.markets.push(event.params.token.toHex())
-    tcr.save()
+    fpmm.curatedByDxDao = true;
+    fpmm.save();
   }
 }
 
 export function handleRemoveToken(event: RemoveToken): void {
-  const id = event.params.listId
+  if(event.params.listId.toI32() == 4) {
+    let fpmmAddress = event.params.token.toHex();
+    let fpmm = FixedProductMarketMaker.load(fpmmAddress);
 
-  if(id.toI32() == 4) {
-    let idHex = id.toHex()
-    let tcr = TokenRegistry.load(idHex)
-
-    if(tcr != null) {
-      tcr.markets = tcr.markets.filter(token => token != event.params.token.toHex())
-      tcr.save()
+    if (fpmm == null) {
+      log.warning("could not unregister FPMM {} as curated by dxDAO", [fpmmAddress]);
+      return;
     }
+
+    fpmm.curatedByDxDao = false;
+    fpmm.save();
   }
 }

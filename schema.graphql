@@ -71,6 +71,8 @@ type FixedProductMarketMaker @entity {
 
   indexedOnQuestion: Boolean!
 
+  curatedByDxDao: Boolean!
+
   # copy of conditions' content if it is a 1-large array
   condition: Condition
   # lifted from condition
@@ -128,11 +130,6 @@ type Account @entity {
   id: ID!
   fpmmPoolMemberships: [FpmmPoolMembership!] @derivedFrom(field: "funder")
   fpmmParticipations: [FpmmParticipation!] @derivedFrom(field: "participant")
-}
-
-type TokenRegistry @entity {
-  id: ID!
-  markets: [ID!]!
 }
 
 type Global @entity {
