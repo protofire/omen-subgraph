@@ -623,7 +623,7 @@ describe('Omen subgraph', function() {
         "label": "Market URL",
         "type": ItemTypes.LINK,
       }
-    ]
+    ] // This information can be found in the TCR meta evidence.
     const inputValues = {
       Question: 'When x happen before y?',
       'Market URL':'https://omen.eth.link/#/0x0e414d014a77971f4eaa22ab58e6d84d16ea838e'
@@ -640,7 +640,7 @@ describe('Omen subgraph', function() {
         status
         columns
         values
-      }      
+      }
     }`)
 
     const REGISTERED = 1

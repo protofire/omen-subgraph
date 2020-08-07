@@ -157,3 +157,8 @@ type _Schema_
       }
     ]
   )
+
+type CuratedMarket @entity {
+  id: ID!
+  status: Int!
+}
