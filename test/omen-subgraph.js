@@ -5,6 +5,7 @@ const delay = require('delay');
 const fs = require('fs-extra');
 const path = require('path');
 const should = require('should');
+const { gtcrEncode, ItemTypes } = require('@kleros/gtcr-encoder')
 
 const provider = new Web3.providers.HttpProvider("http://localhost:8545");
 const web3 = new Web3(provider);
@@ -35,6 +36,8 @@ const RealitioProxy = getContract('RealitioProxy');
 const ConditionalTokens = getContract('ConditionalTokens');
 const FPMMDeterministicFactory = getContract('FPMMDeterministicFactory');
 const FixedProductMarketMaker = getContract('FixedProductMarketMaker');
+const SimpleCentralizedArbitrator = getContract('SimpleCentralizedArbitrator');
+const GeneralizedTCR = getContract('GeneralizedTCR');
 
 async function queryGraph(query) {
   return (await axios.post('http://localhost:8000/subgraphs', { query })).data.data;
@@ -261,12 +264,16 @@ describe('Omen subgraph', function() {
   let oracle;
   let conditionalTokens;
   let factory;
+  let centralizedArbitrator;
+  let marketsTCR;
   before('get deployed contracts', async function() {
     weth = await WETH9.deployed();
     realitio = await Realitio.deployed();
     oracle = await RealitioProxy.deployed();
     conditionalTokens = await ConditionalTokens.deployed();
     factory = await FPMMDeterministicFactory.deployed();
+    centralizedArbitrator = await SimpleCentralizedArbitrator.deployed();
+    marketsTCR = await GeneralizedTCR.deployed()
   });
 
   it('exists', async function() {
@@ -605,4 +612,40 @@ describe('Omen subgraph', function() {
     fixedProductMarketMaker.resolutionTimestamp.should.equal(timestamp.toString());
     fixedProductMarketMaker.payouts.should.eql(['0', '1', '0']);
   });
+
+  step('register and query TCR', async function() {
+    const columns = [
+      {
+        "label": "Question",
+        "type": ItemTypes.TEXT,
+      },
+      {
+        "label": "Market URL",
+        "type": ItemTypes.LINK,
+      }
+    ]
+    const inputValues = {
+      Question: 'When x happen before y?',
+      'Market URL':'https://omen.eth.link/#/0x0e414d014a77971f4eaa22ab58e6d84d16ea838e'
+    }
+
+    const encodedValues = gtcrEncode({ columns, values: inputValues })
+    await marketsTCR.addItem(encodedValues, { from: creator, value: await centralizedArbitrator.arbitrationCost('0x00')})
+    await advanceTime(1)
+    const itemID = await marketsTCR.itemList(0)
+    await marketsTCR.executeRequest(itemID, { from: creator })
+
+    const { market } = await querySubgraph(`{
+      market(itemID: "${itemID}") {
+        status
+        columns
+        values
+      }      
+    }`)
+
+    const REGISTERED = 1
+    market.status.should.equal(REGISTERED)
+    market.columns.should.deepEqual(columns)
+    market.values.should.deepEqual(inputValues)
+  })
 });
