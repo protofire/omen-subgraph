@@ -15,7 +15,7 @@ import {
 } from "../generated/templates/FixedProductMarketMaker/FixedProductMarketMaker"
 import { nthRoot } from './nth-root';
 import { timestampToDay, joinDayAndVolume } from './day-volume-utils';
-import { updateScaledVolumes, updateLiquidityFields, getCollateralScale } from './fpmm-utils';
+import { updateScaledVolumes, updateLiquidityFields, getCollateralScale, updateOutcomeTokenAmounts } from './fpmm-utils';
 
 function requireAccount(accountAddress: string): void {
   let account = Account.load(accountAddress);
@@ -65,7 +65,7 @@ export function handleFundingAdded(event: FPMMFundingAdded): void {
     newAmounts[i] = oldAmounts[i].plus(amountsAdded[i]);
     amountsProduct = amountsProduct.times(newAmounts[i]);
   }
-  fpmm.outcomeTokenAmounts = newAmounts;
+  updateOutcomeTokenAmounts(fpmm as FixedProductMarketMaker, newAmounts);
   let liquidityParameter = nthRoot(amountsProduct, newAmounts.length);
   let collateralScale = getCollateralScale(fpmm.collateralToken as Address);
   updateLiquidityFields(fpmm as FixedProductMarketMaker, liquidityParameter, collateralScale.toBigDecimal());
@@ -88,7 +88,7 @@ export function handleFundingRemoved(event: FPMMFundingRemoved): void {
     newAmounts[i] = oldAmounts[i].minus(amountsRemoved[i]);
     amountsProduct = amountsProduct.times(newAmounts[i]);
   }
-  fpmm.outcomeTokenAmounts = newAmounts;
+  updateOutcomeTokenAmounts(fpmm as FixedProductMarketMaker, newAmounts);
   let liquidityParameter = nthRoot(amountsProduct, newAmounts.length);
   let collateralScale = getCollateralScale(fpmm.collateralToken as Address);
   updateLiquidityFields(fpmm as FixedProductMarketMaker, liquidityParameter, collateralScale.toBigDecimal());
@@ -117,7 +117,7 @@ export function handleBuy(event: FPMMBuy): void {
     }
     amountsProduct = amountsProduct.times(newAmounts[i]);
   }
-  fpmm.outcomeTokenAmounts = newAmounts;
+  updateOutcomeTokenAmounts(fpmm as FixedProductMarketMaker, newAmounts);
   let liquidityParameter = nthRoot(amountsProduct, newAmounts.length);
   let collateralScale = getCollateralScale(fpmm.collateralToken as Address);
   let collateralScaleDec = collateralScale.toBigDecimal();
@@ -162,7 +162,7 @@ export function handleSell(event: FPMMSell): void {
     }
     amountsProduct = amountsProduct.times(newAmounts[i]);
   }
-  fpmm.outcomeTokenAmounts = newAmounts;
+  updateOutcomeTokenAmounts(fpmm as FixedProductMarketMaker, newAmounts);
   let liquidityParameter = nthRoot(amountsProduct, newAmounts.length);
   let collateralScale = getCollateralScale(fpmm.collateralToken as Address);
   let collateralScaleDec = collateralScale.toBigDecimal();

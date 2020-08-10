@@ -36,3 +36,36 @@ export function updateLiquidityFields(
   fpmm.liquidityParameter = liquidityParameter;
   fpmm.scaledLiquidityParameter = liquidityParameter.divDecimal(collateralScale);
 }
+
+export function updateOutcomeTokenAmounts(
+  fpmm: FixedProductMarketMaker,
+  outcomeTokenAmounts: BigInt[],
+): void {
+  fpmm.outcomeTokenAmounts = outcomeTokenAmounts;
+
+  let weights = new Array<BigInt>(outcomeTokenAmounts.length);
+  let sum = BigInt.fromI32(0);
+  let allNonzero = true;
+  for (let i = 0; i < outcomeTokenAmounts.length; i++) {
+    let weight = BigInt.fromI32(1);
+    for (let j = 0; j < outcomeTokenAmounts.length; j++) {
+      if (i !== j) {
+        weight = weight.times(outcomeTokenAmounts[j]);
+      }
+    }
+    weights[i] = weight;
+    sum = sum.plus(weight);
+    allNonzero = allNonzero && outcomeTokenAmounts[i].notEqual(BigInt.fromI32(0));
+  }
+
+  if (allNonzero) {
+    let sumBD = sum.toBigDecimal();
+    let marginalPrices = new Array<BigDecimal>(outcomeTokenAmounts.length);
+    for (let i = 0; i < outcomeTokenAmounts.length; i++) {
+      marginalPrices[i] = weights[i].divDecimal(sumBD);
+    }
+    fpmm.outcomeTokenMarginalPrices = marginalPrices;
+  } else {
+    fpmm.outcomeTokenMarginalPrices = null;
+  }
+}

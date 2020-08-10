@@ -57,6 +57,7 @@ type FixedProductMarketMaker @entity {
   collateralVolume: BigInt!
   scaledCollateralVolume: BigDecimal!
   outcomeTokenAmounts: [BigInt!]!
+  outcomeTokenMarginalPrices: [BigDecimal!]
   outcomeSlotCount: Int
   liquidityParameter: BigInt!
   scaledLiquidityParameter: BigDecimal!

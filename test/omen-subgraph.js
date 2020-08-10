@@ -140,6 +140,7 @@ describe('Omen subgraph', function() {
           fee
           collateralVolume
           outcomeTokenAmounts
+          outcomeTokenMarginalPrices
           outcomeSlotCount
           liquidityParameter
           indexedOnQuestion
@@ -190,6 +191,11 @@ describe('Omen subgraph', function() {
       fixedProductMarketMaker.outcomeTokenAmounts.should.eql(
         chainOutcomeTokenAmounts.map(v => v.toString()),
       );
+      if (chainOutcomeTokenAmounts.some(v => v.eqn(0))) {
+        should.not.exist(fixedProductMarketMaker.outcomeTokenMarginalPrices);
+      } else {
+        should.exist(fixedProductMarketMaker.outcomeTokenMarginalPrices);
+      }
       fixedProductMarketMaker.outcomeSlotCount.should.equal(outcomeSlotCount);
       fixedProductMarketMaker.liquidityParameter.should.equal(
         nthRoot(
