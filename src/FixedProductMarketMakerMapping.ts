@@ -65,10 +65,11 @@ export function handleFundingAdded(event: FPMMFundingAdded): void {
     newAmounts[i] = oldAmounts[i].plus(amountsAdded[i]);
     amountsProduct = amountsProduct.times(newAmounts[i]);
   }
-  updateOutcomeTokenAmounts(fpmm as FixedProductMarketMaker, newAmounts);
   let liquidityParameter = nthRoot(amountsProduct, newAmounts.length);
   let collateralScale = getCollateralScale(fpmm.collateralToken as Address);
-  updateLiquidityFields(fpmm as FixedProductMarketMaker, liquidityParameter, collateralScale.toBigDecimal());
+  let collateralScaleDec = collateralScale.toBigDecimal();
+  updateOutcomeTokenAmounts(fpmm as FixedProductMarketMaker, newAmounts, collateralScaleDec);
+  updateLiquidityFields(fpmm as FixedProductMarketMaker, liquidityParameter, collateralScaleDec);
   fpmm.save();
 }
 
@@ -88,10 +89,11 @@ export function handleFundingRemoved(event: FPMMFundingRemoved): void {
     newAmounts[i] = oldAmounts[i].minus(amountsRemoved[i]);
     amountsProduct = amountsProduct.times(newAmounts[i]);
   }
-  updateOutcomeTokenAmounts(fpmm as FixedProductMarketMaker, newAmounts);
   let liquidityParameter = nthRoot(amountsProduct, newAmounts.length);
   let collateralScale = getCollateralScale(fpmm.collateralToken as Address);
-  updateLiquidityFields(fpmm as FixedProductMarketMaker, liquidityParameter, collateralScale.toBigDecimal());
+  let collateralScaleDec = collateralScale.toBigDecimal();
+  updateOutcomeTokenAmounts(fpmm as FixedProductMarketMaker, newAmounts, collateralScaleDec);
+  updateLiquidityFields(fpmm as FixedProductMarketMaker, liquidityParameter, collateralScaleDec);
   fpmm.save();
 }
 
@@ -117,10 +119,10 @@ export function handleBuy(event: FPMMBuy): void {
     }
     amountsProduct = amountsProduct.times(newAmounts[i]);
   }
-  updateOutcomeTokenAmounts(fpmm as FixedProductMarketMaker, newAmounts);
   let liquidityParameter = nthRoot(amountsProduct, newAmounts.length);
   let collateralScale = getCollateralScale(fpmm.collateralToken as Address);
   let collateralScaleDec = collateralScale.toBigDecimal();
+  updateOutcomeTokenAmounts(fpmm as FixedProductMarketMaker, newAmounts, collateralScaleDec);
   updateLiquidityFields(fpmm as FixedProductMarketMaker, liquidityParameter, collateralScaleDec);
 
   let currentDay = timestampToDay(event.block.timestamp);
@@ -162,10 +164,10 @@ export function handleSell(event: FPMMSell): void {
     }
     amountsProduct = amountsProduct.times(newAmounts[i]);
   }
-  updateOutcomeTokenAmounts(fpmm as FixedProductMarketMaker, newAmounts);
   let liquidityParameter = nthRoot(amountsProduct, newAmounts.length);
   let collateralScale = getCollateralScale(fpmm.collateralToken as Address);
   let collateralScaleDec = collateralScale.toBigDecimal();
+  updateOutcomeTokenAmounts(fpmm as FixedProductMarketMaker, newAmounts, collateralScaleDec);
   updateLiquidityFields(fpmm as FixedProductMarketMaker, liquidityParameter, collateralScaleDec);
 
   let currentDay = timestampToDay(event.block.timestamp);
