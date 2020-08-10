@@ -638,8 +638,6 @@ describe('Omen subgraph', function() {
     const { market } = await querySubgraph(`{
       market(itemID: "${itemID}") {
         status
-        columns
-        values
       }
     }`)
 
