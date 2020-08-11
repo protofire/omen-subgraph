@@ -13,7 +13,8 @@ import {
   FPMMSell,
   Transfer,
 } from "../generated/templates/FixedProductMarketMaker/FixedProductMarketMaker"
-import { timestampToDay, joinDayAndVolume } from './day-volume-utils';
+import { secondsPerHour, hoursPerDay } from './constants';
+import { joinDayAndVolume } from './day-volume-utils';
 import { updateScaledVolumes, getCollateralScale, setLiquidity } from './fpmm-utils';
 
 function requireAccount(accountAddress: string): void {
@@ -55,7 +56,7 @@ function increaseVolume(
   collateralScale: BigInt,
   collateralScaleDec: BigDecimal,
 ): void {
-  let currentDay = timestampToDay(timestamp);
+  let currentDay = timestamp.div(secondsPerHour).div(hoursPerDay);
 
   if (fpmm.lastActiveDay.notEqual(currentDay)) {
     fpmm.lastActiveDay = currentDay;

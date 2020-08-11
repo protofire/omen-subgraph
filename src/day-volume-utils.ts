@@ -1,8 +1,4 @@
-import { BigInt, Bytes, BigDecimal } from '@graphprotocol/graph-ts'
-
-export function timestampToDay(timestamp: BigInt): BigInt {
-  return timestamp.div(BigInt.fromI32(86400))
-}
+import { BigInt, Bytes } from '@graphprotocol/graph-ts'
 
 let twoPow256Bytes = new Uint8Array(33) as Bytes;
 twoPow256Bytes.fill(0);

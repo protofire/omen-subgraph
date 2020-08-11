@@ -1,16 +1,17 @@
 import { BigInt, Address, BigDecimal } from '@graphprotocol/graph-ts'
 import { FixedProductMarketMaker } from "../generated/schema";
 import { ERC20Detailed } from "../generated/templates/ERC20Detailed/ERC20Detailed"
-import { joinDayAndScaledVolume } from './day-volume-utils';
+import { zero, one, ten } from './constants';
 import { nthRoot } from './nth-root';
+import { joinDayAndScaledVolume } from './day-volume-utils';
 
 export function getCollateralScale(collateralTokenAddress: Address): BigInt {
   let collateralToken = ERC20Detailed.bind(collateralTokenAddress);
   let result = collateralToken.try_decimals();
 
   return result.reverted ?
-    BigInt.fromI32(1) :
-    BigInt.fromI32(10).pow(<u8>result.value);
+    one :
+    ten.pow(<u8>result.value);
 }
 
 export function updateScaledVolumes(
@@ -36,7 +37,7 @@ export function setLiquidity(
 ): void {
   fpmm.outcomeTokenAmounts = outcomeTokenAmounts;
 
-  let amountsProduct = BigInt.fromI32(1);
+  let amountsProduct = one;
   for(let i = 0; i < outcomeTokenAmounts.length; i++) {
     amountsProduct = amountsProduct.times(outcomeTokenAmounts[i]);
   }
@@ -45,10 +46,10 @@ export function setLiquidity(
   fpmm.scaledLiquidityParameter = liquidityParameter.divDecimal(collateralScaleDec);
 
   let weights = new Array<BigInt>(outcomeTokenAmounts.length);
-  let sum = BigInt.fromI32(0);
+  let sum = zero;
   let allNonzero = true;
   for (let i = 0; i < outcomeTokenAmounts.length; i++) {
-    let weight = BigInt.fromI32(1);
+    let weight = one;
     for (let j = 0; j < outcomeTokenAmounts.length; j++) {
       if (i !== j) {
         weight = weight.times(outcomeTokenAmounts[j]);
@@ -56,7 +57,7 @@ export function setLiquidity(
     }
     weights[i] = weight;
     sum = sum.plus(weight);
-    allNonzero = allNonzero && outcomeTokenAmounts[i].notEqual(BigInt.fromI32(0));
+    allNonzero = allNonzero && outcomeTokenAmounts[i].notEqual(zero);
   }
 
   if (allNonzero) {
@@ -75,7 +76,7 @@ export function setLiquidity(
     fpmm.scaledLiquidityMeasure = liquidityMeasure.divDecimal(collateralScaleDec);
   } else {
     fpmm.outcomeTokenMarginalPrices = null;
-    fpmm.liquidityMeasure = BigInt.fromI32(0);
-    fpmm.scaledLiquidityMeasure = BigInt.fromI32(0).toBigDecimal();
+    fpmm.liquidityMeasure = zero;
+    fpmm.scaledLiquidityMeasure = zero.toBigDecimal();
   }
 }

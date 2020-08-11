@@ -3,10 +3,9 @@ import { BigInt, log, Address } from '@graphprotocol/graph-ts'
 import { FixedProductMarketMakerCreation } from '../generated/FPMMDeterministicFactory/FPMMDeterministicFactory'
 import { FixedProductMarketMaker, Condition, Question } from '../generated/schema'
 import { FixedProductMarketMaker as FixedProductMarketMakerTemplate } from '../generated/templates'
-import { timestampToDay, joinDayAndVolume } from './day-volume-utils';
+import { zero, secondsPerHour, hoursPerDay } from './constants';
+import { joinDayAndVolume } from './day-volume-utils';
 import { updateScaledVolumes, getCollateralScale, setLiquidity } from './fpmm-utils';
-
-let zeroAsBigInt = BigInt.fromI32(0);
 
 export function handleFixedProductMarketMakerCreation(event: FixedProductMarketMakerCreation): void {
   let address = event.params.fixedProductMarketMaker;
@@ -103,21 +102,21 @@ export function handleFixedProductMarketMakerCreation(event: FixedProductMarketM
 
   let outcomeTokenAmounts = new Array<BigInt>(outcomeTokenCount);
   for(let i = 0; i < outcomeTokenAmounts.length; i++) {
-    outcomeTokenAmounts[i] = zeroAsBigInt;
+    outcomeTokenAmounts[i] = zero;
   }
 
   let collateralScale = getCollateralScale(fpmm.collateralToken as Address);
   let collateralScaleDec = collateralScale.toBigDecimal();
   setLiquidity(fpmm, outcomeTokenAmounts, collateralScaleDec);
 
-  let currentDay = timestampToDay(event.block.timestamp);
-  
+  let currentDay = event.block.timestamp.div(secondsPerHour).div(hoursPerDay);
+
   fpmm.lastActiveDay = currentDay;
-  fpmm.collateralVolumeBeforeLastActiveDay = zeroAsBigInt;
-  
-  fpmm.collateralVolume = zeroAsBigInt;
-  fpmm.runningDailyVolume = zeroAsBigInt;
-  fpmm.lastActiveDayAndRunningDailyVolume = joinDayAndVolume(currentDay, zeroAsBigInt);
+  fpmm.collateralVolumeBeforeLastActiveDay = zero;
+
+  fpmm.collateralVolume = zero;
+  fpmm.runningDailyVolume = zero;
+  fpmm.lastActiveDayAndRunningDailyVolume = joinDayAndVolume(currentDay, zero);
 
   updateScaledVolumes(fpmm, collateralScale, collateralScaleDec, currentDay);
 
