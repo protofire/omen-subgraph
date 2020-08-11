@@ -5,7 +5,8 @@ const delay = require('delay');
 const fs = require('fs-extra');
 const path = require('path');
 const should = require('should');
-const { gtcrEncode, ItemTypes } = require('@kleros/gtcr-encoder')
+const { gtcrEncode, ItemTypes } = require('@kleros/gtcr-encoder');
+const { expect } = require('chai');
 
 const provider = new Web3.providers.HttpProvider("http://localhost:8545");
 const web3 = new Web3(provider);
@@ -624,29 +625,87 @@ describe('Omen subgraph', function() {
         "type": ItemTypes.LINK,
       }
     ] // This information can be found in the TCR meta evidence.
-    const inputValues = {
-      Question: 'When x happen before y?',
-      'Market URL':'https://omen.eth.link/#/0x0e414d014a77971f4eaa22ab58e6d84d16ea838e'
-    }
+    const inputValues = [{
+      Question: 'Will Bitcoin dominance be below 50% at any time in January 2021 according to https://coinmarketcap.com/charts/#dominance-percentage',
+      'Market URL':'https://omen.eth.link/#/0x8e0eec0539889a225ca163d36bbf1b44264d863e'
+    }, {
+      Question: 'Will there be a day with at least 1000 reported Corona death in the US in the first 14 days of July?',
+      'Market URL':'https://omen.eth.link/#/0xffbc624070cb014420a6f7547fd05dfe635e2db2'
+    }, {
+      Question: 'When will Ethereum 2.0 Phase 0 launch?',
+      'Market URL':'https://omen.eth.link/#/0xe82b9b5991e31167b9fd96f6da8ec36f33cd290f'
+    }, {
+      Question: 'How will the Kleros court rule in case 302? (1000 corona death)',
+      'Market URL':'https://omen.eth.link/#/0xf45d703b2f695280e21605dbee2db5ebcb08d469'
+    }]
 
-    const encodedValues = gtcrEncode({ columns, values: inputValues })
-    await marketsTCR.addItem(encodedValues, { from: creator, value: await centralizedArbitrator.arbitrationCost('0x00')})
+
+    const arbitrationCost = await centralizedArbitrator.arbitrationCost('0x00')
+    await Promise.all(
+      inputValues
+        .map(v => gtcrEncode({ columns, values: v }))
+        .map(async v => marketsTCR.addItem(v, { from: creator, value: arbitrationCost}))
+    )
+
     await advanceTime(1)
 
-    const itemID = await marketsTCR.itemList(0)
-    await marketsTCR.executeRequest(itemID, { from: creator })
+    const [itemIDA, itemIDB, itemIDC, itemIDD] = await Promise.all([0,1,2,3].map(index => marketsTCR.itemList(index)))
+
+    await marketsTCR.challengeRequest(itemIDA, '', { from: creator, value: arbitrationCost })
+    await advanceTime(5)
+    await Promise.all([itemIDB, itemIDC, itemIDD].map(itemID => marketsTCR.executeRequest(itemID, { from: creator })))
+    await Promise.all([itemIDC, itemIDD].map(itemID => marketsTCR.removeItem(itemID, '', { from: creator, value: arbitrationCost })))
+    await advanceTime(1)
+    await marketsTCR.challengeRequest(itemIDC, '', { from: creator, value: arbitrationCost })
+    await advanceTime(5)
+    await marketsTCR.executeRequest(itemIDD, { from: creator })
+
     await waitForGraphSync();
 
-    const { curatedMarket } = await querySubgraph(`{
-      curatedMarket(id: "${itemID}") {
+    const { curatedMarket: challengedRegistration } = await querySubgraph(`{
+      curatedMarket(id: "0xe2fb44f7502b194e74d8bcd60745fd005ec9c1d12c0e4016ebee34e428e45c29") {
         id
         fpmmAddress
+        registered
         status
       }
     }`)
 
-    const REGISTERED = 1
-    curatedMarket.status.should.equal(REGISTERED)
-    curatedMarket.fpmmAddress.should.equal('0x0e414d014a77971f4eaa22ab58e6d84d16ea838e')
+    const { curatedMarket: acceptedRegistration } = await querySubgraph(`{
+      curatedMarket(id: "0x24cbc32b082b8c03b8c04aa7c0793371673fccec84dea4c301b74a0ca3a7652d") {
+        id
+        fpmmAddress
+        registered
+        status
+      }
+    }`)
+
+    const { curatedMarket: challengedRemoval } = await querySubgraph(`{
+      curatedMarket(id: "0xf630bdcb9296ef3c9a0c35279208687316a96fe2f960d4c9b63f49f205bbc276") {
+        id
+        fpmmAddress
+        registered
+        status
+      }
+    }`)
+
+    const { curatedMarket: acceptedRemoval } = await querySubgraph(`{
+      curatedMarket(id: "0xdc6b7f25cd263056df70eba9a6f89a3477981512975adaf743db625c80ceb310") {
+        id
+        fpmmAddress
+        registered
+        status
+      }
+    }`)
+
+    expect(challengedRegistration.status).to.equal(2)
+    expect(acceptedRegistration.status).to.equal(1)
+    expect(challengedRemoval.status).to.equal(3)
+    expect(acceptedRemoval.status).to.equal(0)
+
+    expect(challengedRegistration.registered).to.equal(false)
+    expect(acceptedRegistration.registered).to.equal(true)
+    expect(challengedRemoval.registered).to.equal(true)
+    expect(acceptedRemoval.registered).to.equal(false)
   })
 });

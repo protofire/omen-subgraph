@@ -4,8 +4,6 @@ import { CuratedMarket } from '../generated/schema';
 
 
 export function handleItemStatusChange(event: ItemStatusChange): void {
-  if (!event.params._resolved) return // No op, we only care about registered or absent states.
-
   const tcr = GeneralizedTCR.bind(event.address);
   const itemInfo = tcr.getItemInfo(event.params._itemID);
   const decodedData = itemInfo.value0.toString()
@@ -21,6 +19,7 @@ export function handleItemStatusChange(event: ItemStatusChange): void {
   }
 
   curatedMarket.status = itemInfo.value1;
+  curatedMarket.registered = curatedMarket.status == 1 || curatedMarket.status == 3;
   curatedMarket.save();
 }
 

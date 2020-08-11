@@ -40,6 +40,7 @@
     "@graphprotocol/graph-ts": "^0.18.1",
     "@kleros/erc-792": "3.0.0",
     "@kleros/gtcr-encoder": "^1.1.3",
+    "@kleros/tcr": "^1.9.2",
     "@realitio/realitio-contracts": "github:cag/realitio-contracts",
     "@truffle/contract": "^4.1.13",
     "@truffle/hdwallet-provider": "^1.0.33",

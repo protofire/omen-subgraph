@@ -162,4 +162,5 @@ type CuratedMarket @entity {
   id: ID!
   fpmmAddress: String!
   status: Int!
+  registered: Boolean!
 }
