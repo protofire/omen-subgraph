@@ -632,18 +632,21 @@ describe('Omen subgraph', function() {
     const encodedValues = gtcrEncode({ columns, values: inputValues })
     await marketsTCR.addItem(encodedValues, { from: creator, value: await centralizedArbitrator.arbitrationCost('0x00')})
     await advanceTime(1)
+
     const itemID = await marketsTCR.itemList(0)
     await marketsTCR.executeRequest(itemID, { from: creator })
+    await waitForGraphSync();
 
-    const { market } = await querySubgraph(`{
-      market(itemID: "${itemID}") {
+    const { curatedMarket } = await querySubgraph(`{
+      curatedMarket(id: "${itemID}") {
+        id
+        fpmmAddress
         status
       }
     }`)
 
     const REGISTERED = 1
-    market.status.should.equal(REGISTERED)
-    market.columns.should.deepEqual(columns)
-    market.values.should.deepEqual(inputValues)
+    curatedMarket.status.should.equal(REGISTERED)
+    curatedMarket.fpmmAddress.should.equal('0x0e414d014a77971f4eaa22ab58e6d84d16ea838e')
   })
 });

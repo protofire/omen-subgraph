@@ -44,7 +44,6 @@
     "@realitio/realitio-contracts": "github:cag/realitio-contracts",
     "@truffle/contract": "^4.1.13",
     "@truffle/hdwallet-provider": "^1.0.33",
-    "@types/node": "^14.0.27",
     "assemblyscript": "^0.14.8",
     "axios": "^0.19.2",
     "delay": "^4.3.0",

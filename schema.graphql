@@ -160,8 +160,6 @@ type _Schema_
 
 type CuratedMarket @entity {
   id: ID!
-  conditionId: String!
-  fpmmAddress: Account!
+  fpmmAddress: String!
   status: Int!
-  itemID: String
 }
