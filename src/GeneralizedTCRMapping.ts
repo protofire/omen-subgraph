@@ -12,10 +12,10 @@ export function handleItemStatusChange(event: ItemStatusChange): void {
   if (addressStartIndex == -1) return // Invalid submission. No Op
   const fpmmAddress = decodedData.slice(decodedData.lastIndexOf('0x'))
 
-  let curatedMarket = CuratedMarket.load(event.params._itemID.toHexString())
+  let curatedMarket = CuratedMarket.load(fpmmAddress)
   if (curatedMarket == null) {
-    curatedMarket = new CuratedMarket(event.params._itemID.toHexString());
-    curatedMarket.fpmmAddress = fpmmAddress;
+    curatedMarket = new CuratedMarket(fpmmAddress);
+    curatedMarket.itemID = event.params._itemID.toHexString();
   }
 
   curatedMarket.status = itemInfo.value1;

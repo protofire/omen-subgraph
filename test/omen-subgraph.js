@@ -663,36 +663,32 @@ describe('Omen subgraph', function() {
     await waitForGraphSync();
 
     const { curatedMarket: challengedRegistration } = await querySubgraph(`{
-      curatedMarket(id: "0xe2fb44f7502b194e74d8bcd60745fd005ec9c1d12c0e4016ebee34e428e45c29") {
-        id
-        fpmmAddress
+      curatedMarket(id: "0x8e0eec0539889a225ca163d36bbf1b44264d863e") {
+        itemID
         registered
         status
       }
     }`)
 
     const { curatedMarket: acceptedRegistration } = await querySubgraph(`{
-      curatedMarket(id: "0x24cbc32b082b8c03b8c04aa7c0793371673fccec84dea4c301b74a0ca3a7652d") {
-        id
-        fpmmAddress
+      curatedMarket(id: "0xffbc624070cb014420a6f7547fd05dfe635e2db2") {
+        itemID
         registered
         status
       }
     }`)
 
     const { curatedMarket: challengedRemoval } = await querySubgraph(`{
-      curatedMarket(id: "0xf630bdcb9296ef3c9a0c35279208687316a96fe2f960d4c9b63f49f205bbc276") {
-        id
-        fpmmAddress
+      curatedMarket(id: "0xe82b9b5991e31167b9fd96f6da8ec36f33cd290f") {
+        itemID
         registered
         status
       }
     }`)
 
     const { curatedMarket: acceptedRemoval } = await querySubgraph(`{
-      curatedMarket(id: "0xdc6b7f25cd263056df70eba9a6f89a3477981512975adaf743db625c80ceb310") {
-        id
-        fpmmAddress
+      curatedMarket(id: "0xf45d703b2f695280e21605dbee2db5ebcb08d469") {
+        itemID
         registered
         status
       }
@@ -720,18 +716,16 @@ describe('Omen subgraph', function() {
     await waitForGraphSync();
 
     const { curatedMarket: resolvedRegistration } = await querySubgraph(`{
-      curatedMarket(id: "0xe2fb44f7502b194e74d8bcd60745fd005ec9c1d12c0e4016ebee34e428e45c29") {
-        id
-        fpmmAddress
+      curatedMarket(id: "0x8e0eec0539889a225ca163d36bbf1b44264d863e") {
+        itemID
         registered
         status
       }
     }`)
 
     const { curatedMarket: resolvedRemoval } = await querySubgraph(`{
-      curatedMarket(id: "0xf630bdcb9296ef3c9a0c35279208687316a96fe2f960d4c9b63f49f205bbc276") {
-        id
-        fpmmAddress
+      curatedMarket(id: "0xe82b9b5991e31167b9fd96f6da8ec36f33cd290f") {
+        itemID
         registered
         status
       }
