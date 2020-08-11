@@ -3,9 +3,8 @@ import { BigInt, log, Address } from '@graphprotocol/graph-ts'
 import { FixedProductMarketMakerCreation } from '../generated/FPMMDeterministicFactory/FPMMDeterministicFactory'
 import { FixedProductMarketMaker, Condition, Question } from '../generated/schema'
 import { FixedProductMarketMaker as FixedProductMarketMakerTemplate } from '../generated/templates'
-import { nthRoot } from './nth-root';
 import { timestampToDay, joinDayAndVolume } from './day-volume-utils';
-import { updateScaledVolumes, getCollateralScale, updateLiquidityFields, updateOutcomeTokenAmounts } from './fpmm-utils';
+import { updateScaledVolumes, getCollateralScale, setLiquidity } from './fpmm-utils';
 
 let zeroAsBigInt = BigInt.fromI32(0);
 
@@ -22,13 +21,13 @@ export function handleFixedProductMarketMakerCreation(event: FixedProductMarketM
     return;
   }
 
-  let fixedProductMarketMaker = new FixedProductMarketMaker(addressHexString);
+  let fpmm = new FixedProductMarketMaker(addressHexString);
 
-  fixedProductMarketMaker.creator = event.params.creator;
-  fixedProductMarketMaker.creationTimestamp = event.block.timestamp;
+  fpmm.creator = event.params.creator;
+  fpmm.creationTimestamp = event.block.timestamp;
 
-  fixedProductMarketMaker.collateralToken = event.params.collateralToken;
-  fixedProductMarketMaker.fee = event.params.fee;
+  fpmm.collateralToken = event.params.collateralToken;
+  fpmm.fee = event.params.fee;
 
   let conditionIds = event.params.conditionIds;
   let outcomeTokenCount = 1;
@@ -48,15 +47,15 @@ export function handleFixedProductMarketMakerCreation(event: FixedProductMarketM
     outcomeTokenCount *= condition.outcomeSlotCount;
     conditionIdStrs[i] = conditionIdStr;
   }
-  fixedProductMarketMaker.conditions = conditionIdStrs;
-  fixedProductMarketMaker.outcomeSlotCount = outcomeTokenCount;
-  fixedProductMarketMaker.indexedOnQuestion = false;
+  fpmm.conditions = conditionIdStrs;
+  fpmm.outcomeSlotCount = outcomeTokenCount;
+  fpmm.indexedOnQuestion = false;
 
-  fixedProductMarketMaker.curatedByDxDao = false;
+  fpmm.curatedByDxDao = false;
 
   if(conditionIdStrs.length == 1) {
     let conditionIdStr = conditionIdStrs[0];
-    fixedProductMarketMaker.condition = conditionIdStr;
+    fpmm.condition = conditionIdStr;
 
     let condition = Condition.load(conditionIdStr);
     if(condition == null) {
@@ -68,31 +67,31 @@ export function handleFixedProductMarketMakerCreation(event: FixedProductMarketM
     }
 
     let questionIdStr = condition.questionId.toHexString();
-    fixedProductMarketMaker.question = questionIdStr;
+    fpmm.question = questionIdStr;
     let question = Question.load(questionIdStr);
     if(question != null) {
-      fixedProductMarketMaker.templateId = question.templateId;
-      fixedProductMarketMaker.data = question.data;
-      fixedProductMarketMaker.title = question.title;
-      fixedProductMarketMaker.outcomes = question.outcomes;
-      fixedProductMarketMaker.category = question.category;
-      fixedProductMarketMaker.language = question.language;
-      fixedProductMarketMaker.arbitrator = question.arbitrator;
-      fixedProductMarketMaker.openingTimestamp = question.openingTimestamp;
-      fixedProductMarketMaker.timeout = question.timeout;
+      fpmm.templateId = question.templateId;
+      fpmm.data = question.data;
+      fpmm.title = question.title;
+      fpmm.outcomes = question.outcomes;
+      fpmm.category = question.category;
+      fpmm.language = question.language;
+      fpmm.arbitrator = question.arbitrator;
+      fpmm.openingTimestamp = question.openingTimestamp;
+      fpmm.timeout = question.timeout;
 
       if(question.indexedFixedProductMarketMakers.length < 100) {
-        fixedProductMarketMaker.currentAnswer = question.currentAnswer;
-        fixedProductMarketMaker.currentAnswerBond = question.currentAnswerBond;
-        fixedProductMarketMaker.currentAnswerTimestamp = question.currentAnswerTimestamp;
-        fixedProductMarketMaker.isPendingArbitration = question.isPendingArbitration;
-        fixedProductMarketMaker.arbitrationOccurred = question.arbitrationOccurred;
-        fixedProductMarketMaker.answerFinalizedTimestamp = question.answerFinalizedTimestamp;
+        fpmm.currentAnswer = question.currentAnswer;
+        fpmm.currentAnswerBond = question.currentAnswerBond;
+        fpmm.currentAnswerTimestamp = question.currentAnswerTimestamp;
+        fpmm.isPendingArbitration = question.isPendingArbitration;
+        fpmm.arbitrationOccurred = question.arbitrationOccurred;
+        fpmm.answerFinalizedTimestamp = question.answerFinalizedTimestamp;
         let fpmms = question.indexedFixedProductMarketMakers;
         fpmms.push(addressHexString);
         question.indexedFixedProductMarketMakers = fpmms;
         question.save();
-        fixedProductMarketMaker.indexedOnQuestion = true;
+        fpmm.indexedOnQuestion = true;
       } else {
         log.warning(
           'cannot continue updating live question (id {}) properties on fpmm {}',
@@ -102,29 +101,27 @@ export function handleFixedProductMarketMakerCreation(event: FixedProductMarketM
     }
   }
 
-  fixedProductMarketMaker.collateralVolume = zeroAsBigInt;
-
-  let currentDay = timestampToDay(event.block.timestamp);
-  fixedProductMarketMaker.lastActiveDay = currentDay;
-  fixedProductMarketMaker.runningDailyVolume = zeroAsBigInt;
-  fixedProductMarketMaker.lastActiveDayAndRunningDailyVolume = joinDayAndVolume(currentDay, zeroAsBigInt);
-  fixedProductMarketMaker.collateralVolumeBeforeLastActiveDay = zeroAsBigInt;
-
   let outcomeTokenAmounts = new Array<BigInt>(outcomeTokenCount);
-  let amountsProduct = BigInt.fromI32(1);
   for(let i = 0; i < outcomeTokenAmounts.length; i++) {
     outcomeTokenAmounts[i] = zeroAsBigInt;
-    amountsProduct = amountsProduct.times(outcomeTokenAmounts[i]);
   }
-  let liquidityParameter = nthRoot(amountsProduct, outcomeTokenAmounts.length);
-  let collateralScale = getCollateralScale(fixedProductMarketMaker.collateralToken as Address);
+
+  let collateralScale = getCollateralScale(fpmm.collateralToken as Address);
   let collateralScaleDec = collateralScale.toBigDecimal();
-  updateOutcomeTokenAmounts(fixedProductMarketMaker, outcomeTokenAmounts, collateralScaleDec);
-  updateLiquidityFields(fixedProductMarketMaker, liquidityParameter, collateralScaleDec);
+  setLiquidity(fpmm, outcomeTokenAmounts, collateralScaleDec);
 
-  updateScaledVolumes(fixedProductMarketMaker, collateralScale, collateralScaleDec, currentDay);
+  let currentDay = timestampToDay(event.block.timestamp);
+  
+  fpmm.lastActiveDay = currentDay;
+  fpmm.collateralVolumeBeforeLastActiveDay = zeroAsBigInt;
+  
+  fpmm.collateralVolume = zeroAsBigInt;
+  fpmm.runningDailyVolume = zeroAsBigInt;
+  fpmm.lastActiveDayAndRunningDailyVolume = joinDayAndVolume(currentDay, zeroAsBigInt);
 
-  fixedProductMarketMaker.save();
+  updateScaledVolumes(fpmm, collateralScale, collateralScaleDec, currentDay);
+
+  fpmm.save();
 
   FixedProductMarketMakerTemplate.create(address);
 }

@@ -2,6 +2,7 @@ import { BigInt, Address, BigDecimal } from '@graphprotocol/graph-ts'
 import { FixedProductMarketMaker } from "../generated/schema";
 import { ERC20Detailed } from "../generated/templates/ERC20Detailed/ERC20Detailed"
 import { joinDayAndScaledVolume } from './day-volume-utils';
+import { nthRoot } from './nth-root';
 
 export function getCollateralScale(collateralTokenAddress: Address): BigInt {
   let collateralToken = ERC20Detailed.bind(collateralTokenAddress);
@@ -28,21 +29,20 @@ export function updateScaledVolumes(
   );
 }
 
-export function updateLiquidityFields(
-  fpmm: FixedProductMarketMaker,
-  liquidityParameter: BigInt,
-  collateralScale: BigDecimal,
-): void {
-  fpmm.liquidityParameter = liquidityParameter;
-  fpmm.scaledLiquidityParameter = liquidityParameter.divDecimal(collateralScale);
-}
-
-export function updateOutcomeTokenAmounts(
+export function setLiquidity(
   fpmm: FixedProductMarketMaker,
   outcomeTokenAmounts: BigInt[],
-  collateralScale: BigDecimal,
+  collateralScaleDec: BigDecimal,
 ): void {
   fpmm.outcomeTokenAmounts = outcomeTokenAmounts;
+
+  let amountsProduct = BigInt.fromI32(1);
+  for(let i = 0; i < outcomeTokenAmounts.length; i++) {
+    amountsProduct = amountsProduct.times(outcomeTokenAmounts[i]);
+  }
+  let liquidityParameter = nthRoot(amountsProduct, outcomeTokenAmounts.length);
+  fpmm.liquidityParameter = liquidityParameter;
+  fpmm.scaledLiquidityParameter = liquidityParameter.divDecimal(collateralScaleDec);
 
   let weights = new Array<BigInt>(outcomeTokenAmounts.length);
   let sum = BigInt.fromI32(0);
@@ -60,10 +60,10 @@ export function updateOutcomeTokenAmounts(
   }
 
   if (allNonzero) {
-    let sumBD = sum.toBigDecimal();
+    let sumDec = sum.toBigDecimal();
     let marginalPrices = new Array<BigDecimal>(outcomeTokenAmounts.length);
     for (let i = 0; i < outcomeTokenAmounts.length; i++) {
-      marginalPrices[i] = weights[i].divDecimal(sumBD);
+      marginalPrices[i] = weights[i].divDecimal(sumDec);
     }
     fpmm.outcomeTokenMarginalPrices = marginalPrices;
 
@@ -72,7 +72,7 @@ export function updateOutcomeTokenAmounts(
       .times(weights[0])
       .div(sum);
     fpmm.liquidityMeasure = liquidityMeasure;
-    fpmm.scaledLiquidityMeasure = liquidityMeasure.divDecimal(collateralScale);
+    fpmm.scaledLiquidityMeasure = liquidityMeasure.divDecimal(collateralScaleDec);
   } else {
     fpmm.outcomeTokenMarginalPrices = null;
     fpmm.liquidityMeasure = BigInt.fromI32(0);
