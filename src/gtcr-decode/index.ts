@@ -1,4 +1,4 @@
-import { decode } from './rlp'
+// import { decode } from './rlp'
 // import { toUtf8String } from './utf8'
 
 export class Column {
@@ -15,7 +15,7 @@ export function gtcrDecode(
   columns: Column[],
   values: string,
  ): string[] {
-  const item = decode(values) as any
+  const item =
   // return columns.map((col, i) => {
   //   try {
   //     switch (typeToSolidity[col.type]) {
