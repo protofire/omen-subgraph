@@ -698,14 +698,50 @@ describe('Omen subgraph', function() {
       }
     }`)
 
-    expect(challengedRegistration.status).to.equal(2)
-    expect(acceptedRegistration.status).to.equal(1)
-    expect(challengedRemoval.status).to.equal(3)
-    expect(acceptedRemoval.status).to.equal(0)
+    const [ABSENT, REGISTERED, REGISTRATION_REQUESTED, REMOVAL_REQUESTED] = [0, 1, 2, 3]
+
+    expect(challengedRegistration.status).to.equal(REGISTRATION_REQUESTED)
+    expect(acceptedRegistration.status).to.equal(REGISTERED)
+    expect(challengedRemoval.status).to.equal(REMOVAL_REQUESTED)
+    expect(acceptedRemoval.status).to.equal(ABSENT)
 
     expect(challengedRegistration.registered).to.equal(false)
     expect(acceptedRegistration.registered).to.equal(true)
     expect(challengedRemoval.registered).to.equal(true)
     expect(acceptedRemoval.registered).to.equal(false)
+
+    const [ACCEPT, REJECT] = [1, 2] // Possible rulings
+
+    await Promise.all([
+      centralizedArbitrator.rule(0, ACCEPT, { from: creator }),
+      centralizedArbitrator.rule(1, REJECT, { from: creator })
+    ])
+
+    await waitForGraphSync();
+
+    const { curatedMarket: resolvedRegistration } = await querySubgraph(`{
+      curatedMarket(id: "0xe2fb44f7502b194e74d8bcd60745fd005ec9c1d12c0e4016ebee34e428e45c29") {
+        id
+        fpmmAddress
+        registered
+        status
+      }
+    }`)
+
+    const { curatedMarket: resolvedRemoval } = await querySubgraph(`{
+      curatedMarket(id: "0xf630bdcb9296ef3c9a0c35279208687316a96fe2f960d4c9b63f49f205bbc276") {
+        id
+        fpmmAddress
+        registered
+        status
+      }
+    }`)
+
+    expect(resolvedRegistration.status).to.equal(1)
+    expect(resolvedRemoval.status).to.equal(1)
+
+    expect(resolvedRegistration.registered).to.equal(true)
+    expect(resolvedRemoval.registered).to.equal(true)
+
   })
 });
