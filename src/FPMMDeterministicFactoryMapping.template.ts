@@ -109,10 +109,16 @@ export function handleFixedProductMarketMakerCreation(event: FixedProductMarketM
   let collateralScaleDec = collateralScale.toBigDecimal();
   setLiquidity(fpmm, outcomeTokenAmounts, collateralScaleDec);
 
-  let currentDay = event.block.timestamp.div(secondsPerHour).div(hoursPerDay);
+  let currentHour = event.block.timestamp.div(secondsPerHour);
+  let currentDay = currentHour.div(hoursPerDay);
 
+  fpmm.lastActiveHour = currentHour;
   fpmm.lastActiveDay = currentDay;
-  fpmm.collateralVolumeBeforeLastActiveDay = zero;
+  let collateralVolumeBeforeLastActiveDayByHour = new Array<BigInt>(24);
+  for(let i = 0; i < 24; i++) {
+    collateralVolumeBeforeLastActiveDayByHour[i] = zero;
+  }
+  fpmm.collateralVolumeBeforeLastActiveDayByHour = collateralVolumeBeforeLastActiveDayByHour;
 
   fpmm.collateralVolume = zero;
   fpmm.runningDailyVolume = zero;

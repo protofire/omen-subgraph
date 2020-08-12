@@ -65,12 +65,13 @@ type FixedProductMarketMaker @entity {
   scaledLiquidityParameter: BigDecimal!
 
   lastActiveDay: BigInt!
+  lastActiveHour: BigInt!
+  collateralVolumeBeforeLastActiveDayByHour: [BigInt!]!
+
   runningDailyVolume: BigInt!
   scaledRunningDailyVolume: BigDecimal!
   lastActiveDayAndRunningDailyVolume: BigInt!
   lastActiveDayAndScaledRunningDailyVolume: BigInt!
-
-  collateralVolumeBeforeLastActiveDay: BigInt!
 
   indexedOnQuestion: Boolean!
 

@@ -56,19 +56,59 @@ function increaseVolume(
   collateralScale: BigInt,
   collateralScaleDec: BigDecimal,
 ): void {
-  let currentDay = timestamp.div(secondsPerHour).div(hoursPerDay);
+  let currentHour = timestamp.div(secondsPerHour);
+  let currentDay = currentHour.div(hoursPerDay);
+  let currentHourInDay = currentHour.minus(currentDay.times(hoursPerDay)).toI32();
+  if (currentHourInDay < 0 || currentHourInDay >= 24) {
+    log.error("current hour in day is {}", [
+      BigInt.fromI32(currentHourInDay).toString(),
+    ]);
+    return;
+  }
+  if (fpmm.collateralVolumeBeforeLastActiveDayByHour.length !== 24) {
+    log.error("length of collateralVolumeBeforeLastActiveDayByHour is {}", [
+      BigInt.fromI32(fpmm.collateralVolumeBeforeLastActiveDayByHour.length).toString(),
+    ]);
+    return;
+  }
 
-  if (fpmm.lastActiveDay.notEqual(currentDay)) {
+  let lastActiveHour = fpmm.lastActiveHour;
+  let collateralVolumeByHour = fpmm.collateralVolumeBeforeLastActiveDayByHour;
+  if (lastActiveHour.notEqual(currentHour)) {
+    let lastActiveDay = lastActiveHour.div(hoursPerDay);
+    let lastActiveHourInDay = lastActiveHour.minus(lastActiveDay.times(hoursPerDay)).toI32();
+    if (lastActiveHourInDay < 0 || lastActiveHourInDay >= 24) {
+      log.error("last active hour in day is {}", [
+        BigInt.fromI32(lastActiveHourInDay).toString(),
+      ]);
+      return;
+    }
+
+    let deltaHours = currentHour.minus(lastActiveHour).toI32();
+    if (deltaHours <= 0) {
+      log.error("current hour {} not after last active hour {}", [
+        currentHour.toString(),
+        lastActiveHour.toString(),
+      ]);
+      return;
+    }
+
+    let lastRecordedCollateralVolume = collateralVolumeByHour[lastActiveHourInDay];
+    for (let i = 1; i < 24 && i < deltaHours; i++) {
+      let j = (lastActiveHourInDay + i) % 24;
+      collateralVolumeByHour[j] = lastRecordedCollateralVolume;
+    }
+    collateralVolumeByHour[currentHourInDay] = fpmm.collateralVolume;
+    fpmm.collateralVolumeBeforeLastActiveDayByHour = collateralVolumeByHour;
+    fpmm.lastActiveHour = currentHour;
     fpmm.lastActiveDay = currentDay;
-    fpmm.collateralVolumeBeforeLastActiveDay = fpmm.collateralVolume;
   }
 
   fpmm.collateralVolume = fpmm.collateralVolume.plus(amount);
-  fpmm.runningDailyVolume = fpmm.collateralVolume.minus(fpmm.collateralVolumeBeforeLastActiveDay);
+  fpmm.runningDailyVolume = fpmm.collateralVolume.minus(collateralVolumeByHour[(currentHourInDay + 1) % 24]);
   fpmm.lastActiveDayAndRunningDailyVolume = joinDayAndVolume(currentDay, fpmm.runningDailyVolume);
 
   updateScaledVolumes(fpmm as FixedProductMarketMaker, collateralScale, collateralScaleDec, currentDay);
-
 }
 
 export function handleFundingAdded(event: FPMMFundingAdded): void {
