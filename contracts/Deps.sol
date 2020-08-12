@@ -15,4 +15,4 @@ import { FixedProductMarketMaker } from "@gnosis.pm/conditional-tokens-market-ma
 import { ERC20Detailed } from "openzeppelin-solidity/contracts/token/ERC20/ERC20Detailed.sol";
 
 import { SimpleCentralizedArbitrator } from "@kleros/erc-792/contracts/examples/SimpleCentralizedArbitrator.sol";
-import { GTCRFactory } from "@kleros/tcr/contracts/GTCRFactory.sol";
+import { GeneralizedTCR } from "@kleros/tcr/contracts/GeneralizedTCR.sol";
