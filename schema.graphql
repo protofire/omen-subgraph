@@ -142,3 +142,18 @@ type Global @entity {
   numOpenConditions: Int!
   numClosedConditions: Int!
 }
+
+type _Schema_
+  @fulltext(
+    name: "marketSearch",
+    language: en
+    algorithm: rank,
+    include: [
+      {
+        entity: "FixedProductMarketMaker",
+        fields: [
+          { name: "title" }
+        ]
+      }
+    ]
+  )
