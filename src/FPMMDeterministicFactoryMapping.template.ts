@@ -111,20 +111,29 @@ export function handleFixedProductMarketMakerCreation(event: FixedProductMarketM
 
   let currentHour = event.block.timestamp.div(secondsPerHour);
   let currentDay = currentHour.div(hoursPerDay);
+  let currentHourInDay = currentHour.minus(currentDay.times(hoursPerDay)).toI32();
+  if (currentHourInDay < 0 || currentHourInDay >= 24) {
+    log.error("current hour in day is {}", [
+      BigInt.fromI32(currentHourInDay).toString(),
+    ]);
+    return;
+  }
 
   fpmm.lastActiveHour = currentHour;
   fpmm.lastActiveDay = currentDay;
-  let collateralVolumeBeforeLastActiveDayByHour = new Array<BigInt>(24);
+  let zeroes = new Array<BigInt>(24);
   for(let i = 0; i < 24; i++) {
-    collateralVolumeBeforeLastActiveDayByHour[i] = zero;
+    zeroes[i] = zero;
   }
-  fpmm.collateralVolumeBeforeLastActiveDayByHour = collateralVolumeBeforeLastActiveDayByHour;
+  fpmm.collateralVolumeBeforeLastActiveDayByHour = zeroes;
 
   fpmm.collateralVolume = zero;
+  fpmm.runningDailyVolumeByHour = zeroes;
   fpmm.runningDailyVolume = zero;
+
   fpmm.lastActiveDayAndRunningDailyVolume = joinDayAndVolume(currentDay, zero);
 
-  updateScaledVolumes(fpmm, collateralScale, collateralScaleDec, currentDay);
+  updateScaledVolumes(fpmm, collateralScale, collateralScaleDec, zeroes, currentDay, currentHourInDay);
 
   fpmm.save();
 

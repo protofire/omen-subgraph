@@ -104,11 +104,19 @@ function increaseVolume(
     fpmm.lastActiveDay = currentDay;
   }
 
-  fpmm.collateralVolume = fpmm.collateralVolume.plus(amount);
-  fpmm.runningDailyVolume = fpmm.collateralVolume.minus(collateralVolumeByHour[(currentHourInDay + 1) % 24]);
+  let collateralVolume = fpmm.collateralVolume.plus(amount);
+  fpmm.collateralVolume = collateralVolume
+
+  let runningDailyVolumeByHour = fpmm.runningDailyVolumeByHour;
+  for (let i = 0; i < 24; i++) {
+    runningDailyVolumeByHour[i] = collateralVolume.minus(collateralVolumeByHour[i]);
+  }
+  fpmm.runningDailyVolumeByHour = runningDailyVolumeByHour;
+
+  fpmm.runningDailyVolume = runningDailyVolumeByHour[(currentHourInDay + 1) % 24];
   fpmm.lastActiveDayAndRunningDailyVolume = joinDayAndVolume(currentDay, fpmm.runningDailyVolume);
 
-  updateScaledVolumes(fpmm as FixedProductMarketMaker, collateralScale, collateralScaleDec, currentDay);
+  updateScaledVolumes(fpmm as FixedProductMarketMaker, collateralScale, collateralScaleDec, runningDailyVolumeByHour, currentDay, currentHourInDay);
 }
 
 export function handleFundingAdded(event: FPMMFundingAdded): void {
