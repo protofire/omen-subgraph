@@ -40,14 +40,11 @@ export function handleItemStatusChange(event: ItemStatusChange): void {
 
   // Workaround missing String.toLowerCase function in assemblyscript.
   const lowerCaseFpmmAddr = hexStringToLowerCase(fpmmAddress)
-  log.info('GTCR: address input {} address output {} ', [fpmmAddress, lowerCaseFpmmAddr])
 
   let fpmm = FixedProductMarketMaker.load(lowerCaseFpmmAddr);
   if (fpmm == null) {
     log.warning("GTCR: Could not load FPMM for {}", [lowerCaseFpmmAddr]);
     return;
-  } else {
-    log.info("GTCR: Got FPMM for {}", [lowerCaseFpmmAddr])
   }
 
   fpmm.klerosTCRitemID = event.params._itemID.toHexString();
@@ -56,7 +53,6 @@ export function handleItemStatusChange(event: ItemStatusChange): void {
   fpmm.save();
 
   let a = fpmm.klerosTCRstatus
-  log.info("GTCR: Saved fpmm at {} new status {} itemID {}", [lowerCaseFpmmAddr, a.toString(), event.params._itemID.toHexString()])
 }
 
 
