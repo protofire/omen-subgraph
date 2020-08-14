@@ -7,6 +7,7 @@ const path = require('path');
 const should = require('should');
 const { gtcrEncode, ItemTypes } = require('@kleros/gtcr-encoder');
 const { expect } = require('chai');
+const { promisify } = require('util')
 
 const provider = new Web3.providers.HttpProvider("http://localhost:8545");
 const web3 = new Web3(provider);
@@ -110,6 +111,31 @@ function advanceTime(time) {
       if (err) { return reject(err) }
       return resolve(result)
     });
+  });
+}
+
+/** Increases ganache time by the passed duration in seconds
+ * @param {number} duration time in seconds
+ */
+async function increase (duration) {
+  await promisify(web3.currentProvider.send.bind(web3.currentProvider))({
+    jsonrpc: '2.0',
+    method: 'evm_increaseTime',
+    params: [duration],
+    id: new Date().getTime(),
+  });
+
+  await advanceBlock();
+}
+
+/** Advance to next mined block using `evm_mine`
+ * @returns {promise} Promise that block is mined
+ */
+function advanceBlock () {
+  return promisify(web3.currentProvider.send.bind(web3.currentProvider))({
+    jsonrpc: '2.0',
+    method: 'evm_mine',
+    id: new Date().getTime(),
   });
 }
 
@@ -647,17 +673,17 @@ describe('Omen subgraph', function() {
         .map(async v => marketsTCR.addItem(v, { from: creator, value: arbitrationCost}))
     )
 
-    await advanceTime(1)
+    await increase(1)
 
     const [itemIDA, itemIDB, itemIDC, itemIDD] = await Promise.all([0,1,2,3].map(index => marketsTCR.itemList(index)))
 
     await marketsTCR.challengeRequest(itemIDA, '', { from: creator, value: arbitrationCost })
-    await advanceTime(5)
+    await increase(5)
     await Promise.all([itemIDB, itemIDC, itemIDD].map(itemID => marketsTCR.executeRequest(itemID, { from: creator })))
     await Promise.all([itemIDC, itemIDD].map(itemID => marketsTCR.removeItem(itemID, '', { from: creator, value: arbitrationCost })))
-    await advanceTime(1)
+    await increase(1)
     await marketsTCR.challengeRequest(itemIDC, '', { from: creator, value: arbitrationCost })
-    await advanceTime(5)
+    await increase(5)
     await marketsTCR.executeRequest(itemIDD, { from: creator })
 
     await waitForGraphSync();
