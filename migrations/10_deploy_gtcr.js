@@ -11,7 +11,7 @@ module.exports = function(deployer, _, accounts) {
     0, // The base deposit to remove an item.
     0, // The base deposit to challenge a submission.
     0, // The base deposit to challenge a removal request.
-    2, // The time in seconds parties have to challenge a request.
+    5, // The time in seconds parties have to challenge a request.
     [0, 0, 0] // Multipliers of the arbitration cost in basis points (see MULTIPLIER_DIVISOR) as follows:
   )
 };

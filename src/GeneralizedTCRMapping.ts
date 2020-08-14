@@ -9,8 +9,11 @@ export function handleItemStatusChange(event: ItemStatusChange): void {
   const decodedData = itemInfo.value0.toString()
 
   const addressStartIndex = decodedData.lastIndexOf('0x')
-  if (addressStartIndex == -1) return // Invalid submission. No Op
-  const fpmmAddress = decodedData.slice(decodedData.lastIndexOf('0x'))
+  if (addressStartIndex == -1) {
+    log.warning('No address found for itemID {} ', [event.params._itemID.toHexString()])
+    return // Invalid submission. No Op
+  }
+  const fpmmAddress = decodedData.slice(addressStartIndex, addressStartIndex + 42)
 
   let curatedMarket = CuratedMarket.load(fpmmAddress)
   if (curatedMarket == null) {
