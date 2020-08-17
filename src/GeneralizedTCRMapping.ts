@@ -47,9 +47,23 @@ export function handleItemStatusChange(event: ItemStatusChange): void {
     return;
   }
 
+  // Items on a TCR can be in 1 of 4 states:
+  // - (0) Absent: The item is not registered on the TCR and there are no pending requests.
+  // - (1) Registered: The item is registered and there are no pending requests.
+  // - (2) Registration Requested: The item is not registered on the TCR, but there is a pending
+  //       registration request.
+  // - (3) Removal Requested: The item is registered on the TCR, but there is a pending removal
+  //       request.
+  //
+  // Registration and Removal requests can be challenged. Once the request resolves (either by
+  // passing the challenge period or via dispute resolution), the item state is updated to 0 or 1.
+
+  const REGISTERED = 1;
+  const REMOVAL_REQUESTED = 3;
+
   fpmm.klerosTCRitemID = event.params._itemID.toHexString();
   fpmm.klerosTCRstatus = itemInfo.value1;
-  fpmm.klerosTCRregistered = fpmm.klerosTCRstatus == 1 || fpmm.klerosTCRstatus == 3;
+  fpmm.klerosTCRregistered = fpmm.klerosTCRstatus == REGISTERED || fpmm.klerosTCRstatus == REMOVAL_REQUESTED;
   fpmm.save();
 
   let a = fpmm.klerosTCRstatus
