@@ -71,6 +71,8 @@ export function handleFundingAdded(event: FPMMFundingAdded): void {
   updateOutcomeTokenAmounts(fpmm as FixedProductMarketMaker, newAmounts, collateralScaleDec);
   updateLiquidityFields(fpmm as FixedProductMarketMaker, liquidityParameter, collateralScaleDec);
   fpmm.save();
+
+  recordParticipation(fpmm as FixedProductMarketMaker, event.params.funder.toHexString());
 }
 
 export function handleFundingRemoved(event: FPMMFundingRemoved): void {
