@@ -106,6 +106,5 @@ Represents a `FixedProductMarketMaker`, an automated market maker which buys and
 * `question` - if this FPMM has only a single condition, and that condition is linked to a Realitio question, then this question is linked here.
 * `templateId`, `data`, `title`, `outcomes`, `category`, `language`, `arbitrator`, `openingTimestamp`, `timeout` - copied from a linked question if possible.
 * `indexedOnQuestion` - if at the creation of this FPMM, a linked Question entity is successfully found, and this FPMM is one of the first 100 FPMMs linked to this question, then this flag is set to true, and the FPMM is appended to the question entity's `indexedFixedProductMarketMakers` field.
-  # pushed from condition & question if this fpmm one of the first
 * `resolutionTimestamp`, `payouts` - if this FPMM is `indexedOnQuestion`, these fields are actively mirrored from the associated `condition`.
 * `currentAnswer`, `currentAnswerBond`, `currentAnswerTimestamp`, `isPendingArbitration`, `arbitrationOccurred`, `answerFinalizedTimestamp` - if this FPMM is `indexedOnQuestion`, these fields are actively mirrored from the associated `question`.
