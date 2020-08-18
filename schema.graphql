@@ -102,6 +102,11 @@ type FixedProductMarketMaker @entity {
 
   poolMembers: [FpmmPoolMembership!] @derivedFrom(field: "pool")
   participants: [FpmmParticipation!] @derivedFrom(field: "fpmm")
+
+  # Generalized TCR fields (Kleros Curate Contract for market verification)
+  klerosTCRitemID: String
+  klerosTCRstatus: Int
+  klerosTCRregistered: Boolean
 }
 
 type FpmmPoolMembership @entity {
@@ -157,3 +162,4 @@ type _Schema_
       }
     ]
   )
+

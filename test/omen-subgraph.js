@@ -5,6 +5,9 @@ const delay = require('delay');
 const fs = require('fs-extra');
 const path = require('path');
 const should = require('should');
+const { gtcrEncode, ItemTypes } = require('@kleros/gtcr-encoder');
+const { expect } = require('chai');
+const { promisify } = require('util')
 
 const provider = new Web3.providers.HttpProvider("http://localhost:8545");
 const web3 = new Web3(provider);
@@ -35,6 +38,8 @@ const RealitioProxy = getContract('RealitioProxy');
 const ConditionalTokens = getContract('ConditionalTokens');
 const FPMMDeterministicFactory = getContract('FPMMDeterministicFactory');
 const FixedProductMarketMaker = getContract('FixedProductMarketMaker');
+const SimpleCentralizedArbitrator = getContract('SimpleCentralizedArbitrator');
+const GeneralizedTCR = getContract('GeneralizedTCR');
 
 async function queryGraph(query) {
   return (await axios.post('http://localhost:8000/subgraphs', { query })).data.data;
@@ -122,6 +127,31 @@ function nthRoot(x, n) {
   } while (deltaRoot.ltn(0))
 
   return root;
+}
+
+/** Increases ganache time by the passed duration in seconds and mines a block.
+ * @param {number} duration time in seconds
+ */
+async function increaseTime (duration) {
+  await promisify(web3.currentProvider.send.bind(web3.currentProvider))({
+    jsonrpc: '2.0',
+    method: 'evm_increaseTime',
+    params: [duration],
+    id: new Date().getTime(),
+  });
+
+  await advanceBlock();
+}
+
+/** Advance to next mined block using `evm_mine`
+ * @returns {promise} Promise that block is mined
+ */
+function advanceBlock () {
+  return promisify(web3.currentProvider.send.bind(web3.currentProvider))({
+    jsonrpc: '2.0',
+    method: 'evm_mine',
+    id: new Date().getTime(),
+  });
 }
 
 describe('Omen subgraph', function() {
@@ -261,12 +291,16 @@ describe('Omen subgraph', function() {
   let oracle;
   let conditionalTokens;
   let factory;
+  let centralizedArbitrator;
+  let marketsTCR;
   before('get deployed contracts', async function() {
     weth = await WETH9.deployed();
     realitio = await Realitio.deployed();
     oracle = await RealitioProxy.deployed();
     conditionalTokens = await ConditionalTokens.deployed();
     factory = await FPMMDeterministicFactory.deployed();
+    centralizedArbitrator = await SimpleCentralizedArbitrator.deployed();
+    marketsTCR = await GeneralizedTCR.deployed()
   });
 
   it('exists', async function() {
@@ -605,4 +639,83 @@ describe('Omen subgraph', function() {
     fixedProductMarketMaker.resolutionTimestamp.should.equal(timestamp.toString());
     fixedProductMarketMaker.payouts.should.eql(['0', '1', '0']);
   });
+
+  step('curate market', async function() {
+    const columns = [
+      {
+        "label": "Question",
+        "type": ItemTypes.TEXT,
+      },
+      {
+        "label": "Market URL",
+        "type": ItemTypes.LINK,
+      }
+    ] // This information can be found in the TCR meta evidence.
+    const marketData = {
+      Question: 'Will Bitcoin dominance be below 50% at any time in January 2021 according to https://coinmarketcap.com/charts/#dominance-percentage',
+      'Market URL':`https://omen.eth.link/#/${fpmm.address}`
+    }
+
+    const arbitrationCost = await centralizedArbitrator.arbitrationCost('0x00')
+    await marketsTCR.addItem(gtcrEncode({ columns, values: marketData }), { from: creator, value: arbitrationCost})
+
+    const [ABSENT, REGISTERED, REGISTRATION_REQUESTED, REMOVAL_REQUESTED] = [0, 1, 2, 3]
+
+    await advanceBlock()
+    await waitForGraphSync();
+    expect((await querySubgraph(`{
+      fixedProductMarketMaker(id: "${fpmm.address.toLowerCase()}") {
+        klerosTCRregistered
+        klerosTCRstatus
+      }
+    }`)).fixedProductMarketMaker).to.deep.equal({ klerosTCRregistered: false, klerosTCRstatus: REGISTRATION_REQUESTED })
+
+    await increaseTime(1)
+    const itemID = await marketsTCR.itemList(0)
+    await marketsTCR.challengeRequest(itemID, '', { from: creator, value: arbitrationCost })
+
+    await advanceBlock()
+    await waitForGraphSync();
+    expect((await querySubgraph(`{
+      fixedProductMarketMaker(id: "${fpmm.address.toLowerCase()}") {
+        klerosTCRregistered
+        klerosTCRstatus
+      }
+    }`)).fixedProductMarketMaker).to.deep.equal({ klerosTCRregistered: false, klerosTCRstatus: REGISTRATION_REQUESTED })
+
+    const [ACCEPT, REJECT] = [1, 2] // Possible rulings
+    await centralizedArbitrator.rule(0, ACCEPT, { from: creator })
+
+    await advanceBlock()
+    await waitForGraphSync();
+    expect((await querySubgraph(`{
+      fixedProductMarketMaker(id: "${fpmm.address.toLowerCase()}") {
+        klerosTCRregistered
+        klerosTCRstatus
+      }
+    }`)).fixedProductMarketMaker).to.deep.equal({ klerosTCRregistered: true, klerosTCRstatus: REGISTERED })
+
+    increaseTime(10)
+    await marketsTCR.removeItem(itemID, '', { from: creator, value: arbitrationCost })
+    await advanceBlock()
+    await waitForGraphSync();
+    expect((await querySubgraph(`{
+      fixedProductMarketMaker(id: "${fpmm.address.toLowerCase()}") {
+        klerosTCRregistered
+        klerosTCRstatus
+      }
+    }`)).fixedProductMarketMaker).to.deep.equal({ klerosTCRregistered: true, klerosTCRstatus: REMOVAL_REQUESTED })
+
+    increaseTime(10)
+    await marketsTCR.executeRequest(itemID, { from: creator })
+    await advanceBlock()
+    await waitForGraphSync();
+    expect((await querySubgraph(`{
+      fixedProductMarketMaker(id: "${fpmm.address.toLowerCase()}") {
+        klerosTCRregistered
+        klerosTCRstatus
+      }
+    }`)).fixedProductMarketMaker).to.deep.equal({ klerosTCRregistered: false, klerosTCRstatus: ABSENT })
+
+  })
 });

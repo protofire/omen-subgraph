@@ -101,6 +101,26 @@ dataSources:
         - event: FixedProductMarketMakerCreation(indexed address,address,address,address,bytes32[],uint256)
           handler: handleFixedProductMarketMakerCreation
       file: ./src/FPMMDeterministicFactoryMapping.ts
+  - kind: ethereum/contract
+    name: GeneralizedTCR
+    network: {{network}}
+    source:
+      address: '{{GeneralizedTCR.address}}'
+      abi: GeneralizedTCR
+      startBlock: {{GeneralizedTCR.startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.3
+      language: wasm/assemblyscript
+      entities:
+        - Item
+      abis:
+        - name: GeneralizedTCR
+          file: ./abis/GeneralizedTCR.json
+      eventHandlers:
+        - event: ItemStatusChange(indexed bytes32,indexed uint256,indexed uint256,bool,bool)
+          handler: handleItemStatusChange
+      file: ./src/GeneralizedTCRMapping.ts
 templates:
   - name: FixedProductMarketMaker
     kind: ethereum/contract

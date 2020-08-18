@@ -13,3 +13,6 @@ import { FPMMDeterministicFactory } from "@gnosis.pm/conditional-tokens-market-m
 import { FixedProductMarketMaker } from "@gnosis.pm/conditional-tokens-market-makers/contracts/FixedProductMarketMaker.sol";
 
 import { ERC20Detailed } from "openzeppelin-solidity/contracts/token/ERC20/ERC20Detailed.sol";
+
+import { SimpleCentralizedArbitrator } from "@kleros/erc-792/contracts/examples/SimpleCentralizedArbitrator.sol";
+import { GeneralizedTCR } from "@kleros/tcr/contracts/GeneralizedTCR.sol";

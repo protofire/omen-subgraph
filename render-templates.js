@@ -23,6 +23,7 @@ module.exports = function(callback) {
       'RealitioProxy',
       'ERC20Detailed',
       'DXTokenRegistry',
+      'GeneralizedTCR',
     ]) {
       const { abi } = fs.readJsonSync(`build/contracts/${contractName}.json`);
       fs.outputJsonSync(`abis/${contractName}.json`, abi, { spaces: 2 });
