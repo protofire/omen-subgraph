@@ -65,12 +65,39 @@ type FixedProductMarketMaker @entity {
   scaledLiquidityParameter: BigDecimal!
 
   lastActiveDay: BigInt!
+  lastActiveHour: BigInt!
+  collateralVolumeBeforeLastActiveDayByHour: [BigInt!]!
+
   runningDailyVolume: BigInt!
   scaledRunningDailyVolume: BigDecimal!
   lastActiveDayAndRunningDailyVolume: BigInt!
   lastActiveDayAndScaledRunningDailyVolume: BigInt!
 
-  collateralVolumeBeforeLastActiveDay: BigInt!
+  runningDailyVolumeByHour: [BigInt!]!
+  sort24HourVolume0: BigInt!
+  sort24HourVolume1: BigInt!
+  sort24HourVolume2: BigInt!
+  sort24HourVolume3: BigInt!
+  sort24HourVolume4: BigInt!
+  sort24HourVolume5: BigInt!
+  sort24HourVolume6: BigInt!
+  sort24HourVolume7: BigInt!
+  sort24HourVolume8: BigInt!
+  sort24HourVolume9: BigInt!
+  sort24HourVolume10: BigInt!
+  sort24HourVolume11: BigInt!
+  sort24HourVolume12: BigInt!
+  sort24HourVolume13: BigInt!
+  sort24HourVolume14: BigInt!
+  sort24HourVolume15: BigInt!
+  sort24HourVolume16: BigInt!
+  sort24HourVolume17: BigInt!
+  sort24HourVolume18: BigInt!
+  sort24HourVolume19: BigInt!
+  sort24HourVolume20: BigInt!
+  sort24HourVolume21: BigInt!
+  sort24HourVolume22: BigInt!
+  sort24HourVolume23: BigInt!
 
   indexedOnQuestion: Boolean!
 
