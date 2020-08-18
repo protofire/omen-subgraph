@@ -65,8 +65,6 @@ export function handleItemStatusChange(event: ItemStatusChange): void {
   fpmm.klerosTCRstatus = itemInfo.value1;
   fpmm.klerosTCRregistered = fpmm.klerosTCRstatus == REGISTERED || fpmm.klerosTCRstatus == REMOVAL_REQUESTED;
   fpmm.save();
-
-  let a = fpmm.klerosTCRstatus
 }
 
 
