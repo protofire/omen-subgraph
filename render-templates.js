@@ -24,6 +24,12 @@ module.exports = function(callback) {
       'ERC20Detailed',
       'DXTokenRegistry',
       'GeneralizedTCR',
+      'UniswapV2Factory',
+      'UniswapV2Pair',
+      'WETH9',
+      'DAI',
+      'USDC',
+      'USDT',
     ]) {
       const { abi } = fs.readJsonSync(`build/contracts/${contractName}.json`);
       fs.outputJsonSync(`abis/${contractName}.json`, abi, { spaces: 2 });
