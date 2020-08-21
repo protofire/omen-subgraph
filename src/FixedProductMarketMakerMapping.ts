@@ -13,9 +13,9 @@ import {
   FPMMSell,
   Transfer,
 } from "../generated/templates/FixedProductMarketMaker/FixedProductMarketMaker"
-import { secondsPerHour, hoursPerDay } from './constants';
-import { joinDayAndVolume } from './day-volume-utils';
-import { updateScaledVolumes, getCollateralScale, setLiquidity } from './fpmm-utils';
+import { secondsPerHour, hoursPerDay } from './utils/constants';
+import { joinDayAndVolume } from './utils/day-volume';
+import { updateScaledVolumes, getCollateralScale, setLiquidity } from './utils/fpmm';
 
 function requireAccount(accountAddress: string): void {
   let account = Account.load(accountAddress);

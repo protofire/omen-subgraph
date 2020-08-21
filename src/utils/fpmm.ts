@@ -1,9 +1,9 @@
 import { BigInt, Address, BigDecimal } from '@graphprotocol/graph-ts'
-import { FixedProductMarketMaker } from "../generated/schema";
-import { ERC20Detailed } from "../generated/templates/ERC20Detailed/ERC20Detailed"
+import { FixedProductMarketMaker } from "../../generated/schema";
+import { ERC20Detailed } from "../../generated/templates/ERC20Detailed/ERC20Detailed"
 import { zero, one, ten } from './constants';
 import { nthRoot } from './nth-root';
-import { joinDayAndScaledVolume } from './day-volume-utils';
+import { joinDayAndScaledVolume } from './day-volume';
 
 export function getCollateralScale(collateralTokenAddress: Address): BigInt {
   let collateralToken = ERC20Detailed.bind(collateralTokenAddress);

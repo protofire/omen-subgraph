@@ -3,9 +3,9 @@ import { BigInt, log, Address } from '@graphprotocol/graph-ts'
 import { FixedProductMarketMakerCreation } from '../generated/FPMMDeterministicFactory/FPMMDeterministicFactory'
 import { FixedProductMarketMaker, Condition, Question } from '../generated/schema'
 import { FixedProductMarketMaker as FixedProductMarketMakerTemplate } from '../generated/templates'
-import { zero, secondsPerHour, hoursPerDay } from './constants';
-import { joinDayAndVolume } from './day-volume-utils';
-import { updateScaledVolumes, getCollateralScale, setLiquidity } from './fpmm-utils';
+import { zero, secondsPerHour, hoursPerDay } from './utils/constants';
+import { joinDayAndVolume } from './utils/day-volume';
+import { updateScaledVolumes, getCollateralScale, setLiquidity } from './utils/fpmm';
 
 export function handleFixedProductMarketMakerCreation(event: FixedProductMarketMakerCreation): void {
   let address = event.params.fixedProductMarketMaker;
