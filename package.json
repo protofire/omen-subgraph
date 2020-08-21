@@ -25,14 +25,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/protofire/omen-subgraph.git"
+    "url": "git+https://github.com/mtsalenc/omen-subgraph.git"
   },
   "author": "Gnosis (https://gnosis.io)",
   "license": "LGPL-3.0",
   "bugs": {
-    "url": "https://github.com/protofire/omen-subgraph/issues"
+    "url": "https://github.com/mtsalenc/omen-subgraph/issues"
   },
-  "homepage": "https://github.com/protofire/omen-subgraph#readme",
+  "homepage": "https://github.com/mtsalenc/omen-subgraph#readme",
   "devDependencies": {
     "@gnosis.pm/conditional-tokens-contracts": "^1.0.1",
     "@gnosis.pm/conditional-tokens-market-makers": "^1.8.1",
