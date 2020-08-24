@@ -121,6 +121,29 @@ dataSources:
         - event: ItemStatusChange(indexed bytes32,indexed uint256,indexed uint256,bool,bool)
           handler: handleItemStatusChange
       file: ./src/GeneralizedTCRMapping.ts
+  - kind: ethereum/contract
+    name: UniswapV2Factory
+    network: {{network}}
+    source:
+      address: '{{UniswapV2Factory.address}}'
+      abi: UniswapV2Factory
+      startBlock: {{UniswapV2Factory.startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.3
+      language: wasm/assemblyscript
+      entities:
+        - UniswapPair
+        - Token
+      abis:
+        - name: UniswapV2Factory
+          file: ./abis/UniswapV2Factory.json
+        - name: UniswapV2Pair
+          file: ./abis/UniswapV2Pair.json
+      eventHandlers:
+        - event: PairCreated(indexed address,indexed address,address,uint256)
+          handler: handleNewPair
+      file: ./src/UniswapV2FactoryMapping.ts
 templates:
   - name: FixedProductMarketMaker
     kind: ethereum/contract
@@ -150,6 +173,27 @@ templates:
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handlePoolShareTransfer
       file: ./src/FixedProductMarketMakerMapping.ts
+  - name: UniswapV2Pair
+    kind: ethereum/contract
+    network: {{network}}
+    source:
+      abi: UniswapV2Pair
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.3
+      language: wasm/assemblyscript
+      entities:
+        - UniswapPair
+        - Token
+      abis:
+        - name: UniswapV2Factory
+          file: ./abis/UniswapV2Factory.json
+        - name: UniswapV2Pair
+          file: ./abis/UniswapV2Pair.json
+      eventHandlers:
+        - event: Sync(uint112,uint112)
+          handler: handleSync
+      file: ./src/UniswapV2PairMapping.ts
   - name: ERC20Detailed
     kind: ethereum/contract
     network: {{network}}

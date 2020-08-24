@@ -167,6 +167,20 @@ type Account @entity {
   fpmmParticipations: [FpmmParticipation!] @derivedFrom(field: "participant")
 }
 
+type Token @entity {
+  id: ID!
+  scale: BigInt!
+  priceUSD: BigDecimal
+}
+
+type UniswapPair @entity {
+  id: ID!
+  token0: Token!
+  token1: Token!
+  reserve0: BigInt!
+  reserve1: BigInt!
+}
+
 type Global @entity {
   # ID is empty string, this is a singleton
   id: ID!

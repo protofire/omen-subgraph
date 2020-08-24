@@ -52,6 +52,7 @@ module.exports = function(callback) {
       ['src/FPMMDeterministicFactoryMapping', 'ts'],
       ['src/ConditionalTokensMapping', 'ts'],
       ['src/RealitioMapping', 'ts'],
+      ['src/UniswapV2PairMapping', 'ts'],
     ]) {
       const template = fs.readFileSync(`${templatedFileDesc[0]}.template.${templatedFileDesc[1]}`).toString();
       fs.writeFileSync(

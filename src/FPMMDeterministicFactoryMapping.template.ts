@@ -5,7 +5,8 @@ import { FixedProductMarketMaker, Condition, Question } from '../generated/schem
 import { FixedProductMarketMaker as FixedProductMarketMakerTemplate } from '../generated/templates'
 import { zero, secondsPerHour, hoursPerDay } from './utils/constants';
 import { joinDayAndVolume } from './utils/day-volume';
-import { updateScaledVolumes, getCollateralScale, setLiquidity } from './utils/fpmm';
+import { updateScaledVolumes, setLiquidity } from './utils/fpmm';
+import { requireToken } from './utils/token';
 
 export function handleFixedProductMarketMakerCreation(event: FixedProductMarketMakerCreation): void {
   let address = event.params.fixedProductMarketMaker;
@@ -105,7 +106,8 @@ export function handleFixedProductMarketMakerCreation(event: FixedProductMarketM
     outcomeTokenAmounts[i] = zero;
   }
 
-  let collateralScale = getCollateralScale(fpmm.collateralToken as Address);
+  let collateral = requireToken(fpmm.collateralToken as Address);
+  let collateralScale = collateral.scale;
   let collateralScaleDec = collateralScale.toBigDecimal();
   setLiquidity(fpmm, outcomeTokenAmounts, collateralScaleDec);
 

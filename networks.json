@@ -58,5 +58,15 @@
       "address": "0x58574aF265E1feC3b2B6dD005CA17af8eDa581cc",
       "transactionHash": "0xe559e5527507fd37f53d8491a346af6eac0adb691fb8370b5c7fd6a8cfc58074"
     }
+  },
+  "UniswapV2Factory": {
+    "1": {
+      "address": "0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f",
+      "transactionHash": "0xc31d7e7e85cab1d38ce1b8ac17e821ccd47dbde00f9d57f2bd8613bff9428396"
+    },
+    "4": {
+      "address": "0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f",
+      "transactionHash": "0xbbdb9c4754e69ce864b9d2e2420385cd1f10d584a416be52b021cff0f49f3c6f"
+    }
   }
 }
