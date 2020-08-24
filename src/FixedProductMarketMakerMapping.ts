@@ -71,8 +71,6 @@ export function handleFundingAdded(event: FPMMFundingAdded): void {
   updateOutcomeTokenAmounts(fpmm as FixedProductMarketMaker, newAmounts, collateralScaleDec);
   updateLiquidityFields(fpmm as FixedProductMarketMaker, liquidityParameter, collateralScaleDec);
   fpmm.save();
-
-  recordParticipation(fpmm as FixedProductMarketMaker, event.params.funder.toHexString());
 }
 
 export function handleFundingRemoved(event: FPMMFundingRemoved): void {
@@ -192,6 +190,7 @@ export function handleSell(event: FPMMSell): void {
 
 export function handlePoolShareTransfer(event: Transfer): void {
   let fpmmAddress = event.address.toHexString()
+  let fpmm = FixedProductMarketMaker.load(fpmmAddress);
 
   let fromAddress = event.params.from.toHexString();
   requireAccount(fromAddress);
@@ -222,4 +221,6 @@ export function handlePoolShareTransfer(event: Transfer): void {
     toMembership.amount = toMembership.amount.plus(event.params.value);
   }
   toMembership.save();
+
+  recordParticipation(fpmm as FixedProductMarketMaker, toAddress);
 }
