@@ -49,6 +49,7 @@ module.exports = function(callback) {
 
     for (const templatedFileDesc of [
       ['subgraph', 'yaml'],
+      ['src/utils/token', 'ts'],
       ['src/FPMMDeterministicFactoryMapping', 'ts'],
       ['src/ConditionalTokensMapping', 'ts'],
       ['src/RealitioMapping', 'ts'],

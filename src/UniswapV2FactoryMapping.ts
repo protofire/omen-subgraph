@@ -10,13 +10,24 @@ export function handleNewPair(event: PairCreated): void {
   let token1 = requireToken(event.params.token1);
 
   let pairAddress = event.params.pair;
-  let pair = new UniswapPair(pairAddress.toHexString());
+  let pairAddressHex = pairAddress.toHexString();
+  let pair = new UniswapPair(pairAddressHex);
   pair.token0 = token0.id;
   pair.token1 = token1.id;
   pair.reserve0 = zero;
   pair.reserve1 = zero;
 
   pair.save();
+
+  let pairs = token0.pairs;
+  pairs.push(pairAddressHex);
+  token0.pairs = pairs;
+  token0.save();
+
+  pairs = token1.pairs;
+  pairs.push(pairAddressHex);
+  token1.pairs = pairs;
+  token1.save();
 
   UniswapV2Pair.create(pairAddress);
 }

@@ -171,6 +171,7 @@ type Token @entity {
   id: ID!
   scale: BigInt!
   priceUSD: BigDecimal
+  pairs: [UniswapPair!]!
 }
 
 type UniswapPair @entity {
