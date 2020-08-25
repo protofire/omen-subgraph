@@ -1,4 +1,4 @@
-import { BigInt, BigDecimal, log } from '@graphprotocol/graph-ts'
+import { BigDecimal, log } from '@graphprotocol/graph-ts'
 
 import { ConditionPreparation, ConditionResolution } from '../generated/ConditionalTokens/ConditionalTokens'
 import { Condition, Question, FixedProductMarketMaker, Category } from '../generated/schema'
