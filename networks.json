@@ -69,6 +69,16 @@
       "transactionHash": "0xbbdb9c4754e69ce864b9d2e2420385cd1f10d584a416be52b021cff0f49f3c6f"
     }
   },
+  "WETH9": {
+    "1": {
+      "address": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+      "transactionHash": "0xb95343413e459a0f97461812111254163ae53467855c0d73e0f1e7c5b8442fa3"
+    },
+    "4": {
+      "address": "0xc778417E063141139Fce010982780140Aa0cD5Ab",
+      "transactionHash": "0x7bc8e85f99556aa23a41dd3c107e92ec76f057e4cea39f376ffb1b15d514b11f"
+    }
+  },
   "DAI": {
     "1": {
       "address": "0x6B175474E89094C44Da98b954EedeAC495271d0F",
