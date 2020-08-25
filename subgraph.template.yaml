@@ -17,6 +17,7 @@ dataSources:
       language: wasm/assemblyscript
       entities:
         - Question
+        - Category
         - FixedProductMarketMaker
       abis:
         - name: Realitio
@@ -46,7 +47,10 @@ dataSources:
       language: wasm/assemblyscript
       entities:
         - Condition
+        - Question
+        - Category
         - FixedProductMarketMaker
+        - Global
       abis:
         - name: ConditionalTokens
           file: ./abis/ConditionalTokens.json
@@ -91,7 +95,9 @@ dataSources:
       language: wasm/assemblyscript
       entities:
         - FixedProductMarketMaker
+        - Condition
         - Question
+        - Token
       abis:
         - name: FPMMDeterministicFactory
           file: ./abis/FPMMDeterministicFactory.json
@@ -113,7 +119,7 @@ dataSources:
       apiVersion: 0.0.3
       language: wasm/assemblyscript
       entities:
-        - Item
+        - FixedProductMarketMaker
       abis:
         - name: GeneralizedTCR
           file: ./abis/GeneralizedTCR.json
@@ -158,6 +164,11 @@ templates:
       language: wasm/assemblyscript
       entities:
         - FixedProductMarketMaker
+        - Account
+        - FpmmPoolMembership
+        - FpmmParticipation
+        - Token
+        - Global
       abis:
         - name: FixedProductMarketMaker
           file: ./abis/FixedProductMarketMaker.json
