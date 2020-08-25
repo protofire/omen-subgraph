@@ -1,10 +1,14 @@
-import { log, BigInt, BigDecimal } from '@graphprotocol/graph-ts'
+import { log, Address, BigInt } from '@graphprotocol/graph-ts'
 import {
   UniswapPair, Token,
 } from '../generated/schema'
+import { UniswapV2Factory } from '../generated/UniswapV2Factory/UniswapV2Factory'
 import { Sync } from '../generated/templates/UniswapV2Pair/UniswapV2Pair'
-import { isUSDStablecoin } from './utils/token'
+import { usdStablecoins, isUSDStablecoin, isWETH } from './utils/token';
+import { requireGlobal } from './utils/global';
 import { zero } from './utils/constants';
+
+let uniswapV2Factory = UniswapV2Factory.bind(Address.fromString('{{UniswapV2Factory.address}}'));
 
 export function handleSync(event: Sync): void {
   let pairAddressHex = event.address.toHex();
@@ -18,73 +22,85 @@ export function handleSync(event: Sync): void {
   pair.reserve1 = event.params.reserve1;
   pair.save();
 
-  refreshTokenPriceUSD(pair.token0);
-  refreshTokenPriceUSD(pair.token1);
+  if (isWETH(pair.token0)) {
+    if (isUSDStablecoin(pair.token1))
+      refreshUsdPerEth();
+    updateEthPerToken(pair.token1, pair.reserve1, pair.reserve0);
+  } else if (isWETH(pair.token1)) {
+    if (isUSDStablecoin(pair.token0))
+      refreshUsdPerEth();
+    updateEthPerToken(pair.token0, pair.reserve0, pair.reserve1);
+  }
 }
 
-function refreshTokenPriceUSD(tokenId: string): void {
-  if (isUSDStablecoin(tokenId)) return;
+let wethAddress = Address.fromString('{{WETH9.address}}');
+const addressZero = '0x0000000000000000000000000000000000000000';
 
-  let token = Token.load(tokenId);
-  if (token == null) {
-    log.error("could not load token {} to refresh", [tokenId]);
-    return;
-  }
+function refreshUsdPerEth(): void {
+  let global = requireGlobal();
 
-  let pairIds = token.pairs;
-  let tokenAmount = zero;
-  let counterAmountUSD = zero.toBigDecimal();
-  for (let i = 0; i < pairIds.length; i++) {
-    let pairId = pairIds[i];
-    let pair = UniswapPair.load(pairId);
-    if (pair == null) {
-      log.error("could not find Uniswap pair {}", [pairId]);
-      continue;
-    }
+  let weth = Token.load('{{WETH9.addressLowerCase}}');
+  if (weth == null) return;
 
-    if (pair.reserve0.equals(zero) || pair.reserve1.equals(zero)) {
-      log.info("skipping pair {} with one of reserves missing", [pairId]);
-      continue;
-    }
+  let wethReserves = zero;
+  let usdReserves = zero.toBigDecimal();
 
-    let tokenReserve: BigInt;
-    let counterTokenId: string;
-    let counterTokenReserve: BigInt;
-    if (tokenId == pair.token0) {
-      tokenReserve = pair.reserve0;
-      counterTokenId = pair.token1;
-      counterTokenReserve = pair.reserve1;
-    } else if (tokenId == pair.token1) {
-      tokenReserve = pair.reserve1;
-      counterTokenId = pair.token0;
-      counterTokenReserve = pair.reserve0;
+  for (let i = 0; i < usdStablecoins.length; i++) {
+    let stablecoinId = usdStablecoins[i];
+    let stablecoin = Token.load(stablecoinId);
+    if (stablecoin == null) continue;
+
+    let usdWethPairAddress = uniswapV2Factory.getPair(
+      Address.fromString(stablecoinId),
+      wethAddress,
+    ).toHexString();
+    if (usdWethPairAddress == addressZero) continue;
+
+    let usdWethPair = UniswapPair.load(usdWethPairAddress);
+    if (usdWethPair == null) continue;
+
+    if (isWETH(usdWethPair.token0)) {
+      wethReserves = wethReserves.plus(usdWethPair.reserve0);
+      usdReserves = usdReserves.plus(
+        usdWethPair.reserve1.divDecimal(stablecoin.scale.toBigDecimal())
+      );
     } else {
-      log.error("pair {} does not contain expected token {}", [pairId, tokenId]);
-      continue;
-    }
-
-    let counterToken = Token.load(counterTokenId);
-    if (counterToken == null) {
-      log.error("could not load counter token {}", [counterTokenId]);
-      continue;
-    }
-
-    if (counterToken.priceUSD != null) {
-      tokenAmount = tokenAmount.plus(tokenReserve);
-      counterAmountUSD = counterAmountUSD.plus(
-        counterTokenReserve
-          .divDecimal(counterToken.scale.toBigDecimal())
-          .times(counterToken.priceUSD as BigDecimal)
+      wethReserves = wethReserves.plus(usdWethPair.reserve1);
+      usdReserves = usdReserves.plus(
+        usdWethPair.reserve0.divDecimal(stablecoin.scale.toBigDecimal())
       );
     }
   }
 
-  if (tokenAmount.gt(zero) && counterAmountUSD.gt(zero.toBigDecimal())) {
-    token.priceUSD = counterAmountUSD
-      .times(token.scale.toBigDecimal())
-      .div(tokenAmount.toBigDecimal());
+  if (wethReserves.gt(zero) && usdReserves.gt(zero.toBigDecimal())) {
+    global.usdPerEth = usdReserves.times(weth.scale.toBigDecimal()).div(wethReserves.toBigDecimal());
   } else {
-    token.priceUSD = null;
+    global.usdPerEth = null;
+  }
+  global.save();
+}
+
+function updateEthPerToken(
+  tokenId: string,
+  tokenReserve: BigInt,
+  wethReserve: BigInt,
+): void {
+  let weth = Token.load('{{WETH9.addressLowerCase}}');
+  if (weth == null) {
+    log.error("could not find weth", []);
+    return;
+  }
+
+  let token = Token.load(tokenId);
+  if (token == null) {
+    log.error("could not find token {}", [tokenId]);
+    return;
+  }
+
+  if (tokenReserve.gt(zero) && wethReserve.gt(zero)) {
+    token.ethPerToken = wethReserve.times(token.scale).divDecimal(tokenReserve.times(weth.scale).toBigDecimal());
+  } else {
+    token.ethPerToken = null;
   }
   token.save();
 }

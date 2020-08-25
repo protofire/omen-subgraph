@@ -170,8 +170,7 @@ type Account @entity {
 type Token @entity {
   id: ID!
   scale: BigInt!
-  priceUSD: BigDecimal
-  pairs: [UniswapPair!]!
+  ethPerToken: BigDecimal
 }
 
 type UniswapPair @entity {
@@ -188,6 +187,7 @@ type Global @entity {
   numConditions: Int!
   numOpenConditions: Int!
   numClosedConditions: Int!
+  usdPerEth: BigDecimal
 }
 
 type _Schema_

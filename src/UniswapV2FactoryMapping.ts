@@ -19,15 +19,5 @@ export function handleNewPair(event: PairCreated): void {
 
   pair.save();
 
-  let pairs = token0.pairs;
-  pairs.push(pairAddressHex);
-  token0.pairs = pairs;
-  token0.save();
-
-  pairs = token1.pairs;
-  pairs.push(pairAddressHex);
-  token1.pairs = pairs;
-  token1.save();
-
   UniswapV2Pair.create(pairAddress);
 }

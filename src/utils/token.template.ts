@@ -3,10 +3,18 @@ import { Token } from "../../generated/schema";
 import { ERC20Detailed } from "../../generated/templates/ERC20Detailed/ERC20Detailed";
 import { one, ten } from "./constants";
 
+export function isWETH(addressHex: string): boolean {
+  return addressHex == '{{WETH9.addressLowerCase}}';
+}
+
+export const usdStablecoins: string[] = [
+  '{{DAI.addressLowerCase}}',
+  '{{USDC.addressLowerCase}}',
+  '{{USDT.addressLowerCase}}',
+];
+
 export function isUSDStablecoin(addressHex: string): boolean {
-  return addressHex == '{{DAI.addressLowerCase}}' ||
-    addressHex == '{{USDC.addressLowerCase}}' ||
-    addressHex == '{{USDT.addressLowerCase}}';
+  return usdStablecoins.includes(addressHex);
 }
 
 export function requireToken(address: Address): Token {
@@ -21,11 +29,9 @@ export function requireToken(address: Address): Token {
       one :
       ten.pow(<u8>decimalsResult.value);
 
-    if (isUSDStablecoin(addressHex)) {
-      token.priceUSD = one.toBigDecimal();
-    }
+    if (isWETH(addressHex))
+      token.ethPerToken = one.toBigDecimal();
 
-    token.pairs = [];
     token.save();
   }
   return token as Token;
