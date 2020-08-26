@@ -193,7 +193,9 @@ type Global @entity {
   numConditions: Int!
   numOpenConditions: Int!
   numClosedConditions: Int!
+
   usdPerEth: BigDecimal
+  usdVolume: BigDecimal!
 }
 
 type _Schema_

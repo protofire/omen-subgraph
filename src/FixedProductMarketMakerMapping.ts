@@ -5,6 +5,7 @@ import {
   Account,
   FpmmPoolMembership,
   FpmmParticipation,
+  Global,
 } from "../generated/schema"
 import {
   FPMMFundingAdded,
@@ -52,6 +53,7 @@ function recordParticipation(fpmm: FixedProductMarketMaker, participantAddress: 
 }
 
 function increaseVolume(
+  global: Global,
   fpmm: FixedProductMarketMaker,
   amount: BigInt,
   timestamp: BigInt,
@@ -120,10 +122,13 @@ function increaseVolume(
   let collateralVolume = fpmm.collateralVolume.plus(amount);
   fpmm.collateralVolume = collateralVolume
 
-  let usdVolume = fpmm.usdVolume.plus(
-    amount.divDecimal(collateralScaleDec).times(collateralUSDPrice)
-  );
+  let usdAdded = amount.divDecimal(collateralScaleDec).times(collateralUSDPrice);
+
+  let usdVolume = fpmm.usdVolume.plus(usdAdded);
   fpmm.usdVolume = usdVolume;
+
+  global.usdVolume = global.usdVolume.plus(usdAdded);
+  global.save();
 
   let runningDailyVolumeByHour = fpmm.runningDailyVolumeByHour;
   for (let i = 0; i < 24; i++) {
@@ -222,17 +227,19 @@ export function handleBuy(event: FPMMBuy): void {
     }
   }
 
+  let global = requireGlobal();
   let collateral = requireToken(fpmm.collateralToken as Address);
   let collateralScale = collateral.scale;
   let collateralScaleDec = collateralScale.toBigDecimal();
   let ethPerCollateral = collateral.ethPerToken;
-  let usdPerEth = requireGlobal().usdPerEth;
+  let usdPerEth = global.usdPerEth;
   let collateralUSDPrice = ethPerCollateral != null && usdPerEth != null ?
     ethPerCollateral.times(usdPerEth as BigDecimal) :
     zeroDec;
 
   setLiquidity(fpmm as FixedProductMarketMaker, newAmounts, collateralScaleDec, collateralUSDPrice);
   increaseVolume(
+    global,
     fpmm as FixedProductMarketMaker,
     investmentAmountMinusFees,
     event.block.timestamp,
@@ -266,17 +273,19 @@ export function handleSell(event: FPMMSell): void {
     }
   }
 
+  let global = requireGlobal();
   let collateral = requireToken(fpmm.collateralToken as Address);
   let collateralScale = collateral.scale;
   let collateralScaleDec = collateralScale.toBigDecimal();
   let ethPerCollateral = collateral.ethPerToken;
-  let usdPerEth = requireGlobal().usdPerEth;
+  let usdPerEth = global.usdPerEth;
   let collateralUSDPrice = ethPerCollateral != null && usdPerEth != null ?
     ethPerCollateral.times(usdPerEth as BigDecimal) :
     zeroDec;
 
   setLiquidity(fpmm as FixedProductMarketMaker, newAmounts, collateralScaleDec, collateralUSDPrice);
   increaseVolume(
+    global,
     fpmm as FixedProductMarketMaker,
     returnAmountPlusFees,
     event.block.timestamp,
