@@ -155,7 +155,7 @@ function advanceBlock () {
 }
 
 describe('Omen subgraph', function() {
-  function checkMarketMakerState(hasTraded) {
+  function checkMarketMakerState(traderParticipated, shareholderParticipated, creatorParticipated) {
     step('check subgraph market maker data matches chain', async function() {
       await waitForGraphSync();
 
@@ -261,12 +261,20 @@ describe('Omen subgraph', function() {
         }
       }
 
-      if (hasTraded) {
-        fixedProductMarketMaker.participants.should.eql([
+      if (traderParticipated) {
+        fixedProductMarketMaker.participants.should.containEql(
           { participant: { id: trader.toLowerCase() } },
-        ]);
-      } else {
-        fixedProductMarketMaker.participants.should.eql([]);
+        );
+      }
+      if(shareholderParticipated) {
+        fixedProductMarketMaker.participants.should.containEql(
+          { participant: { id: shareholder.toLowerCase() } },
+        );
+      }
+      if(creatorParticipated) {
+        fixedProductMarketMaker.participants.should.containEql(
+          { participant: { id: creator.toLowerCase() } },
+        );
       }
     });
   }
@@ -451,13 +459,14 @@ describe('Omen subgraph', function() {
       [],
       { from: creator }
     ]
+
     const fpmmAddress = await factory.create2FixedProductMarketMaker.call(...creationArgs);
     const { receipt } = await factory.create2FixedProductMarketMaker(...creationArgs);
     fpmmCreationTimestamp = await getTimestampFromReceipt(receipt);
     fpmm = await FixedProductMarketMaker.at(fpmmAddress);
   });
 
-  checkMarketMakerState(false);
+  checkMarketMakerState(false, false, true);
 
   step('should not index market makers on different ConditionalTokens', async function() {
     const altConditionalTokens = await ConditionalTokens.new({ from: creator });
@@ -519,7 +528,7 @@ describe('Omen subgraph', function() {
     fixedProductMarketMaker.collateralVolume.should.equal(runningCollateralVolume.toString());
   });
 
-  checkMarketMakerState(true);
+  checkMarketMakerState(true, false, true);
 
   const returnAmount = toWei('0.5');
   step('have trader sell to market maker', async function() {
@@ -542,7 +551,7 @@ describe('Omen subgraph', function() {
     fixedProductMarketMaker.collateralVolume.should.equal(runningCollateralVolume.toString());
   });
 
-  checkMarketMakerState(true);
+  checkMarketMakerState(true, false, true);
 
   step('transfer pool shares', async function() {
     const shareholderPoolAmount = toWei('0.5');
@@ -568,7 +577,7 @@ describe('Omen subgraph', function() {
       .should.equal(creatorMembership.amount);
   });
 
-  checkMarketMakerState(true);
+  checkMarketMakerState(true, true, true);
 
   step('submit answer', async function() {
     const answer = `0x${'0'.repeat(63)}1`;
