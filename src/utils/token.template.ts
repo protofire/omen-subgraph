@@ -1,7 +1,7 @@
 import { Address } from "@graphprotocol/graph-ts";
 import { Token } from "../../generated/schema";
 import { ERC20Detailed } from "../../generated/templates/ERC20Detailed/ERC20Detailed";
-import { one, ten } from "./constants";
+import { one, ten, oneDec } from "./constants";
 
 export function isWETH(addressHex: string): boolean {
   return addressHex == '{{WETH9.addressLowerCase}}';
@@ -30,7 +30,7 @@ export function requireToken(address: Address): Token {
       ten.pow(<u8>decimalsResult.value);
 
     if (isWETH(addressHex))
-      token.ethPerToken = one.toBigDecimal();
+      token.ethPerToken = oneDec;
 
     token.save();
   }

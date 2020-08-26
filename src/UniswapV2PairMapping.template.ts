@@ -6,7 +6,7 @@ import { UniswapV2Factory } from '../generated/UniswapV2Factory/UniswapV2Factory
 import { Sync } from '../generated/templates/UniswapV2Pair/UniswapV2Pair'
 import { usdStablecoins, isUSDStablecoin, isWETH } from './utils/token';
 import { requireGlobal } from './utils/global';
-import { zero } from './utils/constants';
+import { zero, zeroDec } from './utils/constants';
 
 let uniswapV2Factory = UniswapV2Factory.bind(Address.fromString('{{UniswapV2Factory.address}}'));
 
@@ -43,7 +43,7 @@ function refreshUsdPerEth(): void {
   if (weth == null) return;
 
   let wethReserves = zero;
-  let usdReserves = zero.toBigDecimal();
+  let usdReserves = zeroDec;
 
   for (let i = 0; i < usdStablecoins.length; i++) {
     let stablecoinId = usdStablecoins[i];
@@ -72,7 +72,7 @@ function refreshUsdPerEth(): void {
     }
   }
 
-  if (wethReserves.gt(zero) && usdReserves.gt(zero.toBigDecimal())) {
+  if (wethReserves.gt(zero) && usdReserves.gt(zeroDec)) {
     global.usdPerEth = usdReserves.times(weth.scale.toBigDecimal()).div(wethReserves.toBigDecimal());
   } else {
     global.usdPerEth = null;

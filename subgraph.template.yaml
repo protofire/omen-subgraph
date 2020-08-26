@@ -98,6 +98,7 @@ dataSources:
         - Condition
         - Question
         - Token
+        - Global
       abis:
         - name: FPMMDeterministicFactory
           file: ./abis/FPMMDeterministicFactory.json
@@ -141,6 +142,7 @@ dataSources:
       entities:
         - UniswapPair
         - Token
+        - Global
       abis:
         - name: UniswapV2Factory
           file: ./abis/UniswapV2Factory.json

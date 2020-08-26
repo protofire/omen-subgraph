@@ -13,10 +13,11 @@ import {
   FPMMSell,
   Transfer,
 } from "../generated/templates/FixedProductMarketMaker/FixedProductMarketMaker"
-import { secondsPerHour, hoursPerDay } from './utils/constants';
+import { secondsPerHour, hoursPerDay, zero, zeroDec } from './utils/constants';
 import { joinDayAndVolume } from './utils/day-volume';
 import { updateScaledVolumes, setLiquidity } from './utils/fpmm';
 import { requireToken } from './utils/token';
+import { requireGlobal } from './utils/global';
 
 function requireAccount(accountAddress: string): void {
   let account = Account.load(accountAddress);
@@ -56,6 +57,7 @@ function increaseVolume(
   timestamp: BigInt,
   collateralScale: BigInt,
   collateralScaleDec: BigDecimal,
+  collateralUSDPrice: BigDecimal,
 ): void {
   let currentHour = timestamp.div(secondsPerHour);
   let currentDay = currentHour.div(hoursPerDay);
@@ -75,6 +77,7 @@ function increaseVolume(
 
   let lastActiveHour = fpmm.lastActiveHour;
   let collateralVolumeByHour = fpmm.collateralVolumeBeforeLastActiveDayByHour;
+  let usdVolumeByHour = fpmm.usdVolumeBeforeLastActiveDayByHour;
   if (lastActiveHour.notEqual(currentHour)) {
     let lastActiveDay = lastActiveHour.div(hoursPerDay);
     let lastActiveHourInDay = lastActiveHour.minus(lastActiveDay.times(hoursPerDay)).toI32();
@@ -101,6 +104,15 @@ function increaseVolume(
     }
     collateralVolumeByHour[currentHourInDay] = fpmm.collateralVolume;
     fpmm.collateralVolumeBeforeLastActiveDayByHour = collateralVolumeByHour;
+
+    let lastRecordedUsdVolume = usdVolumeByHour[lastActiveHourInDay];
+    for (let i = 1; i < 24 && i < deltaHours; i++) {
+      let j = (lastActiveHourInDay + i) % 24;
+      usdVolumeByHour[j] = lastRecordedUsdVolume;
+    }
+    usdVolumeByHour[currentHourInDay] = fpmm.usdVolume;
+    fpmm.usdVolumeBeforeLastActiveDayByHour = usdVolumeByHour;
+
     fpmm.lastActiveHour = currentHour;
     fpmm.lastActiveDay = currentDay;
   }
@@ -108,16 +120,28 @@ function increaseVolume(
   let collateralVolume = fpmm.collateralVolume.plus(amount);
   fpmm.collateralVolume = collateralVolume
 
+  let usdVolume = fpmm.usdVolume.plus(
+    amount.divDecimal(collateralScaleDec).times(collateralUSDPrice)
+  );
+  fpmm.usdVolume = usdVolume;
+
   let runningDailyVolumeByHour = fpmm.runningDailyVolumeByHour;
   for (let i = 0; i < 24; i++) {
     runningDailyVolumeByHour[i] = collateralVolume.minus(collateralVolumeByHour[i]);
   }
   fpmm.runningDailyVolumeByHour = runningDailyVolumeByHour;
 
+  let usdRunningDailyVolumeByHour = fpmm.usdRunningDailyVolumeByHour;
+  for (let i = 0; i < 24; i++) {
+    usdRunningDailyVolumeByHour[i] = usdVolume.minus(usdVolumeByHour[i]);
+  }
+  fpmm.usdRunningDailyVolumeByHour = usdRunningDailyVolumeByHour;
+
   fpmm.runningDailyVolume = runningDailyVolumeByHour[(currentHourInDay + 1) % 24];
+  fpmm.usdRunningDailyVolume = usdRunningDailyVolumeByHour[(currentHourInDay + 1) % 24];
   fpmm.lastActiveDayAndRunningDailyVolume = joinDayAndVolume(currentDay, fpmm.runningDailyVolume);
 
-  updateScaledVolumes(fpmm as FixedProductMarketMaker, collateralScale, collateralScaleDec, runningDailyVolumeByHour, currentDay, currentHourInDay);
+  updateScaledVolumes(fpmm as FixedProductMarketMaker, collateralScale, collateralScaleDec, usdRunningDailyVolumeByHour, currentDay, currentHourInDay);
 }
 
 export function handleFundingAdded(event: FPMMFundingAdded): void {
@@ -138,8 +162,13 @@ export function handleFundingAdded(event: FPMMFundingAdded): void {
   let collateral = requireToken(fpmm.collateralToken as Address);
   let collateralScale = collateral.scale;
   let collateralScaleDec = collateralScale.toBigDecimal();
+  let ethPerCollateral = collateral.ethPerToken;
+  let usdPerEth = requireGlobal().usdPerEth;
+  let collateralUSDPrice = ethPerCollateral != null && usdPerEth != null ?
+    ethPerCollateral.times(usdPerEth as BigDecimal) :
+    zeroDec;
 
-  setLiquidity(fpmm as FixedProductMarketMaker, newAmounts, collateralScaleDec)
+  setLiquidity(fpmm as FixedProductMarketMaker, newAmounts, collateralScaleDec, collateralUSDPrice)
 
   fpmm.save();
 }
@@ -162,8 +191,13 @@ export function handleFundingRemoved(event: FPMMFundingRemoved): void {
   let collateral = requireToken(fpmm.collateralToken as Address);
   let collateralScale = collateral.scale;
   let collateralScaleDec = collateralScale.toBigDecimal();
+  let ethPerCollateral = collateral.ethPerToken;
+  let usdPerEth = requireGlobal().usdPerEth;
+  let collateralUSDPrice = ethPerCollateral != null && usdPerEth != null ?
+    ethPerCollateral.times(usdPerEth as BigDecimal) :
+    zeroDec;
 
-  setLiquidity(fpmm as FixedProductMarketMaker, newAmounts, collateralScaleDec);
+  setLiquidity(fpmm as FixedProductMarketMaker, newAmounts, collateralScaleDec, collateralUSDPrice);
 
   fpmm.save();
 }
@@ -191,14 +225,20 @@ export function handleBuy(event: FPMMBuy): void {
   let collateral = requireToken(fpmm.collateralToken as Address);
   let collateralScale = collateral.scale;
   let collateralScaleDec = collateralScale.toBigDecimal();
+  let ethPerCollateral = collateral.ethPerToken;
+  let usdPerEth = requireGlobal().usdPerEth;
+  let collateralUSDPrice = ethPerCollateral != null && usdPerEth != null ?
+    ethPerCollateral.times(usdPerEth as BigDecimal) :
+    zeroDec;
 
-  setLiquidity(fpmm as FixedProductMarketMaker, newAmounts, collateralScaleDec);
+  setLiquidity(fpmm as FixedProductMarketMaker, newAmounts, collateralScaleDec, collateralUSDPrice);
   increaseVolume(
     fpmm as FixedProductMarketMaker,
     investmentAmountMinusFees,
     event.block.timestamp,
     collateralScale,
     collateralScaleDec,
+    collateralUSDPrice,
   );
 
   fpmm.save();
@@ -229,14 +269,20 @@ export function handleSell(event: FPMMSell): void {
   let collateral = requireToken(fpmm.collateralToken as Address);
   let collateralScale = collateral.scale;
   let collateralScaleDec = collateralScale.toBigDecimal();
+  let ethPerCollateral = collateral.ethPerToken;
+  let usdPerEth = requireGlobal().usdPerEth;
+  let collateralUSDPrice = ethPerCollateral != null && usdPerEth != null ?
+    ethPerCollateral.times(usdPerEth as BigDecimal) :
+    zeroDec;
 
-  setLiquidity(fpmm as FixedProductMarketMaker, newAmounts, collateralScaleDec);
+  setLiquidity(fpmm as FixedProductMarketMaker, newAmounts, collateralScaleDec, collateralUSDPrice);
   increaseVolume(
     fpmm as FixedProductMarketMaker,
     returnAmountPlusFees,
     event.block.timestamp,
     collateralScale,
     collateralScaleDec,
+    collateralUSDPrice,
   );
 
   fpmm.save();
