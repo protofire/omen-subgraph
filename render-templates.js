@@ -24,6 +24,12 @@ module.exports = function(callback) {
       'ERC20Detailed',
       'DXTokenRegistry',
       'GeneralizedTCR',
+      'UniswapV2Factory',
+      'UniswapV2Pair',
+      'WETH9',
+      'DAI',
+      'USDC',
+      'USDT',
     ]) {
       const { abi } = fs.readJsonSync(`build/contracts/${contractName}.json`);
       fs.outputJsonSync(`abis/${contractName}.json`, abi, { spaces: 2 });
@@ -43,9 +49,11 @@ module.exports = function(callback) {
 
     for (const templatedFileDesc of [
       ['subgraph', 'yaml'],
+      ['src/utils/token', 'ts'],
       ['src/FPMMDeterministicFactoryMapping', 'ts'],
       ['src/ConditionalTokensMapping', 'ts'],
       ['src/RealitioMapping', 'ts'],
+      ['src/UniswapV2PairMapping', 'ts'],
     ]) {
       const template = fs.readFileSync(`${templatedFileDesc[0]}.template.${templatedFileDesc[1]}`).toString();
       fs.writeFileSync(

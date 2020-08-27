@@ -1,11 +1,13 @@
-import { BigInt, log, Address } from '@graphprotocol/graph-ts'
+import { BigInt, log, Address, BigDecimal } from '@graphprotocol/graph-ts'
 
 import { FixedProductMarketMakerCreation } from '../generated/FPMMDeterministicFactory/FPMMDeterministicFactory'
 import { FixedProductMarketMaker, Condition, Question } from '../generated/schema'
 import { FixedProductMarketMaker as FixedProductMarketMakerTemplate } from '../generated/templates'
-import { zero, secondsPerHour, hoursPerDay } from './constants';
-import { joinDayAndVolume } from './day-volume-utils';
-import { updateScaledVolumes, getCollateralScale, setLiquidity } from './fpmm-utils';
+import { zero, secondsPerHour, hoursPerDay, zeroDec } from './utils/constants';
+import { joinDayAndVolume } from './utils/day-volume';
+import { updateScaledVolumes, setLiquidity } from './utils/fpmm';
+import { requireToken } from './utils/token';
+import { requireGlobal } from './utils/global';
 
 export function handleFixedProductMarketMakerCreation(event: FixedProductMarketMakerCreation): void {
   let address = event.params.fixedProductMarketMaker;
@@ -105,9 +107,15 @@ export function handleFixedProductMarketMakerCreation(event: FixedProductMarketM
     outcomeTokenAmounts[i] = zero;
   }
 
-  let collateralScale = getCollateralScale(fpmm.collateralToken as Address);
+  let collateral = requireToken(fpmm.collateralToken as Address);
+  let collateralScale = collateral.scale;
   let collateralScaleDec = collateralScale.toBigDecimal();
-  setLiquidity(fpmm, outcomeTokenAmounts, collateralScaleDec);
+  let ethPerCollateral = collateral.ethPerToken;
+  let usdPerEth = requireGlobal().usdPerEth;
+  let collateralUSDPrice = ethPerCollateral != null && usdPerEth != null ?
+    ethPerCollateral.times(usdPerEth as BigDecimal) :
+    zeroDec;
+  setLiquidity(fpmm, outcomeTokenAmounts, collateralScaleDec, collateralUSDPrice);
 
   let currentHour = event.block.timestamp.div(secondsPerHour);
   let currentDay = currentHour.div(hoursPerDay);
@@ -125,15 +133,24 @@ export function handleFixedProductMarketMakerCreation(event: FixedProductMarketM
   for(let i = 0; i < 24; i++) {
     zeroes[i] = zero;
   }
+  let zeroDecs = new Array<BigDecimal>(24);
+  for(let i = 0; i < 24; i++) {
+    zeroDecs[i] = zeroDec;
+  }
+
   fpmm.collateralVolumeBeforeLastActiveDayByHour = zeroes;
+  fpmm.usdVolumeBeforeLastActiveDayByHour = zeroDecs;
 
   fpmm.collateralVolume = zero;
+  fpmm.usdVolume = zeroDec;
   fpmm.runningDailyVolumeByHour = zeroes;
+  fpmm.usdRunningDailyVolumeByHour = zeroDecs;
   fpmm.runningDailyVolume = zero;
+  fpmm.usdRunningDailyVolume = zeroDec;
 
   fpmm.lastActiveDayAndRunningDailyVolume = joinDayAndVolume(currentDay, zero);
 
-  updateScaledVolumes(fpmm, collateralScale, collateralScaleDec, zeroes, currentDay, currentHourInDay);
+  updateScaledVolumes(fpmm, collateralScale, collateralScaleDec, zeroDecs, currentDay, currentHourInDay);
 
   fpmm.save();
 

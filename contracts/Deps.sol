@@ -16,3 +16,6 @@ import { ERC20Detailed } from "openzeppelin-solidity/contracts/token/ERC20/ERC20
 
 import { SimpleCentralizedArbitrator } from "@kleros/erc-792/contracts/examples/SimpleCentralizedArbitrator.sol";
 import { GeneralizedTCR } from "@kleros/tcr/contracts/GeneralizedTCR.sol";
+
+import { UniswapV2Factory } from "@uniswap/v2-core/contracts/UniswapV2Factory.sol";
+import { UniswapV2Pair } from "@uniswap/v2-core/contracts/UniswapV2Pair.sol";

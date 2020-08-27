@@ -1,3 +1,6 @@
+utils/token.ts
+
 FPMMDeterministicFactoryMapping.ts
 ConditionalTokensMapping.ts
 RealitioMapping.ts
+UniswapV2PairMapping.ts

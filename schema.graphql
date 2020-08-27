@@ -56,48 +56,54 @@ type FixedProductMarketMaker @entity {
 
   collateralVolume: BigInt!
   scaledCollateralVolume: BigDecimal!
+  usdVolume: BigDecimal!
   outcomeTokenAmounts: [BigInt!]!
   outcomeTokenMarginalPrices: [BigDecimal!]
   outcomeSlotCount: Int
   liquidityMeasure: BigInt!
   scaledLiquidityMeasure: BigDecimal!
+  usdLiquidityMeasure: BigDecimal!
   liquidityParameter: BigInt!
   scaledLiquidityParameter: BigDecimal!
+  usdLiquidityParameter: BigDecimal!
 
   lastActiveDay: BigInt!
   lastActiveHour: BigInt!
   collateralVolumeBeforeLastActiveDayByHour: [BigInt!]!
+  usdVolumeBeforeLastActiveDayByHour: [BigDecimal!]!
 
   runningDailyVolume: BigInt!
   scaledRunningDailyVolume: BigDecimal!
+  usdRunningDailyVolume: BigDecimal!
   lastActiveDayAndRunningDailyVolume: BigInt!
   lastActiveDayAndScaledRunningDailyVolume: BigInt!
 
   runningDailyVolumeByHour: [BigInt!]!
-  sort24HourVolume0: BigInt!
-  sort24HourVolume1: BigInt!
-  sort24HourVolume2: BigInt!
-  sort24HourVolume3: BigInt!
-  sort24HourVolume4: BigInt!
-  sort24HourVolume5: BigInt!
-  sort24HourVolume6: BigInt!
-  sort24HourVolume7: BigInt!
-  sort24HourVolume8: BigInt!
-  sort24HourVolume9: BigInt!
-  sort24HourVolume10: BigInt!
-  sort24HourVolume11: BigInt!
-  sort24HourVolume12: BigInt!
-  sort24HourVolume13: BigInt!
-  sort24HourVolume14: BigInt!
-  sort24HourVolume15: BigInt!
-  sort24HourVolume16: BigInt!
-  sort24HourVolume17: BigInt!
-  sort24HourVolume18: BigInt!
-  sort24HourVolume19: BigInt!
-  sort24HourVolume20: BigInt!
-  sort24HourVolume21: BigInt!
-  sort24HourVolume22: BigInt!
-  sort24HourVolume23: BigInt!
+  usdRunningDailyVolumeByHour: [BigDecimal!]!
+  sort24HourVolume0: BigDecimal!
+  sort24HourVolume1: BigDecimal!
+  sort24HourVolume2: BigDecimal!
+  sort24HourVolume3: BigDecimal!
+  sort24HourVolume4: BigDecimal!
+  sort24HourVolume5: BigDecimal!
+  sort24HourVolume6: BigDecimal!
+  sort24HourVolume7: BigDecimal!
+  sort24HourVolume8: BigDecimal!
+  sort24HourVolume9: BigDecimal!
+  sort24HourVolume10: BigDecimal!
+  sort24HourVolume11: BigDecimal!
+  sort24HourVolume12: BigDecimal!
+  sort24HourVolume13: BigDecimal!
+  sort24HourVolume14: BigDecimal!
+  sort24HourVolume15: BigDecimal!
+  sort24HourVolume16: BigDecimal!
+  sort24HourVolume17: BigDecimal!
+  sort24HourVolume18: BigDecimal!
+  sort24HourVolume19: BigDecimal!
+  sort24HourVolume20: BigDecimal!
+  sort24HourVolume21: BigDecimal!
+  sort24HourVolume22: BigDecimal!
+  sort24HourVolume23: BigDecimal!
 
   indexedOnQuestion: Boolean!
 
@@ -167,12 +173,29 @@ type Account @entity {
   fpmmParticipations: [FpmmParticipation!] @derivedFrom(field: "participant")
 }
 
+type Token @entity {
+  id: ID!
+  scale: BigInt!
+  ethPerToken: BigDecimal
+}
+
+type UniswapPair @entity {
+  id: ID!
+  token0: Token!
+  token1: Token!
+  reserve0: BigInt!
+  reserve1: BigInt!
+}
+
 type Global @entity {
   # ID is empty string, this is a singleton
   id: ID!
   numConditions: Int!
   numOpenConditions: Int!
   numClosedConditions: Int!
+
+  usdPerEth: BigDecimal
+  usdVolume: BigDecimal!
 }
 
 type _Schema_

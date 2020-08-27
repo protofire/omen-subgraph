@@ -17,6 +17,7 @@ dataSources:
       language: wasm/assemblyscript
       entities:
         - Question
+        - Category
         - FixedProductMarketMaker
       abis:
         - name: Realitio
@@ -46,7 +47,10 @@ dataSources:
       language: wasm/assemblyscript
       entities:
         - Condition
+        - Question
+        - Category
         - FixedProductMarketMaker
+        - Global
       abis:
         - name: ConditionalTokens
           file: ./abis/ConditionalTokens.json
@@ -91,7 +95,10 @@ dataSources:
       language: wasm/assemblyscript
       entities:
         - FixedProductMarketMaker
+        - Condition
         - Question
+        - Token
+        - Global
       abis:
         - name: FPMMDeterministicFactory
           file: ./abis/FPMMDeterministicFactory.json
@@ -113,7 +120,7 @@ dataSources:
       apiVersion: 0.0.3
       language: wasm/assemblyscript
       entities:
-        - Item
+        - FixedProductMarketMaker
       abis:
         - name: GeneralizedTCR
           file: ./abis/GeneralizedTCR.json
@@ -121,6 +128,32 @@ dataSources:
         - event: ItemStatusChange(indexed bytes32,indexed uint256,indexed uint256,bool,bool)
           handler: handleItemStatusChange
       file: ./src/GeneralizedTCRMapping.ts
+  - kind: ethereum/contract
+    name: UniswapV2Factory
+    network: {{network}}
+    source:
+      address: '{{UniswapV2Factory.address}}'
+      abi: UniswapV2Factory
+      startBlock: {{UniswapV2Factory.startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.3
+      language: wasm/assemblyscript
+      entities:
+        - UniswapPair
+        - Token
+        - Global
+      abis:
+        - name: UniswapV2Factory
+          file: ./abis/UniswapV2Factory.json
+        - name: UniswapV2Pair
+          file: ./abis/UniswapV2Pair.json
+        - name: ERC20Detailed
+          file: ./abis/ERC20Detailed.json
+      eventHandlers:
+        - event: PairCreated(indexed address,indexed address,address,uint256)
+          handler: handleNewPair
+      file: ./src/UniswapV2FactoryMapping.ts
 templates:
   - name: FixedProductMarketMaker
     kind: ethereum/contract
@@ -133,6 +166,11 @@ templates:
       language: wasm/assemblyscript
       entities:
         - FixedProductMarketMaker
+        - Account
+        - FpmmPoolMembership
+        - FpmmParticipation
+        - Token
+        - Global
       abis:
         - name: FixedProductMarketMaker
           file: ./abis/FixedProductMarketMaker.json
@@ -150,6 +188,30 @@ templates:
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handlePoolShareTransfer
       file: ./src/FixedProductMarketMakerMapping.ts
+  - name: UniswapV2Pair
+    kind: ethereum/contract
+    network: {{network}}
+    source:
+      abi: UniswapV2Pair
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.3
+      language: wasm/assemblyscript
+      entities:
+        - UniswapPair
+        - Token
+        - Global
+      abis:
+        - name: UniswapV2Factory
+          file: ./abis/UniswapV2Factory.json
+        - name: UniswapV2Pair
+          file: ./abis/UniswapV2Pair.json
+        - name: ERC20Detailed
+          file: ./abis/ERC20Detailed.json
+      eventHandlers:
+        - event: Sync(uint112,uint112)
+          handler: handleSync
+      file: ./src/UniswapV2PairMapping.ts
   - name: ERC20Detailed
     kind: ethereum/contract
     network: {{network}}
@@ -163,4 +225,4 @@ templates:
       abis:
         - name: ERC20Detailed
           file: ./abis/ERC20Detailed.json
-      file: ./src/empty.ts
+      file: ./src/utils/empty.ts

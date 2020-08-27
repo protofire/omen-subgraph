@@ -9,7 +9,7 @@ import {
 } from '../generated/Realitio/Realitio'
 import { Question, FixedProductMarketMaker, Category } from '../generated/schema'
 
-import { unescape } from './unescape'
+import { unescape } from './utils/unescape'
 
 export function handleNewQuestion(event: LogNewQuestion): void {
   let questionId = event.params.question_id.toHexString();

@@ -1,24 +1,14 @@
 import { BigInt, Address, BigDecimal } from '@graphprotocol/graph-ts'
-import { FixedProductMarketMaker } from "../generated/schema";
-import { ERC20Detailed } from "../generated/templates/ERC20Detailed/ERC20Detailed"
-import { zero, one, ten } from './constants';
+import { FixedProductMarketMaker } from "../../generated/schema";
+import { zero, one, ten, zeroDec } from './constants';
 import { nthRoot } from './nth-root';
-import { joinDayAndScaledVolume } from './day-volume-utils';
-
-export function getCollateralScale(collateralTokenAddress: Address): BigInt {
-  let collateralToken = ERC20Detailed.bind(collateralTokenAddress);
-  let result = collateralToken.try_decimals();
-
-  return result.reverted ?
-    one :
-    ten.pow(<u8>result.value);
-}
+import { joinDayAndScaledVolume, joinDayAndUsdVolume } from './day-volume';
 
 export function updateScaledVolumes(
   fpmm: FixedProductMarketMaker,
   collateralScale: BigInt,
   collateralScaleDec: BigDecimal,
-  runningDailyVolumeByHour: BigInt[],
+  usdRunningDailyVolumeByHour: BigDecimal[],
   currentDay: BigInt,
   currentHourInDay: i32,
 ): void {
@@ -32,171 +22,147 @@ export function updateScaledVolumes(
   );
 
   if (currentHourInDay === 0) currentDay = currentDay.minus(one);
-  fpmm.sort24HourVolume0 = joinDayAndScaledVolume(
+  fpmm.sort24HourVolume0 = joinDayAndUsdVolume(
     currentDay,
-    runningDailyVolumeByHour[1],
-    collateralScale,
+    usdRunningDailyVolumeByHour[1],
   );
 
   if (currentHourInDay === 1) currentDay = currentDay.minus(one);
-  fpmm.sort24HourVolume1 = joinDayAndScaledVolume(
+  fpmm.sort24HourVolume1 = joinDayAndUsdVolume(
     currentDay,
-    runningDailyVolumeByHour[2],
-    collateralScale,
+    usdRunningDailyVolumeByHour[2],
   );
 
   if (currentHourInDay === 2) currentDay = currentDay.minus(one);
-  fpmm.sort24HourVolume2 = joinDayAndScaledVolume(
+  fpmm.sort24HourVolume2 = joinDayAndUsdVolume(
     currentDay,
-    runningDailyVolumeByHour[3],
-    collateralScale,
+    usdRunningDailyVolumeByHour[3],
   );
 
   if (currentHourInDay === 3) currentDay = currentDay.minus(one);
-  fpmm.sort24HourVolume3 = joinDayAndScaledVolume(
+  fpmm.sort24HourVolume3 = joinDayAndUsdVolume(
     currentDay,
-    runningDailyVolumeByHour[4],
-    collateralScale,
+    usdRunningDailyVolumeByHour[4],
   );
 
   if (currentHourInDay === 4) currentDay = currentDay.minus(one);
-  fpmm.sort24HourVolume4 = joinDayAndScaledVolume(
+  fpmm.sort24HourVolume4 = joinDayAndUsdVolume(
     currentDay,
-    runningDailyVolumeByHour[5],
-    collateralScale,
+    usdRunningDailyVolumeByHour[5],
   );
 
   if (currentHourInDay === 5) currentDay = currentDay.minus(one);
-  fpmm.sort24HourVolume5 = joinDayAndScaledVolume(
+  fpmm.sort24HourVolume5 = joinDayAndUsdVolume(
     currentDay,
-    runningDailyVolumeByHour[6],
-    collateralScale,
+    usdRunningDailyVolumeByHour[6],
   );
 
   if (currentHourInDay === 6) currentDay = currentDay.minus(one);
-  fpmm.sort24HourVolume6 = joinDayAndScaledVolume(
+  fpmm.sort24HourVolume6 = joinDayAndUsdVolume(
     currentDay,
-    runningDailyVolumeByHour[7],
-    collateralScale,
+    usdRunningDailyVolumeByHour[7],
   );
 
   if (currentHourInDay === 7) currentDay = currentDay.minus(one);
-  fpmm.sort24HourVolume7 = joinDayAndScaledVolume(
+  fpmm.sort24HourVolume7 = joinDayAndUsdVolume(
     currentDay,
-    runningDailyVolumeByHour[8],
-    collateralScale,
+    usdRunningDailyVolumeByHour[8],
   );
 
   if (currentHourInDay === 8) currentDay = currentDay.minus(one);
-  fpmm.sort24HourVolume8 = joinDayAndScaledVolume(
+  fpmm.sort24HourVolume8 = joinDayAndUsdVolume(
     currentDay,
-    runningDailyVolumeByHour[9],
-    collateralScale,
+    usdRunningDailyVolumeByHour[9],
   );
 
   if (currentHourInDay === 9) currentDay = currentDay.minus(one);
-  fpmm.sort24HourVolume9 = joinDayAndScaledVolume(
+  fpmm.sort24HourVolume9 = joinDayAndUsdVolume(
     currentDay,
-    runningDailyVolumeByHour[10],
-    collateralScale,
+    usdRunningDailyVolumeByHour[10],
   );
 
   if (currentHourInDay === 10) currentDay = currentDay.minus(one);
-  fpmm.sort24HourVolume10 = joinDayAndScaledVolume(
+  fpmm.sort24HourVolume10 = joinDayAndUsdVolume(
     currentDay,
-    runningDailyVolumeByHour[11],
-    collateralScale,
+    usdRunningDailyVolumeByHour[11],
   );
 
   if (currentHourInDay === 11) currentDay = currentDay.minus(one);
-  fpmm.sort24HourVolume11 = joinDayAndScaledVolume(
+  fpmm.sort24HourVolume11 = joinDayAndUsdVolume(
     currentDay,
-    runningDailyVolumeByHour[12],
-    collateralScale,
+    usdRunningDailyVolumeByHour[12],
   );
 
   if (currentHourInDay === 12) currentDay = currentDay.minus(one);
-  fpmm.sort24HourVolume12 = joinDayAndScaledVolume(
+  fpmm.sort24HourVolume12 = joinDayAndUsdVolume(
     currentDay,
-    runningDailyVolumeByHour[13],
-    collateralScale,
+    usdRunningDailyVolumeByHour[13],
   );
 
   if (currentHourInDay === 13) currentDay = currentDay.minus(one);
-  fpmm.sort24HourVolume13 = joinDayAndScaledVolume(
+  fpmm.sort24HourVolume13 = joinDayAndUsdVolume(
     currentDay,
-    runningDailyVolumeByHour[14],
-    collateralScale,
+    usdRunningDailyVolumeByHour[14],
   );
 
   if (currentHourInDay === 14) currentDay = currentDay.minus(one);
-  fpmm.sort24HourVolume14 = joinDayAndScaledVolume(
+  fpmm.sort24HourVolume14 = joinDayAndUsdVolume(
     currentDay,
-    runningDailyVolumeByHour[15],
-    collateralScale,
+    usdRunningDailyVolumeByHour[15],
   );
 
   if (currentHourInDay === 15) currentDay = currentDay.minus(one);
-  fpmm.sort24HourVolume15 = joinDayAndScaledVolume(
+  fpmm.sort24HourVolume15 = joinDayAndUsdVolume(
     currentDay,
-    runningDailyVolumeByHour[16],
-    collateralScale,
+    usdRunningDailyVolumeByHour[16],
   );
 
   if (currentHourInDay === 16) currentDay = currentDay.minus(one);
-  fpmm.sort24HourVolume16 = joinDayAndScaledVolume(
+  fpmm.sort24HourVolume16 = joinDayAndUsdVolume(
     currentDay,
-    runningDailyVolumeByHour[17],
-    collateralScale,
+    usdRunningDailyVolumeByHour[17],
   );
 
   if (currentHourInDay === 17) currentDay = currentDay.minus(one);
-  fpmm.sort24HourVolume17 = joinDayAndScaledVolume(
+  fpmm.sort24HourVolume17 = joinDayAndUsdVolume(
     currentDay,
-    runningDailyVolumeByHour[18],
-    collateralScale,
+    usdRunningDailyVolumeByHour[18],
   );
 
   if (currentHourInDay === 18) currentDay = currentDay.minus(one);
-  fpmm.sort24HourVolume18 = joinDayAndScaledVolume(
+  fpmm.sort24HourVolume18 = joinDayAndUsdVolume(
     currentDay,
-    runningDailyVolumeByHour[19],
-    collateralScale,
+    usdRunningDailyVolumeByHour[19],
   );
 
   if (currentHourInDay === 19) currentDay = currentDay.minus(one);
-  fpmm.sort24HourVolume19 = joinDayAndScaledVolume(
+  fpmm.sort24HourVolume19 = joinDayAndUsdVolume(
     currentDay,
-    runningDailyVolumeByHour[20],
-    collateralScale,
+    usdRunningDailyVolumeByHour[20],
   );
 
   if (currentHourInDay === 20) currentDay = currentDay.minus(one);
-  fpmm.sort24HourVolume20 = joinDayAndScaledVolume(
+  fpmm.sort24HourVolume20 = joinDayAndUsdVolume(
     currentDay,
-    runningDailyVolumeByHour[21],
-    collateralScale,
+    usdRunningDailyVolumeByHour[21],
   );
 
   if (currentHourInDay === 21) currentDay = currentDay.minus(one);
-  fpmm.sort24HourVolume21 = joinDayAndScaledVolume(
+  fpmm.sort24HourVolume21 = joinDayAndUsdVolume(
     currentDay,
-    runningDailyVolumeByHour[22],
-    collateralScale,
+    usdRunningDailyVolumeByHour[22],
   );
 
   if (currentHourInDay === 22) currentDay = currentDay.minus(one);
-  fpmm.sort24HourVolume22 = joinDayAndScaledVolume(
+  fpmm.sort24HourVolume22 = joinDayAndUsdVolume(
     currentDay,
-    runningDailyVolumeByHour[23],
-    collateralScale,
+    usdRunningDailyVolumeByHour[23],
   );
 
   if (currentHourInDay === 23) currentDay = currentDay.minus(one);
-  fpmm.sort24HourVolume23 = joinDayAndScaledVolume(
+  fpmm.sort24HourVolume23 = joinDayAndUsdVolume(
     currentDay,
-    runningDailyVolumeByHour[0],
-    collateralScale,
+    usdRunningDailyVolumeByHour[0],
   );
 }
 
@@ -204,6 +170,7 @@ export function setLiquidity(
   fpmm: FixedProductMarketMaker,
   outcomeTokenAmounts: BigInt[],
   collateralScaleDec: BigDecimal,
+  collateralUSDPrice: BigDecimal,
 ): void {
   fpmm.outcomeTokenAmounts = outcomeTokenAmounts;
 
@@ -213,7 +180,9 @@ export function setLiquidity(
   }
   let liquidityParameter = nthRoot(amountsProduct, outcomeTokenAmounts.length);
   fpmm.liquidityParameter = liquidityParameter;
-  fpmm.scaledLiquidityParameter = liquidityParameter.divDecimal(collateralScaleDec);
+  let scaledLiquidityParameter = liquidityParameter.divDecimal(collateralScaleDec);
+  fpmm.scaledLiquidityParameter = scaledLiquidityParameter;
+  fpmm.usdLiquidityParameter = scaledLiquidityParameter.times(collateralUSDPrice);
 
   let weights = new Array<BigInt>(outcomeTokenAmounts.length);
   let sum = zero;
@@ -243,10 +212,13 @@ export function setLiquidity(
       .times(weights[0])
       .div(sum);
     fpmm.liquidityMeasure = liquidityMeasure;
-    fpmm.scaledLiquidityMeasure = liquidityMeasure.divDecimal(collateralScaleDec);
+    let scaledLiquidityMeasure = liquidityMeasure.divDecimal(collateralScaleDec);
+    fpmm.scaledLiquidityMeasure = scaledLiquidityMeasure;
+    fpmm.usdLiquidityMeasure = scaledLiquidityMeasure.times(collateralUSDPrice);
   } else {
     fpmm.outcomeTokenMarginalPrices = null;
     fpmm.liquidityMeasure = zero;
-    fpmm.scaledLiquidityMeasure = zero.toBigDecimal();
+    fpmm.scaledLiquidityMeasure = zeroDec;
+    fpmm.usdLiquidityMeasure = zeroDec;
   }
 }
