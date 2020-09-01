@@ -48,5 +48,65 @@
       "address": "0x03165df66d9448e45c2f5137486af3e7e752a352",
       "transactionHash": "0xc10916833e037e887b9e0fa636e92110758f4f059b281e21a31c3737ab420bbe"
     }
+  },
+  "GeneralizedTCR": {
+    "1": {
+      "address": "0xb72103eE8819F2480c25d306eEAb7c3382fBA612",
+      "transactionHash": "0xc448229557e607473029fb5e88f367fc4f7c2b24a02ea6838a6b8cf58b5383eb"
+    },
+    "4": {
+      "address": "0x58574aF265E1feC3b2B6dD005CA17af8eDa581cc",
+      "transactionHash": "0xe559e5527507fd37f53d8491a346af6eac0adb691fb8370b5c7fd6a8cfc58074"
+    }
+  },
+  "UniswapV2Factory": {
+    "1": {
+      "address": "0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f",
+      "transactionHash": "0xc31d7e7e85cab1d38ce1b8ac17e821ccd47dbde00f9d57f2bd8613bff9428396"
+    },
+    "4": {
+      "address": "0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f",
+      "transactionHash": "0xbbdb9c4754e69ce864b9d2e2420385cd1f10d584a416be52b021cff0f49f3c6f"
+    }
+  },
+  "WETH9": {
+    "1": {
+      "address": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+      "transactionHash": "0xb95343413e459a0f97461812111254163ae53467855c0d73e0f1e7c5b8442fa3"
+    },
+    "4": {
+      "address": "0xc778417E063141139Fce010982780140Aa0cD5Ab",
+      "transactionHash": "0x7bc8e85f99556aa23a41dd3c107e92ec76f057e4cea39f376ffb1b15d514b11f"
+    }
+  },
+  "DAI": {
+    "1": {
+      "address": "0x6B175474E89094C44Da98b954EedeAC495271d0F",
+      "transactionHash": "0x495402df7d45fe36329b0bd94487f49baee62026d50f654600f6771bd2a596ab"
+    },
+    "4": {
+      "address": "0x5592EC0cfb4dbc12D3aB100b257153436a1f0FEa",
+      "transactionHash": "0x27c434cf56a44547a4a638df85745b62af0894ad1f857d765e1c0f256ae0d7d3"
+    }
+  },
+  "USDC": {
+    "1": {
+      "address": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+      "transactionHash": "0xe7e0fe390354509cd08c9a0168536938600ddc552b3f7cb96030ebef62e75895"
+    },
+    "4": {
+      "address": "0xc7AD46e0b8a400Bb3C915120d284AafbA8fc4735",
+      "transactionHash": "0xe887a213e889941abd1fe3cf577f9ec5b0c8b81e828f37226cf977ad0151f88a"
+    }
+  },
+  "USDT": {
+    "1": {
+      "address": "0xdAC17F958D2ee523a2206206994597C13D831ec7",
+      "transactionHash": "0x2f1c5c2b44f771e942a8506148e256f94f1a464babc938ae0690c6e34cd79190"
+    },
+    "4": {
+      "address": "0xFb1D709cb959aC0EA14cAD0927EABC7832e65058",
+      "transactionHash": "0xf0c6aef93dde0ff2f49670ade7ef25cda26a877d4d009cfdf784e519570946c8"
+    }
   }
 }

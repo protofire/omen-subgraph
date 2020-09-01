@@ -1,8 +1,9 @@
-import { BigInt, BigDecimal, log } from '@graphprotocol/graph-ts'
+import { BigDecimal, log } from '@graphprotocol/graph-ts'
 
 import { ConditionPreparation, ConditionResolution } from '../generated/ConditionalTokens/ConditionalTokens'
 import { Condition, Question, FixedProductMarketMaker, Category } from '../generated/schema'
-import { requireGlobal } from './global-utils';
+import { zero } from './utils/constants';
+import { requireGlobal } from './utils/global';
 
 export function handleConditionPreparation(event: ConditionPreparation): void {
   let condition = new Condition(event.params.conditionId.toHexString());
@@ -69,7 +70,7 @@ export function handleConditionResolution(event: ConditionResolution): void {
   condition.resolutionTimestamp = event.block.timestamp;
 
   let payoutNumerators = event.params.payoutNumerators;
-  let payoutDenominator = BigInt.fromI32(0);
+  let payoutDenominator = zero;
   for (let i = 0; i < payoutNumerators.length; i++) {
     payoutDenominator = payoutDenominator.plus(payoutNumerators[i]);
   }

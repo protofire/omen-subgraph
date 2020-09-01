@@ -56,21 +56,54 @@ type FixedProductMarketMaker @entity {
 
   collateralVolume: BigInt!
   scaledCollateralVolume: BigDecimal!
+  usdVolume: BigDecimal!
   outcomeTokenAmounts: [BigInt!]!
   outcomeTokenMarginalPrices: [BigDecimal!]
   outcomeSlotCount: Int
   liquidityMeasure: BigInt!
   scaledLiquidityMeasure: BigDecimal!
+  usdLiquidityMeasure: BigDecimal!
   liquidityParameter: BigInt!
   scaledLiquidityParameter: BigDecimal!
+  usdLiquidityParameter: BigDecimal!
 
   lastActiveDay: BigInt!
+  lastActiveHour: BigInt!
+  collateralVolumeBeforeLastActiveDayByHour: [BigInt!]!
+  usdVolumeBeforeLastActiveDayByHour: [BigDecimal!]!
+
   runningDailyVolume: BigInt!
   scaledRunningDailyVolume: BigDecimal!
+  usdRunningDailyVolume: BigDecimal!
   lastActiveDayAndRunningDailyVolume: BigInt!
   lastActiveDayAndScaledRunningDailyVolume: BigInt!
 
-  collateralVolumeBeforeLastActiveDay: BigInt!
+  runningDailyVolumeByHour: [BigInt!]!
+  usdRunningDailyVolumeByHour: [BigDecimal!]!
+  sort24HourVolume0: BigDecimal!
+  sort24HourVolume1: BigDecimal!
+  sort24HourVolume2: BigDecimal!
+  sort24HourVolume3: BigDecimal!
+  sort24HourVolume4: BigDecimal!
+  sort24HourVolume5: BigDecimal!
+  sort24HourVolume6: BigDecimal!
+  sort24HourVolume7: BigDecimal!
+  sort24HourVolume8: BigDecimal!
+  sort24HourVolume9: BigDecimal!
+  sort24HourVolume10: BigDecimal!
+  sort24HourVolume11: BigDecimal!
+  sort24HourVolume12: BigDecimal!
+  sort24HourVolume13: BigDecimal!
+  sort24HourVolume14: BigDecimal!
+  sort24HourVolume15: BigDecimal!
+  sort24HourVolume16: BigDecimal!
+  sort24HourVolume17: BigDecimal!
+  sort24HourVolume18: BigDecimal!
+  sort24HourVolume19: BigDecimal!
+  sort24HourVolume20: BigDecimal!
+  sort24HourVolume21: BigDecimal!
+  sort24HourVolume22: BigDecimal!
+  sort24HourVolume23: BigDecimal!
 
   indexedOnQuestion: Boolean!
 
@@ -102,6 +135,11 @@ type FixedProductMarketMaker @entity {
 
   poolMembers: [FpmmPoolMembership!] @derivedFrom(field: "pool")
   participants: [FpmmParticipation!] @derivedFrom(field: "fpmm")
+
+  # Generalized TCR fields (Kleros Curate Contract for market verification)
+  klerosTCRitemID: String
+  klerosTCRstatus: Int
+  klerosTCRregistered: Boolean
 }
 
 type FpmmPoolMembership @entity {
@@ -135,10 +173,43 @@ type Account @entity {
   fpmmParticipations: [FpmmParticipation!] @derivedFrom(field: "participant")
 }
 
+type Token @entity {
+  id: ID!
+  scale: BigInt!
+  ethPerToken: BigDecimal
+}
+
+type UniswapPair @entity {
+  id: ID!
+  token0: Token!
+  token1: Token!
+  reserve0: BigInt!
+  reserve1: BigInt!
+}
+
 type Global @entity {
   # ID is empty string, this is a singleton
   id: ID!
   numConditions: Int!
   numOpenConditions: Int!
   numClosedConditions: Int!
+
+  usdPerEth: BigDecimal
+  usdVolume: BigDecimal!
 }
+
+type _Schema_
+  @fulltext(
+    name: "marketSearch",
+    language: en
+    algorithm: rank,
+    include: [
+      {
+        entity: "FixedProductMarketMaker",
+        fields: [
+          { name: "title" }
+        ]
+      }
+    ]
+  )
+
