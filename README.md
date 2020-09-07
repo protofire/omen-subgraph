@@ -40,7 +40,7 @@ Some parts of the configuration and mapping code depend on the addresses of spec
 
 ### Question
 
-Represents a question on Realitio.
+Represents a question on Realitio. 
 
 * `id` - question ID on Realitio.
 * `templateId` - question's template ID.
