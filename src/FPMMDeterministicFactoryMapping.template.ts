@@ -53,6 +53,7 @@ export function handleFixedProductMarketMakerCreation(event: FixedProductMarketM
   fpmm.indexedOnQuestion = false;
 
   fpmm.curatedByDxDao = false;
+  fpmm.curatedByDxDaoOrKleros = fpmm.klerosTCRregistered;
 
   if(conditionIdStrs.length == 1) {
     let conditionIdStr = conditionIdStrs[0];

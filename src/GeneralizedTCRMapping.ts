@@ -64,6 +64,7 @@ export function handleItemStatusChange(event: ItemStatusChange): void {
   fpmm.klerosTCRitemID = event.params._itemID.toHexString();
   fpmm.klerosTCRstatus = itemInfo.value1;
   fpmm.klerosTCRregistered = fpmm.klerosTCRstatus == REGISTERED || fpmm.klerosTCRstatus == REMOVAL_REQUESTED;
+  fpmm.curatedByDxDaoOrKleros = fpmm.klerosTCRregistered || fpmm.curatedByDxDao;
   fpmm.save();
 }
 

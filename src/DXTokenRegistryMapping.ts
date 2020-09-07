@@ -13,6 +13,7 @@ export function handleAddToken(event: AddToken): void {
     }
 
     fpmm.curatedByDxDao = true;
+    fpmm.curatedByDxDaoOrKleros = true;
     fpmm.save();
   }
 }
@@ -28,6 +29,7 @@ export function handleRemoveToken(event: RemoveToken): void {
     }
 
     fpmm.curatedByDxDao = false;
+    fpmm.curatedByDxDaoOrKleros = fpmm.klerosTCRregistered;
     fpmm.save();
   }
 }

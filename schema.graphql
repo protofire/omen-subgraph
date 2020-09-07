@@ -140,6 +140,8 @@ type FixedProductMarketMaker @entity {
   klerosTCRitemID: String
   klerosTCRstatus: Int
   klerosTCRregistered: Boolean
+
+  curatedByDxDaoOrKleros: Boolean!
 }
 
 type FpmmPoolMembership @entity {
