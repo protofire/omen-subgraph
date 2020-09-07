@@ -29,7 +29,7 @@ export function handleRemoveToken(event: RemoveToken): void {
     }
 
     fpmm.curatedByDxDao = false;
-    fpmm.curatedByDxDaoOrKleros = fpmm.klerosTCRregistered;
+    fpmm.curatedByDxDaoOrKleros = fpmm.klerosTCRregistered == true;
     fpmm.save();
   }
 }
