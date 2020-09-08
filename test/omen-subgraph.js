@@ -40,6 +40,7 @@ const FPMMDeterministicFactory = getContract('FPMMDeterministicFactory');
 const FixedProductMarketMaker = getContract('FixedProductMarketMaker');
 const SimpleCentralizedArbitrator = getContract('SimpleCentralizedArbitrator');
 const GeneralizedTCR = getContract('GeneralizedTCR');
+const DXTokenRegistry = getContract('DXTokenRegistry')
 
 async function queryGraph(query) {
   return (await axios.post('http://localhost:8000/subgraphs', { query })).data.data;
@@ -301,6 +302,7 @@ describe('Omen subgraph', function() {
   let factory;
   let centralizedArbitrator;
   let marketsTCR;
+  let dxTokenRegistry;
   before('get deployed contracts', async function() {
     weth = await WETH9.deployed();
     realitio = await Realitio.deployed();
@@ -309,6 +311,7 @@ describe('Omen subgraph', function() {
     factory = await FPMMDeterministicFactory.deployed();
     centralizedArbitrator = await SimpleCentralizedArbitrator.deployed();
     marketsTCR = await GeneralizedTCR.deployed()
+    dxTokenRegistry = await DXTokenRegistry.deployed()
   });
 
   it('exists', async function() {
@@ -730,6 +733,33 @@ describe('Omen subgraph', function() {
         curatedByDxDaoOrKleros
       }
     }`)).fixedProductMarketMaker).to.deep.equal({ klerosTCRregistered: false, klerosTCRstatus: ABSENT, curatedByDxDaoOrKleros: false })
+
+    // DXTokenRegistryMapping only handles AddToken for the 4th list.
+    // Add some lists.
+    await dxTokenRegistry.addList('List 1', { from: creator })
+    await dxTokenRegistry.addList('List 2', { from: creator })
+    await dxTokenRegistry.addList('List 3', { from: creator })
+    await dxTokenRegistry.addList('List 4', { from: creator })
+
+    await dxTokenRegistry.addTokens(4, [fpmm.address], { from: creator })
+    await advanceBlock()
+    await waitForGraphSync();
+    expect((await querySubgraph(`{
+      fixedProductMarketMaker(id: "${fpmm.address.toLowerCase()}") {
+        curatedByDxDaoOrKleros
+        curatedByDxDao
+      }
+    }`)).fixedProductMarketMaker).to.deep.equal({ curatedByDxDaoOrKleros: true, curatedByDxDao: true })
+
+    await dxTokenRegistry.removeTokens(4, [fpmm.address], { from: creator })
+    await advanceBlock()
+    await waitForGraphSync();
+    expect((await querySubgraph(`{
+      fixedProductMarketMaker(id: "${fpmm.address.toLowerCase()}") {
+        curatedByDxDaoOrKleros
+        curatedByDxDao
+      }
+    }`)).fixedProductMarketMaker).to.deep.equal({ curatedByDxDaoOrKleros: false, curatedByDxDao: false })
 
   })
 });
