@@ -139,7 +139,9 @@ type FixedProductMarketMaker @entity {
   # Generalized TCR fields (Kleros Curate Contract for market verification)
   klerosTCRitemID: String
   klerosTCRstatus: Int
-  klerosTCRregistered: Boolean
+  klerosTCRregistered: Boolean!
+
+  curatedByDxDaoOrKleros: Boolean!
 }
 
 type FpmmPoolMembership @entity {
