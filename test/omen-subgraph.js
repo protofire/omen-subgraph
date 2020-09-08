@@ -676,8 +676,9 @@ describe('Omen subgraph', function() {
       fixedProductMarketMaker(id: "${fpmm.address.toLowerCase()}") {
         klerosTCRregistered
         klerosTCRstatus
+        curatedByDxDaoOrKleros
       }
-    }`)).fixedProductMarketMaker).to.deep.equal({ klerosTCRregistered: false, klerosTCRstatus: REGISTRATION_REQUESTED })
+    }`)).fixedProductMarketMaker).to.deep.equal({ klerosTCRregistered: false, klerosTCRstatus: REGISTRATION_REQUESTED, curatedByDxDaoOrKleros: false })
 
     await increaseTime(1)
     const itemID = await marketsTCR.itemList(0)
@@ -689,8 +690,9 @@ describe('Omen subgraph', function() {
       fixedProductMarketMaker(id: "${fpmm.address.toLowerCase()}") {
         klerosTCRregistered
         klerosTCRstatus
+        curatedByDxDaoOrKleros
       }
-    }`)).fixedProductMarketMaker).to.deep.equal({ klerosTCRregistered: false, klerosTCRstatus: REGISTRATION_REQUESTED })
+    }`)).fixedProductMarketMaker).to.deep.equal({ klerosTCRregistered: false, klerosTCRstatus: REGISTRATION_REQUESTED, curatedByDxDaoOrKleros: false })
 
     const [ACCEPT, REJECT] = [1, 2] // Possible rulings
     await centralizedArbitrator.rule(0, ACCEPT, { from: creator })
@@ -701,8 +703,9 @@ describe('Omen subgraph', function() {
       fixedProductMarketMaker(id: "${fpmm.address.toLowerCase()}") {
         klerosTCRregistered
         klerosTCRstatus
+        curatedByDxDaoOrKleros
       }
-    }`)).fixedProductMarketMaker).to.deep.equal({ klerosTCRregistered: true, klerosTCRstatus: REGISTERED })
+    }`)).fixedProductMarketMaker).to.deep.equal({ klerosTCRregistered: true, klerosTCRstatus: REGISTERED, curatedByDxDaoOrKleros: true })
 
     increaseTime(10)
     await marketsTCR.removeItem(itemID, '', { from: creator, value: arbitrationCost })
@@ -712,8 +715,9 @@ describe('Omen subgraph', function() {
       fixedProductMarketMaker(id: "${fpmm.address.toLowerCase()}") {
         klerosTCRregistered
         klerosTCRstatus
+        curatedByDxDaoOrKleros
       }
-    }`)).fixedProductMarketMaker).to.deep.equal({ klerosTCRregistered: true, klerosTCRstatus: REMOVAL_REQUESTED })
+    }`)).fixedProductMarketMaker).to.deep.equal({ klerosTCRregistered: true, klerosTCRstatus: REMOVAL_REQUESTED, curatedByDxDaoOrKleros: true })
 
     increaseTime(10)
     await marketsTCR.executeRequest(itemID, { from: creator })
@@ -723,8 +727,9 @@ describe('Omen subgraph', function() {
       fixedProductMarketMaker(id: "${fpmm.address.toLowerCase()}") {
         klerosTCRregistered
         klerosTCRstatus
+        curatedByDxDaoOrKleros
       }
-    }`)).fixedProductMarketMaker).to.deep.equal({ klerosTCRregistered: false, klerosTCRstatus: ABSENT })
+    }`)).fixedProductMarketMaker).to.deep.equal({ klerosTCRregistered: false, klerosTCRstatus: ABSENT, curatedByDxDaoOrKleros: false })
 
   })
 });
