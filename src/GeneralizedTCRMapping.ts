@@ -1,6 +1,6 @@
 import { log } from '@graphprotocol/graph-ts';
 import { ItemStatusChange, GeneralizedTCR } from '../generated/GeneralizedTCR/GeneralizedTCR';
-import { FixedProductMarketMaker } from '../generated/schema';
+import { FixedProductMarketMaker, FpmmParticipation } from '../generated/schema';
 
 function hexStringToLowerCase(input: string): string {
   // Code looks weird? Unfortunately the current version
@@ -42,6 +42,7 @@ export function handleItemStatusChange(event: ItemStatusChange): void {
   const lowerCaseFpmmAddr = hexStringToLowerCase(fpmmAddress)
 
   let fpmm = FixedProductMarketMaker.load(lowerCaseFpmmAddr);
+  let fpmmParticipation = FpmmParticipation.load(lowerCaseFpmmAddr);
   if (fpmm == null) {
     log.warning("GTCR: Could not load FPMM for {}", [lowerCaseFpmmAddr]);
     return;
@@ -66,6 +67,10 @@ export function handleItemStatusChange(event: ItemStatusChange): void {
   fpmm.klerosTCRregistered = fpmm.klerosTCRstatus == REGISTERED || fpmm.klerosTCRstatus == REMOVAL_REQUESTED;
   fpmm.curatedByDxDaoOrKleros = fpmm.klerosTCRregistered == true || fpmm.curatedByDxDao == true;
   fpmm.save();
+
+  fpmmParticipation.klerosTCRregistered = fpmm.klerosTCRstatus == REGISTERED || fpmm.klerosTCRstatus == REMOVAL_REQUESTED;
+  fpmmParticipation.curatedByDxDaoOrKleros = fpmmParticipation.klerosTCRregistered == true || fpmmParticipation.curatedByDxDao == true;
+  fpmmParticipation.save();
 }
 
 

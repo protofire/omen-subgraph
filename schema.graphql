@@ -160,6 +160,9 @@ type FpmmParticipation @entity {
   creationTimestamp: BigInt!
   collateralToken: Bytes!
   fee: BigInt!
+  curatedByDxDao: Boolean!
+  curatedByDxDaoOrKleros: Boolean!
+  klerosTCRregistered: Boolean!
 
   # lifted from fpmm's condition's question
   category: String

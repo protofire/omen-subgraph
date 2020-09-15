@@ -47,6 +47,10 @@ function recordParticipation(fpmm: FixedProductMarketMaker, participantAddress: 
     fpmmParticipation.arbitrator = fpmm.arbitrator;
     fpmmParticipation.openingTimestamp = fpmm.openingTimestamp;
     fpmmParticipation.timeout = fpmm.timeout;
+
+    fpmmParticipation.curatedByDxDao = false;
+    fpmmParticipation.curatedByDxDaoOrKleros = false;
+    fpmmParticipation.klerosTCRregistered = false;
   
     fpmmParticipation.save();
   }
