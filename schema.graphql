@@ -155,6 +155,8 @@ type FpmmParticipation @entity {
   id: ID!
   fpmm: FixedProductMarketMaker!
   participant: Account!
+  collateralTokens: BigDecimal!
+  collateralTokensUSD: BigDecimal!
 
   # lifted from fpmm
   creationTimestamp: BigInt!

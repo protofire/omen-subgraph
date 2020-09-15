@@ -152,6 +152,7 @@ function increaseVolume(
 export function handleFundingAdded(event: FPMMFundingAdded): void {
   let fpmmAddress = event.address.toHexString();
   let fpmm = FixedProductMarketMaker.load(fpmmAddress);
+  let fpmmParticipation = FpmmParticipation.load(fpmmAddress);
   if (fpmm == null) {
     log.error('cannot add funding: FixedProductMarketMaker instance for {} not found', [fpmmAddress]);
     return;
@@ -174,13 +175,18 @@ export function handleFundingAdded(event: FPMMFundingAdded): void {
     zeroDec;
 
   setLiquidity(fpmm as FixedProductMarketMaker, newAmounts, collateralScaleDec, collateralUSDPrice)
+  
+  fpmmParticipation.collateralTokens = collateralScaleDec
+  fpmmParticipation.collateralTokensUSD = collateralUSDPrice
 
   fpmm.save();
+  fpmmParticipation.save();
 }
 
 export function handleFundingRemoved(event: FPMMFundingRemoved): void {
   let fpmmAddress = event.address.toHexString();
   let fpmm = FixedProductMarketMaker.load(fpmmAddress);
+  let fpmmParticipation = FpmmParticipation.load(fpmmAddress);
   if (fpmm == null) {
     log.error('cannot remove funding: FixedProductMarketMaker instance for {} not found', [fpmmAddress]);
     return;
@@ -204,7 +210,11 @@ export function handleFundingRemoved(event: FPMMFundingRemoved): void {
 
   setLiquidity(fpmm as FixedProductMarketMaker, newAmounts, collateralScaleDec, collateralUSDPrice);
 
+  fpmmParticipation.collateralTokens = collateralScaleDec
+  fpmmParticipation.collateralTokensUSD = collateralUSDPrice
+
   fpmm.save();
+  fpmmParticipation.save();
 }
 
 export function handleBuy(event: FPMMBuy): void {
