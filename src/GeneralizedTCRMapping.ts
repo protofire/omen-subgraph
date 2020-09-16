@@ -73,10 +73,9 @@ export function handleItemStatusChange(event: ItemStatusChange): void {
   }  
 
   let submissionsCount = fpmm.submissionIDs.length;
-  let submissionIndex = -1;  
+  let newSubmission = true;  
   log.info('GTCR: Searching for submission. {} submissions for this market', [submissionsCount.toString()]);
-  for (let i = 0; i < fpmm.submissionIDs.length; i++) {
-    log.info('GTCR: {} of {}.', [(i + 1).toString(), submissionsCount.toString()]);
+  for (let i = 0; i < fpmm.submissionIDs.length; i++) {    
     let submissionIDs = fpmm.submissionIDs;
     let itemID = submissionIDs[i];
     let submission = MarketKleros.load(itemID);
@@ -84,21 +83,28 @@ export function handleItemStatusChange(event: ItemStatusChange): void {
       // log.info('GTCR: loaded submission', []);
       if (submission.id == event.params._itemID.toHexString()) {
         // log.info('GTCR: found submission', []);
-        submissionIndex = i;
+        newSubmission = false;
       }
     }   
   }
 
-  if (submissionIndex == -1) {
-    let submission = new MarketKleros(event.params._itemID.toHexString()); 
-    submission.save();
+  let submission: MarketKleros | null = null;
+  if (newSubmission) {
+    submission = new MarketKleros(event.params._itemID.toHexString()); 
+    submission.listAddress = event.address.toHexString();    
+    submission.market = fpmm.id;    
     
     let submissionIDs = fpmm.submissionIDs;
     submissionIDs.push(submission.id);
 
     fpmm.submissionIDs = submissionIDs;
     log.info('GTCR: Submission not found. Created one. ID: {}, {}', [submission.id, event.params._itemID.toHexString()]);
+  } else {
+    submission = MarketKleros.load(event.params._itemID.toHexString());
   }
+
+  submission.status = getStatus(itemInfo.value1);
+  submission.save();
   
   fpmm.save();  
 }
