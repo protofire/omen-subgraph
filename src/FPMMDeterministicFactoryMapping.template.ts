@@ -55,6 +55,7 @@ export function handleFixedProductMarketMakerCreation(event: FixedProductMarketM
   fpmm.curatedByDxDao = false;
   fpmm.curatedByDxDaoOrKleros = false;
   fpmm.klerosTCRregistered = false;
+  fpmm.submissionIDs = []
 
   if(conditionIdStrs.length == 1) {
     let conditionIdStr = conditionIdStrs[0];

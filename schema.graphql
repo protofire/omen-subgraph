@@ -137,8 +137,7 @@ type FixedProductMarketMaker @entity {
   participants: [FpmmParticipation!] @derivedFrom(field: "fpmm")
 
   # Generalized TCR fields (Kleros Curate Contract for market verification)
-  klerosTCRitemID: String
-  klerosTCRstatus: Int
+  submissionIDs: [String!]!
   klerosTCRregistered: Boolean!
 
   curatedByDxDaoOrKleros: Boolean!
@@ -198,6 +197,12 @@ type Global @entity {
 
   usdPerEth: BigDecimal
   usdVolume: BigDecimal!
+}
+
+type MarketKleros @entity {
+  id: ID!
+  # status: String!
+  # listAddress: String!
 }
 
 type _Schema_
