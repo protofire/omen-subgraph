@@ -220,6 +220,7 @@ export function handleFundingRemoved(event: FPMMFundingRemoved): void {
 export function handleBuy(event: FPMMBuy): void {
   let fpmmAddress = event.address.toHexString();
   let fpmm = FixedProductMarketMaker.load(fpmmAddress);
+  let fpmmParticipation = FpmmParticipation.load(fpmmAddress);
   if (fpmm == null) {
     log.error('cannot buy: FixedProductMarketMaker instance for {} not found', [fpmmAddress]);
     return;
@@ -258,7 +259,11 @@ export function handleBuy(event: FPMMBuy): void {
     collateralUSDPrice,
   );
 
+  fpmmParticipation.collateralTokens = collateralScaleDec
+  fpmmParticipation.collateralTokensUSD = collateralUSDPrice
+
   fpmm.save();
+  fpmmParticipation.save();
 
   recordParticipation(fpmm as FixedProductMarketMaker, event.params.buyer.toHexString());
 }
@@ -266,6 +271,7 @@ export function handleBuy(event: FPMMBuy): void {
 export function handleSell(event: FPMMSell): void {
   let fpmmAddress = event.address.toHexString()
   let fpmm = FixedProductMarketMaker.load(fpmmAddress);
+  let fpmmParticipation = FpmmParticipation.load(fpmmAddress);
   if (fpmm == null) {
     log.error('cannot sell: FixedProductMarketMaker instance for {} not found', [fpmmAddress]);
     return;
@@ -304,7 +310,11 @@ export function handleSell(event: FPMMSell): void {
     collateralUSDPrice,
   );
 
+  fpmmParticipation.collateralTokens = collateralScaleDec
+  fpmmParticipation.collateralTokensUSD = collateralUSDPrice
+
   fpmm.save();
+  fpmmParticipation.save();
 
   recordParticipation(fpmm as FixedProductMarketMaker, event.params.seller.toHexString());
 }
@@ -312,6 +322,10 @@ export function handleSell(event: FPMMSell): void {
 export function handlePoolShareTransfer(event: Transfer): void {
   let fpmmAddress = event.address.toHexString()
   let fpmm = FixedProductMarketMaker.load(fpmmAddress);
+  let fpmmParticipation = FpmmParticipation.load(fpmmAddress);
+
+  let collateralTokensAmount = fpmmParticipation.collateralTokens
+  let collateralTokensUSDAmount = fpmmParticipation.collateralTokensUSD
 
   let fromAddress = event.params.from.toHexString();
   requireAccount(fromAddress);
