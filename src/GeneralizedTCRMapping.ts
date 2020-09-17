@@ -73,8 +73,8 @@ export function handleItemStatusChange(event: ItemStatusChange): void {
 
   // Check if we are updating an entry or creating a new one.
   let newSubmission = true;
+  let submissionIDs = fpmm.submissionIDs;
   for (let i = 0; i < fpmm.submissionIDs.length; i++) {
-    let submissionIDs = fpmm.submissionIDs;
     let itemID = submissionIDs[i];
     let submission = KlerosSubmission.load(itemID);
     if (submission != null && submission.id == event.params._itemID.toHexString()) {
@@ -88,7 +88,6 @@ export function handleItemStatusChange(event: ItemStatusChange): void {
     currentSubmission.listAddress = event.address.toHexString();
     currentSubmission.market = fpmm.id;
 
-    let submissionIDs = fpmm.submissionIDs;
     submissionIDs.push(currentSubmission.id);
 
     fpmm.submissionIDs = submissionIDs;
@@ -103,7 +102,6 @@ export function handleItemStatusChange(event: ItemStatusChange): void {
   // set klerosTCRregistered = true. Set to false otherwise.
   fpmm.klerosTCRregistered = false;
   for (let i = 0; i < fpmm.submissionIDs.length; i++) {
-    let submissionIDs = fpmm.submissionIDs;
     let itemID = submissionIDs[i];
     let submission = KlerosSubmission.load(itemID);
 
