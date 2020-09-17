@@ -1,6 +1,6 @@
 import { log } from '@graphprotocol/graph-ts';
 import { ItemStatusChange, GeneralizedTCR } from '../generated/GeneralizedTCR/GeneralizedTCR';
-import { FixedProductMarketMaker, MarketKleros } from '../generated/schema';
+import { FixedProductMarketMaker, KlerosSubmission } from '../generated/schema';
 
 function hexStringToLowerCase(input: string): string {
   // Code looks weird? Unfortunately the current version
@@ -71,19 +71,20 @@ export function handleItemStatusChange(event: ItemStatusChange): void {
     return;
   }
 
+  // Check if we are updating an entry or creating a new one.
   let newSubmission = true;
   for (let i = 0; i < fpmm.submissionIDs.length; i++) {
     let submissionIDs = fpmm.submissionIDs;
     let itemID = submissionIDs[i];
-    let submission = MarketKleros.load(itemID);
+    let submission = KlerosSubmission.load(itemID);
     if (submission != null && submission.id == event.params._itemID.toHexString()) {
       newSubmission = false;
     }
   }
 
-  let currentSubmission: MarketKleros | null = null;
+  let currentSubmission: KlerosSubmission | null = null;
   if (newSubmission) {
-    currentSubmission = new MarketKleros(event.params._itemID.toHexString());
+    currentSubmission = new KlerosSubmission(event.params._itemID.toHexString());
     currentSubmission.listAddress = event.address.toHexString();
     currentSubmission.market = fpmm.id;
 
@@ -92,18 +93,19 @@ export function handleItemStatusChange(event: ItemStatusChange): void {
 
     fpmm.submissionIDs = submissionIDs;
   } else {
-    currentSubmission = MarketKleros.load(event.params._itemID.toHexString());
+    currentSubmission = KlerosSubmission.load(event.params._itemID.toHexString());
   }
 
   currentSubmission.status = getStatus(itemInfo.value1);
   currentSubmission.save();
 
-  let length = fpmm.submissionIDs.length
+  // Check if there is at least one accepted submission. If so,
+  // set klerosTCRregistered = true. Set to false otherwise.
   fpmm.klerosTCRregistered = false;
   for (let i = 0; i < fpmm.submissionIDs.length; i++) {
     let submissionIDs = fpmm.submissionIDs;
     let itemID = submissionIDs[i];
-    let submission = MarketKleros.load(itemID);
+    let submission = KlerosSubmission.load(itemID);
 
     if (submission.status == REGISTERED || submission.status == CLEARING_REQUESTED) {
       fpmm.klerosTCRregistered = true;
