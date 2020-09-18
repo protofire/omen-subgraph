@@ -160,6 +160,7 @@ type FpmmParticipation @entity {
   creationTimestamp: BigInt!
   collateralToken: Bytes!
   fee: BigInt!
+  title: String
 
   # lifted from fpmm's condition's question
   category: String

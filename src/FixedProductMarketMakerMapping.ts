@@ -37,6 +37,7 @@ function recordParticipation(fpmm: FixedProductMarketMaker, participantAddress: 
     fpmmParticipation = new FpmmParticipation(fpmmParticipationId);
     fpmmParticipation.fpmm = fpmm.id;
     fpmmParticipation.participant = participantAddress;
+    fpmmParticipation.title = fpmm.title;
 
     fpmmParticipation.creationTimestamp = fpmm.creationTimestamp;
     fpmmParticipation.collateralToken = fpmm.collateralToken;
