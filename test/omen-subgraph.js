@@ -669,19 +669,16 @@ describe('Omen subgraph', function() {
     }
 
     const arbitrationCost = await centralizedArbitrator.arbitrationCost('0x00')
-    await marketsTCR.addItem(gtcrEncode({ columns, values: marketData }), { from: creator, value: arbitrationCost})
-
-    const [ABSENT, REGISTERED, REGISTRATION_REQUESTED, REMOVAL_REQUESTED] = [0, 1, 2, 3]
+    await marketsTCR.addItem(gtcrEncode({ columns, values: marketData }), { from: creator, value: arbitrationCost })
 
     await advanceBlock()
     await waitForGraphSync();
     expect((await querySubgraph(`{
       fixedProductMarketMaker(id: "${fpmm.address.toLowerCase()}") {
         klerosTCRregistered
-        klerosTCRstatus
         curatedByDxDaoOrKleros
       }
-    }`)).fixedProductMarketMaker).to.deep.equal({ klerosTCRregistered: false, klerosTCRstatus: REGISTRATION_REQUESTED, curatedByDxDaoOrKleros: false })
+    }`)).fixedProductMarketMaker).to.deep.equal({ klerosTCRregistered: false, curatedByDxDaoOrKleros: false })
 
     await increaseTime(1)
     const itemID = await marketsTCR.itemList(0)
@@ -692,10 +689,9 @@ describe('Omen subgraph', function() {
     expect((await querySubgraph(`{
       fixedProductMarketMaker(id: "${fpmm.address.toLowerCase()}") {
         klerosTCRregistered
-        klerosTCRstatus
         curatedByDxDaoOrKleros
       }
-    }`)).fixedProductMarketMaker).to.deep.equal({ klerosTCRregistered: false, klerosTCRstatus: REGISTRATION_REQUESTED, curatedByDxDaoOrKleros: false })
+    }`)).fixedProductMarketMaker).to.deep.equal({ klerosTCRregistered: false, curatedByDxDaoOrKleros: false })
 
     const [ACCEPT, REJECT] = [1, 2] // Possible rulings
     await centralizedArbitrator.rule(0, ACCEPT, { from: creator })
@@ -705,10 +701,9 @@ describe('Omen subgraph', function() {
     expect((await querySubgraph(`{
       fixedProductMarketMaker(id: "${fpmm.address.toLowerCase()}") {
         klerosTCRregistered
-        klerosTCRstatus
         curatedByDxDaoOrKleros
       }
-    }`)).fixedProductMarketMaker).to.deep.equal({ klerosTCRregistered: true, klerosTCRstatus: REGISTERED, curatedByDxDaoOrKleros: true })
+    }`)).fixedProductMarketMaker).to.deep.equal({ klerosTCRregistered: true, curatedByDxDaoOrKleros: true })
 
     increaseTime(10)
     await marketsTCR.removeItem(itemID, '', { from: creator, value: arbitrationCost })
@@ -717,10 +712,10 @@ describe('Omen subgraph', function() {
     expect((await querySubgraph(`{
       fixedProductMarketMaker(id: "${fpmm.address.toLowerCase()}") {
         klerosTCRregistered
-        klerosTCRstatus
         curatedByDxDaoOrKleros
+        curatedByDxDao
       }
-    }`)).fixedProductMarketMaker).to.deep.equal({ klerosTCRregistered: true, klerosTCRstatus: REMOVAL_REQUESTED, curatedByDxDaoOrKleros: true })
+    }`)).fixedProductMarketMaker).to.deep.equal({ klerosTCRregistered: true, curatedByDxDaoOrKleros: true, curatedByDxDao: false })
 
     increaseTime(10)
     await marketsTCR.executeRequest(itemID, { from: creator })
@@ -729,10 +724,10 @@ describe('Omen subgraph', function() {
     expect((await querySubgraph(`{
       fixedProductMarketMaker(id: "${fpmm.address.toLowerCase()}") {
         klerosTCRregistered
-        klerosTCRstatus
         curatedByDxDaoOrKleros
+        curatedByDxDao
       }
-    }`)).fixedProductMarketMaker).to.deep.equal({ klerosTCRregistered: false, klerosTCRstatus: ABSENT, curatedByDxDaoOrKleros: false })
+    }`)).fixedProductMarketMaker).to.deep.equal({ klerosTCRregistered: false, curatedByDxDaoOrKleros: false, curatedByDxDao: false })
 
     // DXTokenRegistryMapping only handles AddToken for the 4th list.
     // Add some lists.
@@ -748,8 +743,9 @@ describe('Omen subgraph', function() {
       fixedProductMarketMaker(id: "${fpmm.address.toLowerCase()}") {
         curatedByDxDaoOrKleros
         curatedByDxDao
+        klerosTCRregistered
       }
-    }`)).fixedProductMarketMaker).to.deep.equal({ curatedByDxDaoOrKleros: true, curatedByDxDao: true })
+    }`)).fixedProductMarketMaker).to.deep.equal({ curatedByDxDaoOrKleros: true, curatedByDxDao: true, klerosTCRregistered: false })
 
     await dxTokenRegistry.removeTokens(4, [fpmm.address], { from: creator })
     await advanceBlock()
@@ -758,8 +754,33 @@ describe('Omen subgraph', function() {
       fixedProductMarketMaker(id: "${fpmm.address.toLowerCase()}") {
         curatedByDxDaoOrKleros
         curatedByDxDao
+        klerosTCRregistered
       }
-    }`)).fixedProductMarketMaker).to.deep.equal({ curatedByDxDaoOrKleros: false, curatedByDxDao: false })
+    }`)).fixedProductMarketMaker).to.deep.equal({ curatedByDxDaoOrKleros: false, curatedByDxDao: false, klerosTCRregistered: false })
 
+    // Test that having one market is enough for klerosTCRregistered to be true.
+    await marketsTCR.addItem(gtcrEncode({ columns, values: marketData }), { from: creator, value: arbitrationCost})
+    const marketBData = {
+      Question: 'Will Ethereum 2.0 Phase 0 launch before 2021?',
+      'Market URL':`https://omen.eth.link/#/${fpmm.address}`
+    }
+    await marketsTCR.addItem(gtcrEncode({ columns, values: marketBData }), { from: creator, value: arbitrationCost})
+    increaseTime(10)
+    await marketsTCR.executeRequest(itemID, { from: creator })
+    const itemIDB = await marketsTCR.itemList(1)
+    await marketsTCR.executeRequest(itemIDB, { from: creator })
+
+    await marketsTCR.removeItem(itemIDB, '', { from: creator, value: arbitrationCost })
+    increaseTime(10)
+    await marketsTCR.executeRequest(itemIDB, { from: creator })
+
+    await advanceBlock()
+    await waitForGraphSync();
+    expect((await querySubgraph(`{
+      fixedProductMarketMaker(id: "${fpmm.address.toLowerCase()}") {
+        klerosTCRregistered
+        curatedByDxDaoOrKleros
+      }
+    }`)).fixedProductMarketMaker).to.deep.equal({ klerosTCRregistered: true, curatedByDxDaoOrKleros: true })
   })
 });
