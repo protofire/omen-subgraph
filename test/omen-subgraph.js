@@ -204,6 +204,10 @@ describe('Omen subgraph', function() {
             participant {
               id
             }
+            poolTokens
+            poolTokensUSD
+            outcomeShares
+            outcomeSharesUSD 
           }
         }
       }`);
@@ -263,19 +267,13 @@ describe('Omen subgraph', function() {
       }
 
       if (traderParticipated) {
-        fixedProductMarketMaker.participants.should.containEql(
-          { participant: { id: trader.toLowerCase() } },
-        );
+        fixedProductMarketMaker.participants.filter(participantObj => participantObj.participant.id === trader.toLowerCase()).length.should.be.above(0);
       }
-      if(shareholderParticipated) {
-        fixedProductMarketMaker.participants.should.containEql(
-          { participant: { id: shareholder.toLowerCase() } },
-        );
+      if (shareholderParticipated) {
+        fixedProductMarketMaker.participants.filter(participantObj => participantObj.participant.id === shareholder.toLowerCase()).length.should.be.above(0);
       }
-      if(creatorParticipated) {
-        fixedProductMarketMaker.participants.should.containEql(
-          { participant: { id: creator.toLowerCase() } },
-        );
+      if (creatorParticipated) {
+        fixedProductMarketMaker.participants.filter(participantObj => participantObj.participant.id === creator.toLowerCase()).length.should.be.above(0);
       }
     });
   }
