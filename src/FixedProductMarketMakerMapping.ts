@@ -45,10 +45,6 @@ function recordParticipation(
     fpmmParticipation = new FpmmParticipation(fpmmParticipationId);
     fpmmParticipation.fpmm = fpmm.id;
     fpmmParticipation.participant = participantAddress;
-    fpmmParticipation.poolTokens = new BigDecimal(new BigInt(0));
-    fpmmParticipation.poolTokensUSD = new BigDecimal(new BigInt(0));
-    fpmmParticipation.outcomeShares = new BigDecimal(new BigInt(0));
-    fpmmParticipation.outcomeSharesUSD = new BigDecimal(new BigInt(0));
 
     fpmmParticipation.creationTimestamp = fpmm.creationTimestamp;
     fpmmParticipation.collateralToken = fpmm.collateralToken;
@@ -59,6 +55,18 @@ function recordParticipation(
     fpmmParticipation.arbitrator = fpmm.arbitrator;
     fpmmParticipation.openingTimestamp = fpmm.openingTimestamp;
     fpmmParticipation.timeout = fpmm.timeout;
+
+    if (recordLiquidity) {
+      fpmmParticipation.poolTokens = collateralAmount.divDecimal(collateralScaleDec);
+      fpmmParticipation.poolTokensUSD = collateralAmount.divDecimal(collateralScaleDec).times(collateralUSDPrice);
+      fpmmParticipation.outcomeShares = new BigDecimal(new BigInt(0));
+      fpmmParticipation.outcomeSharesUSD = new BigDecimal(new BigInt(0));
+    } else {
+      fpmmParticipation.outcomeShares = collateralAmount.divDecimal(collateralScaleDec);
+      fpmmParticipation.outcomeSharesUSD = collateralAmount.divDecimal(collateralScaleDec).times(collateralUSDPrice);
+      fpmmParticipation.poolTokens = new BigDecimal(new BigInt(0));
+      fpmmParticipation.poolTokensUSD = new BigDecimal(new BigInt(0));
+    }
   
     fpmmParticipation.save();
   } else {
