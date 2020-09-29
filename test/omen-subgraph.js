@@ -277,10 +277,6 @@ describe('Omen subgraph', function() {
       }
 
       if (participant === participants.trader) {
-
-      }
-
-      if (participant === participants.trader) {
         fixedProductMarketMaker.participants.filter(participantObj => participantObj.participant.id === trader.toLowerCase()).length.should.be.above(0);
       }
       if (participant === participants.shareholder) {
