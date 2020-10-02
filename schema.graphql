@@ -137,8 +137,7 @@ type FixedProductMarketMaker @entity {
   participants: [FpmmParticipation!] @derivedFrom(field: "fpmm")
 
   # Generalized TCR fields (Kleros Curate Contract for market verification)
-  klerosTCRitemID: String
-  klerosTCRstatus: Int
+  submissionIDs: [KlerosSubmission!]!
   klerosTCRregistered: Boolean!
 
   curatedByDxDaoOrKleros: Boolean!
@@ -160,6 +159,7 @@ type FpmmParticipation @entity {
   creationTimestamp: BigInt!
   collateralToken: Bytes!
   fee: BigInt!
+  title: String
 
   # lifted from fpmm's condition's question
   category: String
@@ -198,6 +198,24 @@ type Global @entity {
 
   usdPerEth: BigDecimal
   usdVolume: BigDecimal!
+}
+
+enum KlerosStatus {
+  "The item is not registered on the TCR and there are no pending requests."
+  Absent
+  "The item is registered and there are no pending requests."
+  Registered
+  "The item is not registered on the TCR, but there is a pending registration request."
+  RegistrationRequested
+  "The item is registered on the TCR, but there is a pending removal request. These are sometimes also called removal requests."
+  ClearingRequested
+}
+
+type KlerosSubmission @entity {
+  id: ID!
+  status: KlerosStatus!
+  listAddress: String!
+  market: FixedProductMarketMaker!
 }
 
 type _Schema_
