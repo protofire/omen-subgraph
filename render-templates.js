@@ -21,6 +21,7 @@ module.exports = function(callback) {
       'ConditionalTokens',
       'Realitio',
       'RealitioProxy',
+      'RealitioScalarAdapter',
       'ERC20Detailed',
       'DXTokenRegistry',
       'GeneralizedTCR',
