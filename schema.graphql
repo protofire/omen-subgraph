@@ -26,6 +26,15 @@ type Question @entity {
   conditions: [Condition!]! @derivedFrom(field: "question")
 }
 
+type ScalarQuestionLink @entity {
+  id: ID!
+  conditionQuestionId: Bytes!
+  realityEthQuestionId: Bytes!
+  question: Question
+  scalarLow: BigInt!
+  scalarHigh: BigInt!
+}
+
 type Category @entity {
   id: ID!
   numConditions: Int!

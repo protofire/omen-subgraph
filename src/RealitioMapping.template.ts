@@ -7,7 +7,8 @@ import {
   LogFinalize,
   LogAnswerReveal,
 } from '../generated/Realitio/Realitio'
-import { Question, FixedProductMarketMaker, Category } from '../generated/schema'
+import { QuestionIdAnnouncement } from '../generated/RealitioScalarAdapter/RealitioScalarAdapter'
+import { Question, FixedProductMarketMaker, Category, ScalarQuestionLink } from '../generated/schema'
 
 import { unescape } from './utils/unescape'
 
@@ -104,6 +105,25 @@ export function handleNewQuestion(event: LogNewQuestion): void {
   question.indexedFixedProductMarketMakers = [];
 
   question.save();
+}
+
+export function handleScalarQuestionIdAnnouncement(event: QuestionIdAnnouncement): void {
+  let conditionQuestionId = event.params.conditionQuestionId;
+  let linkId = conditionQuestionId.toHexString();
+  let link = ScalarQuestionLink.load(linkId);
+
+  if (link == null) {
+    link = new ScalarQuestionLink(linkId);
+    let realityEthQuestionId = event.params.realitioQuestionId;
+    link.conditionQuestionId = conditionQuestionId;
+    link.realityEthQuestionId = realityEthQuestionId;
+    link.question = realityEthQuestionId.toHexString();
+    link.scalarLow = event.params.low;
+    link.scalarHigh = event.params.high;
+    link.save();
+  } else {
+    log.info("Scalar link {} already announced", [linkId]);
+  }
 }
 
 function saveNewAnswer(questionId: string, answer: Bytes, bond: BigInt, ts: BigInt): void {
