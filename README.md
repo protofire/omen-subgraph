@@ -7,7 +7,8 @@ The `docker-compose.yml` contains a Docker Compose configuration suitable for sp
 The `package.json` contains a definition of this package. The `scripts` key defines a number of scripts useful for development. Among these are:
 
 * `npm test`: sets up the test environment, builds and deploys the subgraph onto the test environment, and runs the test suite.
-* `npm run bootstrap-test`: sets up the test environment by running the migrations and creating the subgraph to be used in the tests.
+* `npm run bootstrap-test`: sets up the test environment by creating the subgraph to be used in the tests.
+* `npm run test-fresh-deploy`: (re)deploys the contracts onto the development chain, builds and deploys the subgraph onto the test environment, and runs the test suite.
 * `npm run test-fresh-graph`: builds and deploys the subgraph onto the test environment, and runs the test suite.
 * `npm run test-existing-graph`: runs the test suite.
 * `npm run codegen`: rerenders code templates and runs the `graph codegen` command, which regenerates subgraph mapping support source files.
