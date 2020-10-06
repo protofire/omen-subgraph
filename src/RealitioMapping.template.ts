@@ -69,6 +69,7 @@ export function handleNewQuestion(event: LogNewQuestion): void {
     }
   } else if (
     templateIdI32 == 0 ||
+    templateIdI32 == 1 ||
     templateIdI32 == {{nuancedBinaryTemplateId}}
   ) {
     question.templateId = templateId;

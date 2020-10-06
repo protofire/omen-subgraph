@@ -407,6 +407,81 @@ describe('Omen subgraph', function() {
     question.conditions.should.be.empty();
   });
 
+  let scalarQuestionId;
+  const scalarQuestionTitle = 'What is the average land speed of an unladen swallow? (mph)';
+  const scalarQuestionData = [
+    scalarQuestionTitle,
+    questionCategory,
+    questionLanguage,
+  ].join('\u241f');
+  const scalarLow = toWei('5');
+  const scalarHigh = toWei('40');
+  step('ask scalar question', async function() {
+    const nonce = randomHex(32);
+    const { logs } = await realitio.askQuestion(
+      1, // <- template ID
+      scalarQuestionData,
+      arbitrator,
+      finalizationTimeout,
+      answerSubmissionOpeningTimestamp,
+      nonce,
+      { from: creator }
+    );
+    scalarQuestionId = logs.find(({ event }) => event === 'LogNewQuestion').args.question_id;
+
+    await waitForGraphSync();
+
+    const { question } = await querySubgraph(`{
+      question(id: "${scalarQuestionId}") {
+        templateId
+        data
+        title
+        outcomes
+        category
+        language
+
+        arbitrator
+        openingTimestamp
+        timeout
+
+        currentAnswer
+        currentAnswerBond
+        currentAnswerTimestamp
+
+        isPendingArbitration
+
+        answerFinalizedTimestamp
+
+        indexedFixedProductMarketMakers { id }
+
+        conditions { id }
+      }
+    }`);
+
+    question.templateId.should.equal('1');
+    question.data.should.equal(scalarQuestionData);
+    question.title.should.equal(scalarQuestionTitle);
+    should.not.exist(question.outcomes);
+    question.category.should.equal(questionCategory);
+    question.language.should.equal(questionLanguage);
+
+    question.arbitrator.should.equal(arbitrator.toLowerCase());
+    question.openingTimestamp.should.equal(answerSubmissionOpeningTimestamp.toString());
+    question.timeout.should.equal(finalizationTimeout.toString());
+
+    should.not.exist(question.currentAnswer);
+    should.not.exist(question.currentAnswerBond);
+    should.not.exist(question.currentAnswerTimestamp);
+
+    question.isPendingArbitration.should.be.false();
+
+    should.not.exist(question.answerFinalizedTimestamp);
+
+    question.indexedFixedProductMarketMakers.should.be.empty();
+
+    question.conditions.should.be.empty();
+  });
+
   let conditionId;
   let positionIds;
   const outcomeSlotCount = 3;
