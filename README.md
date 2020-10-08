@@ -108,3 +108,19 @@ Represents a `FixedProductMarketMaker`, an automated market maker which buys and
 * `indexedOnQuestion` - if at the creation of this FPMM, a linked Question entity is successfully found, and this FPMM is one of the first 100 FPMMs linked to this question, then this flag is set to true, and the FPMM is appended to the question entity's `indexedFixedProductMarketMakers` field.
 * `resolutionTimestamp`, `payouts` - if this FPMM is `indexedOnQuestion`, these fields are actively mirrored from the associated `condition`.
 * `currentAnswer`, `currentAnswerBond`, `currentAnswerTimestamp`, `isPendingArbitration`, `arbitrationOccurred`, `answerFinalizedTimestamp` - if this FPMM is `indexedOnQuestion`, these fields are actively mirrored from the associated `question`.
+
+### FPMMTrade
+
+Represents a trade on a given `FixedProductMarketMaker`, the market maker with a buy or a sell conditional tokens.
+
+* `id` - address of the trade.
+* `creator` - address of the user.
+* `creationTimestamp` - unix timestamp.
+* `type` - Sell or Buy type
+* `fpmm` - The FixedProductMarketMaker.
+* `title` - The Question title.
+* `collateralToken` - The collateral token for the FixedProductMarketMaker market.
+* `investmentAmount` - the amount of the trade.
+* `feeAmount` - fee on the market for the trade.
+* `outcomeIndex` - the traded outcome.
+- `outcomeTokensBought` - amount of the outcome tokens bought on the trade.

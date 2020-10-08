@@ -169,6 +169,28 @@ type FpmmParticipation @entity {
   timeout: BigInt
 }
 
+enum TradeType {
+  Buy
+  Sell
+}
+
+type FpmmTrade @entity {
+  id: ID!
+  fpmm: FixedProductMarketMaker!
+
+  # lifted from fpmm
+  title: String
+  collateralToken: Bytes!
+
+  type: TradeType!
+  creator: Bytes!
+  creationTimestamp: BigInt!
+  investmentAmount: BigInt!
+  feeAmount: BigInt!
+  outcomeIndex: Int!
+  outcomeTokensBought: BigInt!
+}
+
 type Account @entity {
   id: ID!
   fpmmPoolMemberships: [FpmmPoolMembership!] @derivedFrom(field: "funder")
