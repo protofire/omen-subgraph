@@ -183,7 +183,7 @@ type FpmmTrade @entity {
   collateralToken: Bytes!
 
   type: TradeType!
-  creator: Bytes!
+  creator: Account!
   creationTimestamp: BigInt!
   investmentAmount: BigInt!
   feeAmount: BigInt!

@@ -6,7 +6,6 @@ import {
   FpmmPoolMembership,
   FpmmParticipation,
   Global,
-  TradeType,
   FpmmTrade,
 } from "../generated/schema"
 import {
@@ -22,6 +21,9 @@ import { updateScaledVolumes, setLiquidity } from './utils/fpmm';
 import { requireToken } from './utils/token';
 import { requireGlobal } from './utils/global';
 
+const TRADE_TYPE_BUY = "Buy";
+const TRADE_TYPE_SELL = "Sell";
+
 function requireAccount(accountAddress: string): void {
   let account = Account.load(accountAddress);
   if (account == null) {
@@ -33,7 +35,7 @@ function requireAccount(accountAddress: string): void {
 function recordTrade(fpmm: FixedProductMarketMaker, 
     traderAddress: string, investmentAmount: BigInt, 
     feeAmount: BigInt, outcomeIndex: BigInt,
-    outcomeTokensBought: BigInt, tradeType: TradeType, 
+    outcomeTokensBought: BigInt, tradeType: string, 
     creationTimestamp: BigInt): void {
   requireAccount(traderAddress);
 
@@ -77,8 +79,6 @@ function recordParticipation(fpmm: FixedProductMarketMaker, participantAddress: 
     fpmmParticipation.arbitrator = fpmm.arbitrator;
     fpmmParticipation.openingTimestamp = fpmm.openingTimestamp;
     fpmmParticipation.timeout = fpmm.timeout;
-
-    fpmmParticipation.investmentAmount = 
   
     fpmmParticipation.save();
   }
@@ -288,7 +288,7 @@ export function handleBuy(event: FPMMBuy): void {
   recordTrade(fpmm as FixedProductMarketMaker, 
     event.params.buyer.toHexString(), event.params.investmentAmount,
     event.params.feeAmount, event.params.outcomeIndex,
-    event.params.outcomeTokensBought, TradeType.Buy,
+    event.params.outcomeTokensBought, TRADE_TYPE_BUY,
     event.block.timestamp);
 }
 
@@ -341,7 +341,7 @@ export function handleSell(event: FPMMSell): void {
   recordTrade(fpmm as FixedProductMarketMaker, 
     event.params.buyer.toHexString(), event.params.investmentAmount,
     event.params.feeAmount, event.params.outcomeIndex,
-    event.params.outcomeTokensBought, TradeType.Sell,
+    event.params.outcomeTokensBought, TRADE_TYPE_SELL,
     event.block.timestamp);
 }
 
