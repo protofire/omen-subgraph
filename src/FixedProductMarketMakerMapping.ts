@@ -2,10 +2,11 @@ import { BigInt, log, Address, BigDecimal } from '@graphprotocol/graph-ts'
 
 import {
   FixedProductMarketMaker,
-  Account,
+  Account,  
   FpmmPoolMembership,
   FpmmParticipation,
   Global,
+  FpmmTrade,
 } from "../generated/schema"
 import {
   FPMMFundingAdded,
@@ -20,12 +21,42 @@ import { updateScaledVolumes, setLiquidity } from './utils/fpmm';
 import { requireToken } from './utils/token';
 import { requireGlobal } from './utils/global';
 
+const TRADE_TYPE_BUY = "Buy";
+const TRADE_TYPE_SELL = "Sell";
+
 function requireAccount(accountAddress: string): void {
   let account = Account.load(accountAddress);
   if (account == null) {
     account = new Account(accountAddress);
     account.save();
   }
+}
+
+function recordTrade(fpmm: FixedProductMarketMaker, 
+    traderAddress: string, collateralAmount: BigInt,
+    feeAmount: BigInt, outcomeIndex: BigInt,
+    outcomeTokensTraded: BigInt, tradeType: string,
+    creationTimestamp: BigInt): void {
+  requireAccount(traderAddress);
+
+  let fpmmTradeId = fpmm.id.concat(traderAddress);
+  let fpmmTrade = FpmmTrade.load(fpmmTradeId);
+  if (fpmmTrade == null) {
+    fpmmTrade = new FpmmTrade(fpmmTradeId);
+    fpmmTrade.fpmm = fpmm.id;
+    fpmmTrade.title = fpmm.title;
+    fpmmTrade.collateralToken = fpmm.collateralToken;
+    fpmmTrade.type = tradeType;
+    fpmmTrade.creator = traderAddress;
+    fpmmTrade.creationTimestamp = creationTimestamp;
+    fpmmTrade.collateralAmount = collateralAmount;
+    fpmmTrade.feeAmount = feeAmount;
+    fpmmTrade.outcomeIndex = outcomeIndex;
+    fpmmTrade.outcomeTokensTraded = outcomeTokensTraded;
+
+    fpmmTrade.save();
+  }
+
 }
 
 function recordParticipation(fpmm: FixedProductMarketMaker, participantAddress: string): void {
@@ -251,7 +282,14 @@ export function handleBuy(event: FPMMBuy): void {
 
   fpmm.save();
 
-  recordParticipation(fpmm as FixedProductMarketMaker, event.params.buyer.toHexString());
+  recordParticipation(fpmm as FixedProductMarketMaker, 
+    event.params.buyer.toHexString());
+
+  recordTrade(fpmm as FixedProductMarketMaker, 
+    event.params.buyer.toHexString(), event.params.investmentAmount,
+    event.params.feeAmount, event.params.outcomeIndex,
+    event.params.outcomeTokensBought, TRADE_TYPE_BUY,
+    event.block.timestamp);
 }
 
 export function handleSell(event: FPMMSell): void {
@@ -297,7 +335,14 @@ export function handleSell(event: FPMMSell): void {
 
   fpmm.save();
 
-  recordParticipation(fpmm as FixedProductMarketMaker, event.params.seller.toHexString());
+  recordParticipation(fpmm as FixedProductMarketMaker, 
+    event.params.seller.toHexString());
+
+  recordTrade(fpmm as FixedProductMarketMaker, 
+    event.params.seller.toHexString(), event.params.returnAmount,
+    event.params.feeAmount, event.params.outcomeIndex,
+    event.params.outcomeTokensSold, TRADE_TYPE_SELL,
+    event.block.timestamp);
 }
 
 export function handlePoolShareTransfer(event: Transfer): void {
