@@ -187,7 +187,7 @@ type FpmmTrade @entity {
   creationTimestamp: BigInt!
   investmentAmount: BigInt!
   feeAmount: BigInt!
-  outcomeIndex: Int!
+  outcomeIndex: BigInt!
   outcomeTokensBought: BigInt!
 }
 

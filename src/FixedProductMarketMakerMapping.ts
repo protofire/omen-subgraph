@@ -339,9 +339,9 @@ export function handleSell(event: FPMMSell): void {
     event.params.seller.toHexString());
 
   recordTrade(fpmm as FixedProductMarketMaker, 
-    event.params.buyer.toHexString(), event.params.investmentAmount,
+    event.params.seller.toHexString(), event.params.returnAmount,
     event.params.feeAmount, event.params.outcomeIndex,
-    event.params.outcomeTokensBought, TRADE_TYPE_SELL,
+    event.params.outcomeTokensSold, TRADE_TYPE_SELL,
     event.block.timestamp);
 }
 
@@ -379,9 +379,5 @@ export function handlePoolShareTransfer(event: Transfer): void {
   }
   toMembership.save();
 
-  recordParticipation(fpmm as FixedProductMarketMaker, toAddress, 
-    event.params.investmentAmount.toBigDecimal(),
-    event.params.feeAmount.toBigDecimal(),
-    event.params.outcomeIndex.toI32(),
-    event.params.outcomeTokensBought.toBigDecimal());
+  recordParticipation(fpmm as FixedProductMarketMaker, toAddress);
 }
