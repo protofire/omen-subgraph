@@ -185,10 +185,10 @@ type FpmmTrade @entity {
   type: TradeType!
   creator: Account!
   creationTimestamp: BigInt!
-  investmentAmount: BigInt!
+  amount: BigInt!
   feeAmount: BigInt!
   outcomeIndex: BigInt!
-  outcomeTokensBought: BigInt!
+  outcomeTokensTrade: BigInt!
 }
 
 type Account @entity {

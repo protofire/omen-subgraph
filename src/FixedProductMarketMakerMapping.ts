@@ -33,9 +33,9 @@ function requireAccount(accountAddress: string): void {
 }
 
 function recordTrade(fpmm: FixedProductMarketMaker, 
-    traderAddress: string, investmentAmount: BigInt, 
+    traderAddress: string, amount: BigInt, 
     feeAmount: BigInt, outcomeIndex: BigInt,
-    outcomeTokensBought: BigInt, tradeType: string, 
+    outcomeTokensTrade: BigInt, tradeType: string, 
     creationTimestamp: BigInt): void {
   requireAccount(traderAddress);
 
@@ -49,10 +49,10 @@ function recordTrade(fpmm: FixedProductMarketMaker,
     fpmmTrade.type = tradeType;
     fpmmTrade.creator = traderAddress;
     fpmmTrade.creationTimestamp = creationTimestamp;
-    fpmmTrade.investmentAmount = investmentAmount;
+    fpmmTrade.amount = amount;
     fpmmTrade.feeAmount = feeAmount;
     fpmmTrade.outcomeIndex = outcomeIndex;
-    fpmmTrade.outcomeTokensBought = outcomeTokensBought;
+    fpmmTrade.outcomeTokensTrade = outcomeTokensTrade;
 
     fpmmTrade.save();
   }
