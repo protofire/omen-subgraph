@@ -8,8 +8,8 @@
     "create-local": "graph create --node http://localhost:8020/ protofire/omen",
     "remove-local": "graph remove --node http://localhost:8020/ protofire/omen",
     "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 protofire/omen",
-    "deploy:rinkeby": "graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ davidalbela/omen-rinkeby-trade",
-    "deploy:mainnet": "graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ davidalbela/omen-trade",
+    "deploy:rinkeby": "graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ protofire/omen-rinkeby",
+    "deploy:mainnet": "graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ protofire/omen",
     "fix-schema.ts": "replace-in-file '/(;\\s*if \\()value === null/mg' '$1value === null || value.kind === ValueKind.NULL' generated/schema.ts --isRegex",
     "codegen": "truffle exec render-templates.js && graph codegen && npm run fix-schema.ts",
     "codegen:rinkeby": "tnt iN && truffle exec --network=rinkeby render-templates.js && graph codegen && npm run fix-schema.ts",
@@ -25,7 +25,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/davidalbela/omen-subgraph.git"
+    "url": "git+https://github.com/protofire/omen-subgraph.git"
   },
   "author": "Gnosis (https://gnosis.io)",
   "license": "LGPL-3.0",
