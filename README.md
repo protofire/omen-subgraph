@@ -75,7 +75,7 @@ Represents conditions on the Conditional Tokens contract.
 * `id` - condition ID on the Conditional Tokens.
 * `oracle` - oracle account of the condition.
 * `questionId` - question ID of the condition.
-* `question` - if the oracle is the Realitio to Conditional Tokens oracle adapter, this field is the associated Realitio Question entity.
+* `question` - if the oracle is the Realitio to Conditional Tokens oracle adapter, this field is the associated Realitio Question entity. For scalar markets, this question's ID on Realitio differs from the `questionId` field above which is used in the ConditionalTokens contract, as the condition's `questionId` field also has the scalar market's bounds hashed into it.
 * `outcomeSlotCount` - outcome slot count of the condition.
 * `resolutionTimestamp` - unix timestamp marking when this condition got resolved.
 * `payouts` - array of payouts for each outcome slot reported by the oracle.
