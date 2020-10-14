@@ -1,4 +1,4 @@
-import { log, BigInt, Bytes } from '@graphprotocol/graph-ts'
+import { crypto, log, BigInt, Bytes, ByteArray } from '@graphprotocol/graph-ts'
 
 import {
   LogNewQuestion,
@@ -8,7 +8,8 @@ import {
   LogAnswerReveal,
 } from '../generated/Realitio/Realitio'
 import { QuestionIdAnnouncement } from '../generated/RealitioScalarAdapter/RealitioScalarAdapter'
-import { Question, FixedProductMarketMaker, Category, ScalarQuestionLink } from '../generated/schema'
+import { Question, FixedProductMarketMaker, Category, ScalarQuestionLink, Condition } from '../generated/schema'
+import { assignQuestionToCondition } from './utils/condition'
 
 import { unescape } from './utils/unescape'
 
@@ -109,13 +110,13 @@ export function handleNewQuestion(event: LogNewQuestion): void {
 }
 
 export function handleScalarQuestionIdAnnouncement(event: QuestionIdAnnouncement): void {
+  let realityEthQuestionId = event.params.realitioQuestionId;
   let conditionQuestionId = event.params.conditionQuestionId;
   let linkId = conditionQuestionId.toHexString();
   let link = ScalarQuestionLink.load(linkId);
 
   if (link == null) {
     link = new ScalarQuestionLink(linkId);
-    let realityEthQuestionId = event.params.realitioQuestionId;
     link.conditionQuestionId = conditionQuestionId;
     link.realityEthQuestionId = realityEthQuestionId;
     link.question = realityEthQuestionId.toHexString();
@@ -124,6 +125,22 @@ export function handleScalarQuestionIdAnnouncement(event: QuestionIdAnnouncement
     link.save();
   } else {
     log.info("Scalar link {} already announced", [linkId]);
+  }
+
+  let conditionIdHashPreimage = new Uint8Array(20 + 32 + 32) as ByteArray;
+  let oracleAddress = event.address;
+  for (let i = 0; i < 20 && i < oracleAddress.length; i++) {
+    conditionIdHashPreimage[i] = oracleAddress[i];
+  }
+  for (let i = 0; i < 32 && i < conditionQuestionId.length; i++) {
+    conditionIdHashPreimage[20 + i] = conditionQuestionId[i];
+  }
+  conditionIdHashPreimage[20 + 32 + 32 - 1] = 2;
+  let conditionId = crypto.keccak256(conditionIdHashPreimage).toHexString();
+  let condition = Condition.load(conditionId);
+  if (condition != null) {
+    assignQuestionToCondition(condition as Condition, realityEthQuestionId.toHexString());
+    condition.save();
   }
 }
 
