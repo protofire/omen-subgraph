@@ -167,8 +167,14 @@ describe('Omen subgraph', function() {
     step('check subgraph market maker data matches chain', async function() {
       await waitForGraphSync();
 
+      const mm = isScalar ? scalarFpmm : fpmm;
+      const mmCreationTimestamp = isScalar ? scalarFpmmCreationTimestamp : fpmmCreationTimestamp;
+      const condId = isScalar ? scalarConditionId : conditionId;
+      const posIds = isScalar ? scalarPositionIds : positionIds;
+      const templateId = isScalar ? '1': '2';
+
       const { fixedProductMarketMaker } = await querySubgraph(`{
-        fixedProductMarketMaker(id: "${fpmm.address.toLowerCase()}") {
+        fixedProductMarketMaker(id: "${mm.address.toLowerCase()}") {
           creator
           creationTimestamp
           collateralToken
@@ -217,14 +223,14 @@ describe('Omen subgraph', function() {
 
       should.exist(fixedProductMarketMaker);
       toChecksumAddress(fixedProductMarketMaker.creator).should.equal(creator);
-      Number(fixedProductMarketMaker.creationTimestamp).should.equal(fpmmCreationTimestamp);
+      Number(fixedProductMarketMaker.creationTimestamp).should.equal(mmCreationTimestamp);
       toChecksumAddress(fixedProductMarketMaker.collateralToken).should.equal(weth.address);
-      fixedProductMarketMaker.conditions.should.eql([{ id: conditionId }]);
+      fixedProductMarketMaker.conditions.should.eql([{ id: condId }]);
       fixedProductMarketMaker.fee.should.equal(fee);
       fixedProductMarketMaker.collateralVolume.should.equal(runningCollateralVolume.toString());
       const chainOutcomeTokenAmounts = await conditionalTokens.balanceOfBatch(
-        new Array(positionIds.length).fill(fpmm.address),
-        positionIds,
+        new Array(posIds.length).fill(mm.address),
+        posIds,
       );
       fixedProductMarketMaker.outcomeTokenAmounts.should.eql(
         chainOutcomeTokenAmounts.map(v => v.toString()),
@@ -234,26 +240,31 @@ describe('Omen subgraph', function() {
       } else {
         should.exist(fixedProductMarketMaker.outcomeTokenMarginalPrices);
       }
-      fixedProductMarketMaker.outcomeSlotCount.should.equal(outcomeSlotCount);
+      fixedProductMarketMaker.outcomeSlotCount.should.equal(isScalar ? 2 : outcomeSlotCount);
       fixedProductMarketMaker.liquidityParameter.should.equal(
         nthRoot(
           chainOutcomeTokenAmounts.reduce((acc, amount) => acc.mul(amount), toBN(1)),
-          positionIds.length,
+          posIds.length,
         ).toString(),
       );
 
       fixedProductMarketMaker.indexedOnQuestion.should.be.true();
       should.exist(fixedProductMarketMaker.condition);
-      fixedProductMarketMaker.condition.id.should.equal(conditionId);
+      fixedProductMarketMaker.condition.id.should.equal(condId);
       should.exist(fixedProductMarketMaker.question);
       fixedProductMarketMaker.question.id.should.equal(fixedProductMarketMaker.condition.question.id);
       fixedProductMarketMaker.question.indexedFixedProductMarketMakers
-        .should.eql([{ id: fpmm.address.toLowerCase() }]);
+        .should.eql([{ id: mm.address.toLowerCase() }]);
 
-      fixedProductMarketMaker.templateId.should.equal('2');
-      fixedProductMarketMaker.data.should.equal(questionData);
-      fixedProductMarketMaker.title.should.equal(questionTitle);
-      fixedProductMarketMaker.outcomes.should.eql(questionOutcomes)
+      fixedProductMarketMaker.templateId.should.equal(templateId);
+      fixedProductMarketMaker.data.should.equal(isScalar ? scalarQuestionData : questionData);
+      fixedProductMarketMaker.title.should.equal(isScalar ? scalarQuestionTitle : questionTitle);
+      if (isScalar) {
+        should.not.exist(fixedProductMarketMaker.outcomes);
+      } else {
+        should.exist(fixedProductMarketMaker.outcomes);
+        fixedProductMarketMaker.outcomes.should.eql(questionOutcomes)
+      }
       fixedProductMarketMaker.category.should.equal(questionCategory);
       fixedProductMarketMaker.language.should.equal(questionLanguage);
 
@@ -263,9 +274,9 @@ describe('Omen subgraph', function() {
 
       for (const { funder, amount } of fixedProductMarketMaker.poolMembers) {
         if (funder.id === `0x${'0'.repeat(40)}`) {
-          amount.should.equal((await fpmm.totalSupply()).neg().toString());
+          amount.should.equal((await mm.totalSupply()).neg().toString());
         } else {
-          amount.should.equal((await fpmm.balanceOf(funder.id)).toString());
+          amount.should.equal((await mm.balanceOf(funder.id)).toString());
         }
       }
 
@@ -544,6 +555,10 @@ describe('Omen subgraph', function() {
     positionIds = Array.from(
       { length: outcomeSlotCount },
       (v, i) => getPositionId(weth.address, getCollectionId(conditionId, 1 << i)),
+    );
+    scalarPositionIds = Array.from(
+      { length: 2 },
+      (v, i) => getPositionId(weth.address, getCollectionId(scalarConditionId, 1 << i)),
     );
 
     await waitForGraphSync();
