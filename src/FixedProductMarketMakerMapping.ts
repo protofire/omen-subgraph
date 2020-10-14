@@ -24,12 +24,14 @@ import { requireGlobal } from './utils/global';
 const TRADE_TYPE_BUY = "Buy";
 const TRADE_TYPE_SELL = "Sell";
 
-function requireAccount(accountAddress: string): void {
+function requireAccount(accountAddress: string): Account | null {
   let account = Account.load(accountAddress);
   if (account == null) {
     account = new Account(accountAddress);
+    account.tradeNonce = BigInt.fromI32(0);
     account.save();
   }
+  return account;
 }
 
 function recordTrade(fpmm: FixedProductMarketMaker, 
@@ -37,9 +39,10 @@ function recordTrade(fpmm: FixedProductMarketMaker,
     feeAmount: BigInt, outcomeIndex: BigInt,
     outcomeTokensTraded: BigInt, tradeType: string,
     creationTimestamp: BigInt): void {
-  requireAccount(traderAddress);
-
-  let fpmmTradeId = fpmm.id.concat(traderAddress);
+  let account = requireAccount(traderAddress);
+  account.tradeNonce.plus(BigInt.fromI32(1));
+  account.save()
+  let fpmmTradeId = fpmm.id.concat(traderAddress).concat(account.tradeNonce.toHexString());
   let fpmmTrade = FpmmTrade.load(fpmmTradeId);
   if (fpmmTrade == null) {
     fpmmTrade = new FpmmTrade(fpmmTradeId);

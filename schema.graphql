@@ -183,7 +183,7 @@ type FpmmTrade @entity {
   collateralToken: Bytes!
 
   type: TradeType!
-  creator: String!
+  creator: Account!
   creationTimestamp: BigInt!
   collateralAmount: BigInt!
   feeAmount: BigInt!
@@ -193,6 +193,7 @@ type FpmmTrade @entity {
 
 type Account @entity {
   id: ID!
+  tradeNonce: BigInt!
   fpmmPoolMemberships: [FpmmPoolMembership!] @derivedFrom(field: "funder")
   fpmmParticipations: [FpmmParticipation!] @derivedFrom(field: "participant")
 }
