@@ -40,8 +40,9 @@ function recordTrade(fpmm: FixedProductMarketMaker,
     outcomeTokensTraded: BigInt, tradeType: string,
     creationTimestamp: BigInt): void {
   let account = requireAccount(traderAddress);
-  account.tradeNonce.plus(BigInt.fromI32(1));
-  account.save()
+  account.tradeNonce = account.tradeNonce.plus(BigInt.fromI32(1));
+  account.save();
+
   let fpmmTradeId = fpmm.id.concat(traderAddress).concat(account.tradeNonce.toHexString());
   let fpmmTrade = FpmmTrade.load(fpmmTradeId);
   if (fpmmTrade == null) {
