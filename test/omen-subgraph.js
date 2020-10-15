@@ -7,7 +7,8 @@ const path = require('path');
 const should = require('should');
 const { gtcrEncode, ItemTypes } = require('@kleros/gtcr-encoder');
 const { expect } = require('chai');
-const { promisify } = require('util')
+const { promisify } = require('util');
+const { step } = require('mocha-steps');
 
 const provider = new Web3.providers.HttpProvider("http://localhost:8545");
 const web3 = new Web3(provider);
@@ -35,6 +36,7 @@ function getContract(contractName) {
 const WETH9 = getContract('WETH9');
 const Realitio = getContract('Realitio');
 const RealitioProxy = getContract('RealitioProxy');
+const RealitioScalarAdapter = getContract('RealitioScalarAdapter');
 const ConditionalTokens = getContract('ConditionalTokens');
 const FPMMDeterministicFactory = getContract('FPMMDeterministicFactory');
 const FixedProductMarketMaker = getContract('FixedProductMarketMaker');
@@ -156,12 +158,23 @@ function advanceBlock () {
 }
 
 describe('Omen subgraph', function() {
-  function checkMarketMakerState(traderParticipated, shareholderParticipated, creatorParticipated) {
+  function checkMarketMakerState({
+    traderParticipated,
+    shareholderParticipated,
+    creatorParticipated,
+    isScalar,
+  }) {
     step('check subgraph market maker data matches chain', async function() {
       await waitForGraphSync();
 
+      const mm = isScalar ? scalarFpmm : fpmm;
+      const mmCreationTimestamp = isScalar ? scalarFpmmCreationTimestamp : fpmmCreationTimestamp;
+      const condId = isScalar ? scalarConditionId : conditionId;
+      const posIds = isScalar ? scalarPositionIds : positionIds;
+      const templateId = isScalar ? '1': '2';
+
       const { fixedProductMarketMaker } = await querySubgraph(`{
-        fixedProductMarketMaker(id: "${fpmm.address.toLowerCase()}") {
+        fixedProductMarketMaker(id: "${mm.address.toLowerCase()}") {
           creator
           creationTimestamp
           collateralToken
@@ -210,14 +223,14 @@ describe('Omen subgraph', function() {
 
       should.exist(fixedProductMarketMaker);
       toChecksumAddress(fixedProductMarketMaker.creator).should.equal(creator);
-      Number(fixedProductMarketMaker.creationTimestamp).should.equal(fpmmCreationTimestamp);
+      Number(fixedProductMarketMaker.creationTimestamp).should.equal(mmCreationTimestamp);
       toChecksumAddress(fixedProductMarketMaker.collateralToken).should.equal(weth.address);
-      fixedProductMarketMaker.conditions.should.eql([{ id: conditionId }]);
+      fixedProductMarketMaker.conditions.should.eql([{ id: condId }]);
       fixedProductMarketMaker.fee.should.equal(fee);
       fixedProductMarketMaker.collateralVolume.should.equal(runningCollateralVolume.toString());
       const chainOutcomeTokenAmounts = await conditionalTokens.balanceOfBatch(
-        new Array(positionIds.length).fill(fpmm.address),
-        positionIds,
+        new Array(posIds.length).fill(mm.address),
+        posIds,
       );
       fixedProductMarketMaker.outcomeTokenAmounts.should.eql(
         chainOutcomeTokenAmounts.map(v => v.toString()),
@@ -227,26 +240,31 @@ describe('Omen subgraph', function() {
       } else {
         should.exist(fixedProductMarketMaker.outcomeTokenMarginalPrices);
       }
-      fixedProductMarketMaker.outcomeSlotCount.should.equal(outcomeSlotCount);
+      fixedProductMarketMaker.outcomeSlotCount.should.equal(isScalar ? 2 : outcomeSlotCount);
       fixedProductMarketMaker.liquidityParameter.should.equal(
         nthRoot(
           chainOutcomeTokenAmounts.reduce((acc, amount) => acc.mul(amount), toBN(1)),
-          positionIds.length,
+          posIds.length,
         ).toString(),
       );
 
       fixedProductMarketMaker.indexedOnQuestion.should.be.true();
       should.exist(fixedProductMarketMaker.condition);
-      fixedProductMarketMaker.condition.id.should.equal(conditionId);
+      fixedProductMarketMaker.condition.id.should.equal(condId);
       should.exist(fixedProductMarketMaker.question);
       fixedProductMarketMaker.question.id.should.equal(fixedProductMarketMaker.condition.question.id);
       fixedProductMarketMaker.question.indexedFixedProductMarketMakers
-        .should.eql([{ id: fpmm.address.toLowerCase() }]);
+        .should.eql([{ id: mm.address.toLowerCase() }]);
 
-      fixedProductMarketMaker.templateId.should.equal('2');
-      fixedProductMarketMaker.data.should.equal(questionData);
-      fixedProductMarketMaker.title.should.equal(questionTitle);
-      fixedProductMarketMaker.outcomes.should.eql(questionOutcomes)
+      fixedProductMarketMaker.templateId.should.equal(templateId);
+      fixedProductMarketMaker.data.should.equal(isScalar ? scalarQuestionData : questionData);
+      fixedProductMarketMaker.title.should.equal(isScalar ? scalarQuestionTitle : questionTitle);
+      if (isScalar) {
+        should.not.exist(fixedProductMarketMaker.outcomes);
+      } else {
+        should.exist(fixedProductMarketMaker.outcomes);
+        fixedProductMarketMaker.outcomes.should.eql(questionOutcomes)
+      }
       fixedProductMarketMaker.category.should.equal(questionCategory);
       fixedProductMarketMaker.language.should.equal(questionLanguage);
 
@@ -256,9 +274,9 @@ describe('Omen subgraph', function() {
 
       for (const { funder, amount } of fixedProductMarketMaker.poolMembers) {
         if (funder.id === `0x${'0'.repeat(40)}`) {
-          amount.should.equal((await fpmm.totalSupply()).neg().toString());
+          amount.should.equal((await mm.totalSupply()).neg().toString());
         } else {
-          amount.should.equal((await fpmm.balanceOf(funder.id)).toString());
+          amount.should.equal((await mm.balanceOf(funder.id)).toString());
         }
       }
 
@@ -298,6 +316,7 @@ describe('Omen subgraph', function() {
   let weth;
   let realitio;
   let oracle;
+  let scalarOracle;
   let conditionalTokens;
   let factory;
   let centralizedArbitrator;
@@ -307,6 +326,7 @@ describe('Omen subgraph', function() {
     weth = await WETH9.deployed();
     realitio = await Realitio.deployed();
     oracle = await RealitioProxy.deployed();
+    scalarOracle = await RealitioScalarAdapter.deployed();
     conditionalTokens = await ConditionalTokens.deployed();
     factory = await FPMMDeterministicFactory.deployed();
     centralizedArbitrator = await SimpleCentralizedArbitrator.deployed();
@@ -407,15 +427,138 @@ describe('Omen subgraph', function() {
     question.conditions.should.be.empty();
   });
 
-  let conditionId;
-  let positionIds;
+  let scalarQuestionId;
+  let scalarConditionQuestionId;
+  const scalarQuestionTitle = 'What is the average land speed of an unladen swallow? (mph)';
+  const scalarQuestionData = [
+    scalarQuestionTitle,
+    questionCategory,
+    questionLanguage,
+  ].join('\u241f');
+  const scalarLow = toWei('5');
+  const scalarHigh = toWei('40');
+  step('ask scalar question', async function() {
+    const nonce = randomHex(32);
+    const { logs } = await realitio.askQuestion(
+      1, // <- template ID
+      scalarQuestionData,
+      arbitrator,
+      finalizationTimeout,
+      answerSubmissionOpeningTimestamp,
+      nonce,
+      { from: creator }
+    );
+    scalarQuestionId = logs.find(({ event }) => event === 'LogNewQuestion').args.question_id;
+    scalarConditionQuestionId = web3.utils.keccak256(web3.eth.abi.encodeParameters(
+      ['bytes32', 'uint256', 'uint256'],
+      [scalarQuestionId, scalarLow, scalarHigh],
+    ));
+
+    await waitForGraphSync();
+
+    const { question } = await querySubgraph(`{
+      question(id: "${scalarQuestionId}") {
+        templateId
+        data
+        title
+        outcomes
+        category
+        language
+
+        arbitrator
+        openingTimestamp
+        timeout
+
+        currentAnswer
+        currentAnswerBond
+        currentAnswerTimestamp
+
+        isPendingArbitration
+
+        answerFinalizedTimestamp
+
+        indexedFixedProductMarketMakers { id }
+
+        conditions { id }
+      }
+    }`);
+
+    question.templateId.should.equal('1');
+    question.data.should.equal(scalarQuestionData);
+    question.title.should.equal(scalarQuestionTitle);
+    should.not.exist(question.outcomes);
+    question.category.should.equal(questionCategory);
+    question.language.should.equal(questionLanguage);
+
+    question.arbitrator.should.equal(arbitrator.toLowerCase());
+    question.openingTimestamp.should.equal(answerSubmissionOpeningTimestamp.toString());
+    question.timeout.should.equal(finalizationTimeout.toString());
+
+    should.not.exist(question.currentAnswer);
+    should.not.exist(question.currentAnswerBond);
+    should.not.exist(question.currentAnswerTimestamp);
+
+    question.isPendingArbitration.should.be.false();
+
+    should.not.exist(question.answerFinalizedTimestamp);
+
+    question.indexedFixedProductMarketMakers.should.be.empty();
+
+    question.conditions.should.be.empty();
+  });
+
+  step('make scalar condition question ID announcement', async function() {
+    await scalarOracle.announceConditionQuestionId(
+      scalarQuestionId,
+      scalarLow,
+      scalarHigh,
+      { from: creator },
+    );
+
+    await waitForGraphSync();
+
+    const { scalarQuestionLink } = await querySubgraph(`{
+      scalarQuestionLink(id: "${scalarConditionQuestionId}") {
+        conditionQuestionId
+        realityEthQuestionId
+        question { id }
+        scalarLow
+        scalarHigh
+      }
+    }`);
+
+    scalarQuestionLink.conditionQuestionId.should.equal(scalarConditionQuestionId);
+    scalarQuestionLink.realityEthQuestionId.should.equal(scalarQuestionId);
+    scalarQuestionLink.question.should.eql({ id: scalarQuestionId });
+    scalarQuestionLink.scalarLow.should.equal(scalarLow);
+    scalarQuestionLink.scalarHigh.should.equal(scalarHigh);
+  });
+
+  let conditionId, scalarConditionId;
+  let positionIds, scalarPositionIds;
   const outcomeSlotCount = 3;
-  step('prepare condition', async function() {
-    await conditionalTokens.prepareCondition(oracle.address, questionId, outcomeSlotCount, { from: creator });
+  step('prepare conditions', async function() {
+    await conditionalTokens.prepareCondition(
+      oracle.address,
+      questionId,
+      outcomeSlotCount,
+      { from: creator },
+    );
+    await conditionalTokens.prepareCondition(
+      scalarOracle.address,
+      scalarConditionQuestionId,
+      2,
+      { from: creator },
+    );
     conditionId = getConditionId(oracle.address, questionId, outcomeSlotCount);
+    scalarConditionId = getConditionId(scalarOracle.address, scalarConditionQuestionId, 2);
     positionIds = Array.from(
       { length: outcomeSlotCount },
       (v, i) => getPositionId(weth.address, getCollectionId(conditionId, 1 << i)),
+    );
+    scalarPositionIds = Array.from(
+      { length: 2 },
+      (v, i) => getPositionId(weth.address, getCollectionId(scalarConditionId, 1 << i)),
     );
 
     await waitForGraphSync();
@@ -469,7 +612,11 @@ describe('Omen subgraph', function() {
     fpmm = await FixedProductMarketMaker.at(fpmmAddress);
   });
 
-  checkMarketMakerState(false, false, true);
+  checkMarketMakerState({
+    traderParticipated: false,
+    shareholderParticipated: false,
+    creatorParticipated: true,
+  });
 
   step('should not index market makers on different ConditionalTokens', async function() {
     const altConditionalTokens = await ConditionalTokens.new({ from: creator });
@@ -508,6 +655,37 @@ describe('Omen subgraph', function() {
     should.not.exist(fixedProductMarketMaker);
   });
 
+  let scalarFpmm;
+  let scalarFpmmCreationTimestamp;
+  step('use factory to create another market maker based on scalar question', async function() {
+    await weth.deposit({ value: initialFunds, from: creator });
+    await weth.approve(factory.address, initialFunds, { from: creator });
+
+    const saltNonce = `0x${'1'.repeat(64)}`;
+    const creationArgs = [
+      saltNonce,
+      conditionalTokens.address,
+      weth.address,
+      [scalarConditionId],
+      fee,
+      initialFunds,
+      [],
+      { from: creator }
+    ]
+
+    const fpmmAddress = await factory.create2FixedProductMarketMaker.call(...creationArgs);
+    const { receipt } = await factory.create2FixedProductMarketMaker(...creationArgs);
+    scalarFpmmCreationTimestamp = await getTimestampFromReceipt(receipt);
+    scalarFpmm = await FixedProductMarketMaker.at(fpmmAddress);
+  });
+
+  checkMarketMakerState({
+    traderParticipated: false,
+    shareholderParticipated: false,
+    creatorParticipated: true,
+    isScalar: true,
+  });
+
   const runningCollateralVolume = toBN(0);
   const investmentAmount = toWei('1');
   step('have trader buy from market maker', async function() {
@@ -531,7 +709,11 @@ describe('Omen subgraph', function() {
     fixedProductMarketMaker.collateralVolume.should.equal(runningCollateralVolume.toString());
   });
 
-  checkMarketMakerState(true, false, true);
+  checkMarketMakerState({
+    traderParticipated: true,
+    shareholderParticipated: false,
+    creatorParticipated: true,
+  });
 
   const returnAmount = toWei('0.5');
   step('have trader sell to market maker', async function() {
@@ -554,7 +736,11 @@ describe('Omen subgraph', function() {
     fixedProductMarketMaker.collateralVolume.should.equal(runningCollateralVolume.toString());
   });
 
-  checkMarketMakerState(true, false, true);
+  checkMarketMakerState({
+    traderParticipated: true,
+    shareholderParticipated: false,
+    creatorParticipated: true,
+  });
 
   step('transfer pool shares', async function() {
     const shareholderPoolAmount = toWei('0.5');
@@ -580,7 +766,11 @@ describe('Omen subgraph', function() {
       .should.equal(creatorMembership.amount);
   });
 
-  checkMarketMakerState(true, true, true);
+  checkMarketMakerState({
+    traderParticipated: true,
+    shareholderParticipated: true,
+    creatorParticipated: true,
+  });
 
   step('submit answer', async function() {
     const answer = `0x${'0'.repeat(63)}1`;

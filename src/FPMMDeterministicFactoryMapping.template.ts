@@ -70,7 +70,7 @@ export function handleFixedProductMarketMakerCreation(event: FixedProductMarketM
       return;
     }
 
-    let questionIdStr = condition.questionId.toHexString();
+    let questionIdStr = condition.question;
     fpmm.question = questionIdStr;
     let question = Question.load(questionIdStr);
     if(question != null) {

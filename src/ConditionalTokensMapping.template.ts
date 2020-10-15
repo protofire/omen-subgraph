@@ -1,7 +1,8 @@
 import { BigDecimal, log } from '@graphprotocol/graph-ts'
 
 import { ConditionPreparation, ConditionResolution } from '../generated/ConditionalTokens/ConditionalTokens'
-import { Condition, Question, FixedProductMarketMaker, Category } from '../generated/schema'
+import { Condition, Question, FixedProductMarketMaker, Category, ScalarQuestionLink } from '../generated/schema'
+import { assignQuestionToCondition } from './utils/condition';
 import { zero } from './utils/constants';
 import { requireGlobal } from './utils/global';
 
@@ -11,18 +12,12 @@ export function handleConditionPreparation(event: ConditionPreparation): void {
   condition.questionId = event.params.questionId;
 
   if (event.params.oracle.toHexString() == '{{RealitioProxy.addressLowerCase}}') {
-    let questionId = event.params.questionId.toHexString()
-    condition.question = questionId;
-    let question = Question.load(questionId);
-    if (question != null) {
-      if (question.category != null) {
-        let category = Category.load(question.category);
-        if (category != null) {
-          category.numConditions++;
-          category.numOpenConditions++;
-          category.save();
-        }
-      }
+    assignQuestionToCondition(condition, event.params.questionId.toHexString());
+  } else if (event.params.oracle.toHexString() == '{{RealitioScalarAdapter.addressLowerCase}}') {
+    let linkId = event.params.questionId.toHexString();
+    let link = ScalarQuestionLink.load(linkId);
+    if (link != null) {
+      assignQuestionToCondition(condition, link.realityEthQuestionId.toHexString());
     }
   }
 
