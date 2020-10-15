@@ -39,6 +39,16 @@
       "transactionHash": "0x2adf9ab9541091ff2ea1035247fb4b5fa49c847018f4ce96c53657cbb0c13a67"
     }
   },
+  "RealitioScalarAdapter": {
+    "1": {
+      "address": "0xaa548EfBb0972e0c4b9551dcCfb6B787A1B90082",
+      "transactionHash": "0x781e582a3476bd59d35faa6c47164e5e51f0356a6756a7fcc5fbc7a79d4eed58"
+    },
+    "4": {
+      "address": "0x3A4A1EFF11b81d3ecEbc92f1Ce902F2C738867b8",
+      "transactionHash": "0x5fcc9f527246b8992aa38615dd59ac68b448c0dd4377fd2e47deb13915ee64a5"
+    }
+  },
   "DXTokenRegistry": {
     "1": {
       "address": "0x93db90445b76329e9ed96ecd74e76d8fbf2590d8",
