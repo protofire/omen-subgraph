@@ -72,6 +72,9 @@ export function handleFixedProductMarketMakerCreation(event: FixedProductMarketM
 
     let questionIdStr = condition.question;
     fpmm.question = questionIdStr;
+    fpmm.scalarLow = condition.scalarLow;
+    fpmm.scalarHigh = condition.scalarHigh;
+
     let question = Question.load(questionIdStr);
     if(question != null) {
       fpmm.templateId = question.templateId;

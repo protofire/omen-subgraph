@@ -114,14 +114,16 @@ export function handleScalarQuestionIdAnnouncement(event: QuestionIdAnnouncement
   let conditionQuestionId = event.params.conditionQuestionId;
   let linkId = conditionQuestionId.toHexString();
   let link = ScalarQuestionLink.load(linkId);
+  let scalarLow = event.params.low;
+  let scalarHigh = event.params.high;
 
   if (link == null) {
     link = new ScalarQuestionLink(linkId);
     link.conditionQuestionId = conditionQuestionId;
     link.realityEthQuestionId = realityEthQuestionId;
     link.question = realityEthQuestionId.toHexString();
-    link.scalarLow = event.params.low;
-    link.scalarHigh = event.params.high;
+    link.scalarLow = scalarLow;
+    link.scalarHigh = scalarHigh;
     link.save();
   } else {
     log.info("Scalar link {} already announced", [linkId]);
@@ -140,6 +142,8 @@ export function handleScalarQuestionIdAnnouncement(event: QuestionIdAnnouncement
   let condition = Condition.load(conditionId);
   if (condition != null) {
     assignQuestionToCondition(condition as Condition, realityEthQuestionId.toHexString());
+    condition.scalarLow = scalarLow;
+    condition.scalarHigh = scalarHigh;
     condition.save();
   }
 }
