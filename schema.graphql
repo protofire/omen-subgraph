@@ -50,6 +50,8 @@ type Condition @entity {
   outcomeSlotCount: Int!
   resolutionTimestamp: BigInt
   payouts: [BigDecimal!]
+  scalarLow: BigInt
+  scalarHigh: BigInt
   fixedProductMarketMakers: [FixedProductMarketMaker!]! @derivedFrom(field: "conditions")
 }
 
@@ -122,6 +124,8 @@ type FixedProductMarketMaker @entity {
   condition: Condition
   # lifted from condition
   question: Question
+  scalarLow: BigInt
+  scalarHigh: BigInt
   # lifted from condition's question
   templateId: BigInt
   data: String

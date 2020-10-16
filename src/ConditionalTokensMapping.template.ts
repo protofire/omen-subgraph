@@ -18,6 +18,8 @@ export function handleConditionPreparation(event: ConditionPreparation): void {
     let link = ScalarQuestionLink.load(linkId);
     if (link != null) {
       assignQuestionToCondition(condition, link.realityEthQuestionId.toHexString());
+      condition.scalarLow = link.scalarLow;
+      condition.scalarHigh = link.scalarHigh;
     }
   }
 

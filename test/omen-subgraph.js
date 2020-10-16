@@ -198,6 +198,8 @@ describe('Omen subgraph', function() {
             id
             indexedFixedProductMarketMakers { id }
           }
+          scalarLow
+          scalarHigh
           templateId
           data
           title
@@ -256,6 +258,13 @@ describe('Omen subgraph', function() {
       fixedProductMarketMaker.question.indexedFixedProductMarketMakers
         .should.eql([{ id: mm.address.toLowerCase() }]);
 
+      if (isScalar) {
+        fixedProductMarketMaker.scalarLow.should.equal(scalarLow);
+        fixedProductMarketMaker.scalarHigh.should.equal(scalarHigh);
+      } else {
+        should.not.exist(fixedProductMarketMaker.scalarLow);
+        should.not.exist(fixedProductMarketMaker.scalarHigh);
+      }
       fixedProductMarketMaker.templateId.should.equal(templateId);
       fixedProductMarketMaker.data.should.equal(isScalar ? scalarQuestionData : questionData);
       fixedProductMarketMaker.title.should.equal(isScalar ? scalarQuestionTitle : questionTitle);
