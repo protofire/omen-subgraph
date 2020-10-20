@@ -166,6 +166,14 @@ export function updateScaledVolumes(
   );
 }
 
+export function calculateLiquidityParameter(outcomeTokenAmounts: BigInt[]): BigInt {
+  let amountsProduct = one;
+  for(let i = 0; i < outcomeTokenAmounts.length; i++) {
+    amountsProduct = amountsProduct.times(outcomeTokenAmounts[i]);
+  }
+  return nthRoot(amountsProduct, outcomeTokenAmounts.length);
+}
+
 export function setLiquidity(
   fpmm: FixedProductMarketMaker,
   outcomeTokenAmounts: BigInt[],
@@ -174,11 +182,7 @@ export function setLiquidity(
 ): void {
   fpmm.outcomeTokenAmounts = outcomeTokenAmounts;
 
-  let amountsProduct = one;
-  for(let i = 0; i < outcomeTokenAmounts.length; i++) {
-    amountsProduct = amountsProduct.times(outcomeTokenAmounts[i]);
-  }
-  let liquidityParameter = nthRoot(amountsProduct, outcomeTokenAmounts.length);
+  let liquidityParameter = calculateLiquidityParameter(outcomeTokenAmounts);
   fpmm.liquidityParameter = liquidityParameter;
   let scaledLiquidityParameter = liquidityParameter.divDecimal(collateralScaleDec);
   fpmm.scaledLiquidityParameter = scaledLiquidityParameter;
