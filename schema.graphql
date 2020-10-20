@@ -199,6 +199,7 @@ type FpmmTrade @entity {
   creator: Account!
   creationTimestamp: BigInt!
   collateralAmount: BigInt!
+  collateralAmountUSD: BigDecimal!
   feeAmount: BigInt!
   outcomeIndex: BigInt!
   outcomeTokensTraded: BigInt!
