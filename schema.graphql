@@ -215,7 +215,7 @@ type FpmmLiquidity @entity {
   fpmm: FixedProductMarketMaker!
   type: LiquidityType!
   outcomeTokenAmounts: [BigInt!]
-  collateralTokenAmounts: BigInt!
+  collateralTokenAmount: BigInt!
   funder: Account!
   sharesAmount: BigInt!
   collateralRemovedFromFeePool: BigInt
