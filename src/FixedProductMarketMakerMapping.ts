@@ -271,12 +271,12 @@ export function handleBuy(event: FPMMBuy): void {
   let collateralScaleDec = collateralScale.toBigDecimal();
   let ethPerCollateral = collateral.ethPerToken;
   let usdPerEth = global.usdPerEth;
-  let collateralUSDPrice = ethPerCollateral != null && usdPerEth != null ?
-    ethPerCollateral.times(usdPerEth as BigDecimal) :
-    zeroDec;
-  let collateralAmountUSD = (collateralUSDPrice != zeroDec) ?
-    collateralUSDPrice.times(event.params.investmentAmount.divDecimal(collateralScaleDec)) :
-    zeroDec;
+  let collateralUSDPrice = zeroDec;
+  let collateralAmountUSD = zeroDec;
+  if (ethPerCollateral != null && usdPerEth != null) {
+    collateralUSDPrice = ethPerCollateral.times(usdPerEth as BigDecimal);
+    collateralAmountUSD = collateralUSDPrice.times(event.params.investmentAmount.divDecimal(collateralScaleDec));
+  }
 
   setLiquidity(fpmm as FixedProductMarketMaker, newAmounts, collateralScaleDec, collateralUSDPrice);
   increaseVolume(
@@ -328,12 +328,12 @@ export function handleSell(event: FPMMSell): void {
   let collateralScaleDec = collateralScale.toBigDecimal();
   let ethPerCollateral = collateral.ethPerToken;
   let usdPerEth = global.usdPerEth;
-  let collateralUSDPrice = ethPerCollateral != null && usdPerEth != null ?
-    ethPerCollateral.times(usdPerEth as BigDecimal) :
-    zeroDec;
-  let collateralAmountUSD = (collateralUSDPrice != zeroDec) ?
-   collateralUSDPrice.times(event.params.returnAmount.divDecimal(collateralScaleDec)) :
-   zeroDec;
+  let collateralUSDPrice = zeroDec;
+  let collateralAmountUSD = zeroDec;
+  if (ethPerCollateral != null && usdPerEth != null) {
+    collateralUSDPrice = ethPerCollateral.times(usdPerEth as BigDecimal);
+    collateralAmountUSD = collateralUSDPrice.times(event.params.returnAmount.divDecimal(collateralScaleDec));
+  }
 
   setLiquidity(fpmm as FixedProductMarketMaker, newAmounts, collateralScaleDec, collateralUSDPrice);
   increaseVolume(
