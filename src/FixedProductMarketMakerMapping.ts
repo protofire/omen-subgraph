@@ -89,7 +89,7 @@ function recordFPMMLiquidity(fpmm: FixedProductMarketMaker,
     fpmmLiquidity.creationTimestamp = creationTimestamp;
 
     fpmmLiquidity.outcomeTokenAmounts = outcomeTokenAmounts;
-    fpmmLiquidity.collateralTokenAmounts = calculateLiquidityParameter(outcomeTokenAmounts);
+    fpmmLiquidity.collateralTokenAmount = calculateLiquidityParameter(outcomeTokenAmounts);
 
     fpmmLiquidity.sharesAmount = sharesAmount;
     fpmmLiquidity.collateralRemovedFromFeePool = collateralRemovedFromFeePool;
