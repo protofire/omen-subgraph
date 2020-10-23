@@ -187,6 +187,11 @@ enum TradeType {
   Sell
 }
 
+enum LiquidityType {
+  Add
+  Remove
+}
+
 type FpmmTrade @entity {
   id: ID!
   fpmm: FixedProductMarketMaker!
@@ -203,6 +208,19 @@ type FpmmTrade @entity {
   feeAmount: BigInt!
   outcomeIndex: BigInt!
   outcomeTokensTraded: BigInt!
+}
+
+type FpmmLiquidity @entity {
+  id: ID!
+  fpmm: FixedProductMarketMaker!
+  type: LiquidityType!
+  outcomeTokenAmounts: [BigInt!]
+  collateralTokenAmount: BigInt!
+  additionalLiquidityParameter: BigInt!
+  funder: Account!
+  sharesAmount: BigInt!
+  collateralRemovedFromFeePool: BigInt
+  creationTimestamp: BigInt! 
 }
 
 type Account @entity {

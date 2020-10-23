@@ -7,6 +7,7 @@ import {
   FpmmParticipation,
   Global,
   FpmmTrade,
+  FpmmLiquidity,
 } from "../generated/schema"
 import {
   FPMMFundingAdded,
@@ -17,12 +18,15 @@ import {
 } from "../generated/templates/FixedProductMarketMaker/FixedProductMarketMaker"
 import { secondsPerHour, hoursPerDay, zero, zeroDec } from './utils/constants';
 import { joinDayAndVolume } from './utils/day-volume';
-import { updateScaledVolumes, setLiquidity } from './utils/fpmm';
+import { updateScaledVolumes, calculateLiquidityParameter, setLiquidity } from './utils/fpmm';
 import { requireToken } from './utils/token';
 import { requireGlobal } from './utils/global';
+import { max, min } from './utils/math';
 
 const TRADE_TYPE_BUY = "Buy";
 const TRADE_TYPE_SELL = "Sell";
+const LIQUIDITY_TYPE_ADD = "Add";
+const LIQUIDITY_TYPE_REMOVE = "Remove";
 
 function requireAccount(accountAddress: string): Account | null {
   let account = Account.load(accountAddress);
@@ -62,6 +66,42 @@ function recordTrade(fpmm: FixedProductMarketMaker,
 
     fpmmTrade.save();
   }
+
+}
+
+function recordFPMMLiquidity(fpmm: FixedProductMarketMaker, 
+    liquidityType: string,
+    outcomeTokenAmounts: BigInt[],
+    funder: string,
+    sharesAmount: BigInt,
+    collateralRemovedFromFeePool: BigInt,
+    creationTimestamp: BigInt): void {
+  let account = requireAccount(funder);
+  account.tradeNonce = account.tradeNonce.plus(BigInt.fromI32(1));
+  account.save();
+
+  let fpmmLiquidityId = fpmm.id.concat(funder).concat(account.tradeNonce.toHexString());
+  let fpmmLiquidity = FpmmLiquidity.load(fpmmLiquidityId);
+  if (fpmmLiquidity == null) {
+    fpmmLiquidity = new FpmmLiquidity(fpmmLiquidityId);
+    fpmmLiquidity.fpmm = fpmm.id;
+    fpmmLiquidity.type = liquidityType;
+    fpmmLiquidity.funder = funder;
+    fpmmLiquidity.creationTimestamp = creationTimestamp;
+
+    fpmmLiquidity.outcomeTokenAmounts = outcomeTokenAmounts;
+    if (liquidityType === LIQUIDITY_TYPE_ADD) {
+      fpmmLiquidity.collateralTokenAmount = max(outcomeTokenAmounts);
+    } else {
+      fpmmLiquidity.collateralTokenAmount = min(outcomeTokenAmounts);
+    }
+    fpmmLiquidity.additionalLiquidityParameter = calculateLiquidityParameter(outcomeTokenAmounts);
+
+    fpmmLiquidity.sharesAmount = sharesAmount;
+    fpmmLiquidity.collateralRemovedFromFeePool = collateralRemovedFromFeePool;
+
+    fpmmLiquidity.save();
+  }  
 
 }
 
@@ -214,6 +254,14 @@ export function handleFundingAdded(event: FPMMFundingAdded): void {
   setLiquidity(fpmm as FixedProductMarketMaker, newAmounts, collateralScaleDec, collateralUSDPrice)
 
   fpmm.save();
+
+  recordFPMMLiquidity(fpmm as FixedProductMarketMaker, 
+    LIQUIDITY_TYPE_ADD,
+    event.params.amountsAdded,
+    event.params.funder.toHexString(),
+    event.params.sharesMinted,
+    BigInt.fromI32(0),
+    event.block.timestamp);
 }
 
 export function handleFundingRemoved(event: FPMMFundingRemoved): void {
@@ -243,6 +291,14 @@ export function handleFundingRemoved(event: FPMMFundingRemoved): void {
   setLiquidity(fpmm as FixedProductMarketMaker, newAmounts, collateralScaleDec, collateralUSDPrice);
 
   fpmm.save();
+
+  recordFPMMLiquidity(fpmm as FixedProductMarketMaker, 
+    LIQUIDITY_TYPE_REMOVE,
+    event.params.amountsRemoved,
+    event.params.funder.toHexString(),
+    event.params.sharesBurnt,
+    event.params.collateralRemovedFromFeePool,
+    event.block.timestamp);
 }
 
 export function handleBuy(event: FPMMBuy): void {
