@@ -21,6 +21,7 @@ import { joinDayAndVolume } from './utils/day-volume';
 import { updateScaledVolumes, calculateLiquidityParameter, setLiquidity } from './utils/fpmm';
 import { requireToken } from './utils/token';
 import { requireGlobal } from './utils/global';
+import { max, min } from './utils/math';
 
 const TRADE_TYPE_BUY = "Buy";
 const TRADE_TYPE_SELL = "Sell";
@@ -89,7 +90,12 @@ function recordFPMMLiquidity(fpmm: FixedProductMarketMaker,
     fpmmLiquidity.creationTimestamp = creationTimestamp;
 
     fpmmLiquidity.outcomeTokenAmounts = outcomeTokenAmounts;
-    fpmmLiquidity.collateralTokenAmount = calculateLiquidityParameter(outcomeTokenAmounts);
+    if (liquidityType === LIQUIDITY_TYPE_ADD) {
+      fpmmLiquidity.collateralTokenAmount = max(outcomeTokenAmounts);
+    } else {
+      fpmmLiquidity.collateralTokenAmount = min(outcomeTokenAmounts);
+    }
+    fpmmLiquidity.additionalLiquidityParameter = calculateLiquidityParameter(outcomeTokenAmounts);
 
     fpmmLiquidity.sharesAmount = sharesAmount;
     fpmmLiquidity.collateralRemovedFromFeePool = collateralRemovedFromFeePool;

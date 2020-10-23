@@ -216,6 +216,7 @@ type FpmmLiquidity @entity {
   type: LiquidityType!
   outcomeTokenAmounts: [BigInt!]
   collateralTokenAmount: BigInt!
+  additionalLiquidityParameter: BigInt!
   funder: Account!
   sharesAmount: BigInt!
   collateralRemovedFromFeePool: BigInt
