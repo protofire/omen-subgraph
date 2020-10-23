@@ -260,7 +260,7 @@ export function handleFundingAdded(event: FPMMFundingAdded): void {
     event.params.amountsAdded,
     event.params.funder.toHexString(),
     event.params.sharesMinted,
-    new BigInt(0),
+    BigInt.fromI32(0),
     event.block.timestamp);
 }
 
