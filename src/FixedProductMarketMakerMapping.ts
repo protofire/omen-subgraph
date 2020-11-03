@@ -1,4 +1,4 @@
-import { BigInt, log, Address, BigDecimal } from '@graphprotocol/graph-ts'
+import { BigInt, log, Address, BigDecimal, Bytes } from '@graphprotocol/graph-ts'
 
 import {
   FixedProductMarketMaker,
@@ -43,7 +43,7 @@ function recordTrade(fpmm: FixedProductMarketMaker,
     collateralAmount: BigInt, collateralAmountUSD: BigDecimal,
     feeAmount: BigInt, outcomeIndex: BigInt,
     outcomeTokensTraded: BigInt, tradeType: string,
-    creationTimestamp: BigInt): void {
+    creationTimestamp: BigInt, txHash: Bytes): void {
   let account = requireAccount(traderAddress);
   account.tradeNonce = account.tradeNonce.plus(BigInt.fromI32(1));
   account.save();
@@ -52,6 +52,7 @@ function recordTrade(fpmm: FixedProductMarketMaker,
   let fpmmTrade = FpmmTrade.load(fpmmTradeId);
   if (fpmmTrade == null) {
     fpmmTrade = new FpmmTrade(fpmmTradeId);
+    fpmmTrade.txHash = txHash;
     fpmmTrade.fpmm = fpmm.id;
     fpmmTrade.title = fpmm.title;
     fpmmTrade.collateralToken = fpmm.collateralToken;
@@ -355,7 +356,7 @@ export function handleBuy(event: FPMMBuy): void {
     event.params.investmentAmount, collateralAmountUSD,
     event.params.feeAmount, event.params.outcomeIndex,
     event.params.outcomeTokensBought, TRADE_TYPE_BUY,
-    event.block.timestamp);
+    event.block.timestamp, event.transaction.hash);
 }
 
 export function handleSell(event: FPMMSell): void {
@@ -412,7 +413,7 @@ export function handleSell(event: FPMMSell): void {
     event.params.returnAmount, collateralAmountUSD,
     event.params.feeAmount, event.params.outcomeIndex,
     event.params.outcomeTokensSold, TRADE_TYPE_SELL,
-    event.block.timestamp);
+    event.block.timestamp, event.transaction.hash);
 }
 
 export function handlePoolShareTransfer(event: Transfer): void {

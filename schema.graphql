@@ -194,6 +194,7 @@ enum LiquidityType {
 
 type FpmmTrade @entity {
   id: ID!
+  txHash: Bytes!
   fpmm: FixedProductMarketMaker!
 
   # lifted from fpmm
