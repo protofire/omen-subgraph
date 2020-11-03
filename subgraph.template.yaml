@@ -35,6 +35,26 @@ dataSources:
           handler: handleFinalize
       file: ./src/RealitioMapping.ts
   - kind: ethereum/contract
+    name: GelatoCore
+    network: {{network}}
+    source: 
+      address: '{{GelatoCore.address}}'
+      abi: GelatoCore
+      startBlock: {{GelatoCore.startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.3
+      language: wasm/assemblyscript
+      entities:
+        - LogTaskSubmitted
+      abis:
+        - name: GelatoCore
+          file: ./abis/GelatoCore.json
+      eventHandlers:
+        - event: LogTaskSubmitted(indexed uint256,indexed bytes32,(uint256,address,(address,address),uint256,tuple[],uint256,uint256,uint256))
+          handler: handleLogTaskSubmitted
+      file: ./src/GelatoCoreMapping.ts
+  - kind: ethereum/contract
     name: RealitioScalarAdapter
     network: {{network}}
     source:
