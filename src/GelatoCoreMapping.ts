@@ -2,6 +2,9 @@ import { BigInt, Address } from "@graphprotocol/graph-ts";
 
 import {
   GelatoCore,
+  LogExecReverted,
+  LogExecSuccess,
+  LogTaskCancelled,
   LogTaskSubmitted,
   LogTaskSubmittedTaskReceiptTasksActionsStruct,
   LogTaskSubmittedTaskReceiptTasksConditionsStruct,
@@ -175,4 +178,34 @@ export function handleLogTaskSubmitted(event: LogTaskSubmitted): void {
   taskCycleReceiptIds.push(taskReceiptWrapper.id);
   taskCycle.taskReceiptWrappers = taskCycleReceiptIds;
   taskCycle.save();
+}
+
+export function handleLogTaskCancelled(event: LogTaskCancelled): void {
+  let taskReceiptWrapper = TaskReceiptWrapper.load(
+    event.params.taskReceiptId.toString()
+  );
+  taskReceiptWrapper.executionDate = event.block.timestamp;
+  taskReceiptWrapper.executionHash = event.transaction.hash;
+  taskReceiptWrapper.status = "canceled";
+  taskReceiptWrapper.save();
+}
+
+export function handleLogExecSuccess(event: LogExecSuccess): void {
+  let taskReceiptWrapper = TaskReceiptWrapper.load(
+    event.params.taskReceiptId.toString()
+  );
+  taskReceiptWrapper.executionDate = event.block.timestamp;
+  taskReceiptWrapper.executionHash = event.transaction.hash;
+  taskReceiptWrapper.status = "execSuccess";
+  taskReceiptWrapper.save();
+}
+
+export function handleLogExecReverted(event: LogExecReverted): void {
+  let taskReceiptWrapper = TaskReceiptWrapper.load(
+    event.params.taskReceiptId.toString()
+  );
+  taskReceiptWrapper.executionDate = event.block.timestamp;
+  taskReceiptWrapper.executionHash = event.transaction.hash;
+  taskReceiptWrapper.status = "execReverted";
+  taskReceiptWrapper.save();
 }
