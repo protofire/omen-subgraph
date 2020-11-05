@@ -192,6 +192,13 @@ enum LiquidityType {
   Remove
 }
 
+enum TransactionType {
+  Buy
+  Sell
+  Add
+  Remove
+}
+
 type FpmmTrade @entity {
   id: ID!
   fpmm: FixedProductMarketMaker!
@@ -221,6 +228,17 @@ type FpmmLiquidity @entity {
   sharesAmount: BigInt!
   collateralRemovedFromFeePool: BigInt
   creationTimestamp: BigInt! 
+}
+
+type FpmmTransaction @entity {
+  id: ID!
+  fpmm: FixedProductMarketMaker!
+  user: Account!
+  transactionType: TransactionType!
+  collateralAmount: BigInt!
+  collateralTokenAddress: Bytes!
+  collateralTokenAmount: BigInt!
+  creationTimestamp: BigInt!
 }
 
 type Account @entity {
