@@ -1,4 +1,4 @@
-import { BigInt, log, Address, BigDecimal } from '@graphprotocol/graph-ts'
+import { BigInt, log, Address, BigDecimal, Bytes } from '@graphprotocol/graph-ts'
 
 import {
   FixedProductMarketMaker,
@@ -44,7 +44,8 @@ function recordTrade(fpmm: FixedProductMarketMaker,
     outcomeTokenMarginalPrice: BigDecimal, oldOutcomeTokenMarginalPrice: BigDecimal,
     feeAmount: BigInt, outcomeIndex: BigInt,
     outcomeTokensTraded: BigInt, tradeType: string,
-    creationTimestamp: BigInt): void {
+    creationTimestamp: BigInt,
+    transactionHash: Bytes): void {
   let account = requireAccount(traderAddress);
   account.tradeNonce = account.tradeNonce.plus(BigInt.fromI32(1));
   account.save();
@@ -66,6 +67,7 @@ function recordTrade(fpmm: FixedProductMarketMaker,
     fpmmTrade.feeAmount = feeAmount;
     fpmmTrade.outcomeIndex = outcomeIndex;
     fpmmTrade.outcomeTokensTraded = outcomeTokensTraded;
+    fpmmTrade.transactionHash = transactionHash;
 
     fpmmTrade.save();
   }
@@ -78,7 +80,8 @@ function recordFPMMLiquidity(fpmm: FixedProductMarketMaker,
     funder: string,
     sharesAmount: BigInt,
     collateralRemovedFromFeePool: BigInt,
-    creationTimestamp: BigInt): void {
+    creationTimestamp: BigInt,
+    transactionHash: Bytes): void {
   let account = requireAccount(funder);
   account.tradeNonce = account.tradeNonce.plus(BigInt.fromI32(1));
   account.save();
@@ -91,6 +94,7 @@ function recordFPMMLiquidity(fpmm: FixedProductMarketMaker,
     fpmmLiquidity.type = liquidityType;
     fpmmLiquidity.funder = funder;
     fpmmLiquidity.creationTimestamp = creationTimestamp;
+    fpmmLiquidity.transactionHash = transactionHash;
 
     fpmmLiquidity.outcomeTokenAmounts = outcomeTokenAmounts;
     if (liquidityType === LIQUIDITY_TYPE_ADD) {
@@ -264,7 +268,8 @@ export function handleFundingAdded(event: FPMMFundingAdded): void {
     event.params.funder.toHexString(),
     event.params.sharesMinted,
     BigInt.fromI32(0),
-    event.block.timestamp);
+    event.block.timestamp,
+    event.transaction.hash);
 }
 
 export function handleFundingRemoved(event: FPMMFundingRemoved): void {
@@ -301,7 +306,8 @@ export function handleFundingRemoved(event: FPMMFundingRemoved): void {
     event.params.funder.toHexString(),
     event.params.sharesBurnt,
     event.params.collateralRemovedFromFeePool,
-    event.block.timestamp);
+    event.block.timestamp,
+    event.transaction.hash);
 }
 
 export function handleBuy(event: FPMMBuy): void {
@@ -363,7 +369,8 @@ export function handleBuy(event: FPMMBuy): void {
     newOutcomeTokenMarginalPrice, oldOutcomeTokenMarginalPrice,
     event.params.feeAmount, event.params.outcomeIndex,
     event.params.outcomeTokensBought, TRADE_TYPE_BUY,
-    event.block.timestamp);
+    event.block.timestamp,
+    event.transaction.hash);
 }
 
 export function handleSell(event: FPMMSell): void {
@@ -425,7 +432,8 @@ export function handleSell(event: FPMMSell): void {
     newOutcomeTokenMarginalPrice, oldOutcomeTokenMarginalPrice,
     event.params.feeAmount, event.params.outcomeIndex,
     event.params.outcomeTokensSold, TRADE_TYPE_SELL,
-    event.block.timestamp);
+    event.block.timestamp,
+    event.transaction.hash);
 }
 
 export function handlePoolShareTransfer(event: Transfer): void {

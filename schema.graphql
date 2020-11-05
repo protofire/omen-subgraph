@@ -210,6 +210,7 @@ type FpmmTrade @entity {
   feeAmount: BigInt!
   outcomeIndex: BigInt!
   outcomeTokensTraded: BigInt!
+  transactionHash: Bytes!
 }
 
 type FpmmLiquidity @entity {
@@ -223,6 +224,7 @@ type FpmmLiquidity @entity {
   sharesAmount: BigInt!
   collateralRemovedFromFeePool: BigInt
   creationTimestamp: BigInt!
+  transactionHash: Bytes!
 }
 
 type Account @entity {
