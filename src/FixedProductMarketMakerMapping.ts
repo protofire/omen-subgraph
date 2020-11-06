@@ -28,6 +28,8 @@ const TRADE_TYPE_BUY = "Buy";
 const TRADE_TYPE_SELL = "Sell";
 const LIQUIDITY_TYPE_ADD = "Add";
 const LIQUIDITY_TYPE_REMOVE = "Remove";
+const ACTION_TYPE_LIQUIDITY="Liquidity"
+const ACTION_TYPE_TRADE="Trade"
 
 function requireAccount(accountAddress: string): Account | null {
   let account = Account.load(accountAddress);
@@ -75,9 +77,11 @@ function recordTrade(fpmm: FixedProductMarketMaker,
     let fpmmTransaction = new FpmmTransaction(fpmmTradeId);
     fpmmTransaction.fpmm = fpmm.id;
     fpmmTransaction.user = traderAddress;
+    fpmmTransaction.collateralAmountUSD = collateralAmountUSD;
+    fpmmTransaction.actionType=ACTION_TYPE_TRADE;
+    fpmmTransaction.transactionHash = transactionHash;
     fpmmTransaction.transactionType = tradeType;
     fpmmTransaction.collateralAmount = collateralAmount;
-    fpmmTransaction.collateralTokenAddress = fpmm.collateralToken;
     fpmmTransaction.collateralTokenAmount = collateralAmount;
     fpmmTransaction.creationTimestamp = creationTimestamp;
 
@@ -89,7 +93,7 @@ function recordTrade(fpmm: FixedProductMarketMaker,
 function recordFPMMLiquidity(fpmm: FixedProductMarketMaker, 
     liquidityType: string,
     outcomeTokenAmounts: BigInt[],
-    funder: string,
+    funder: string, collateralAmountUSD: BigDecimal,
     sharesAmount: BigInt,
     collateralRemovedFromFeePool: BigInt,
     creationTimestamp: BigInt,
@@ -126,7 +130,9 @@ function recordFPMMLiquidity(fpmm: FixedProductMarketMaker,
     fpmmTransaction.user = funder;
     fpmmTransaction.transactionType = liquidityType;
     fpmmTransaction.collateralAmount = sharesAmount;
-    fpmmTransaction.collateralTokenAddress = fpmm.collateralToken;
+    fpmmTransaction.transactionHash = transactionHash;
+    fpmmTransaction.collateralAmountUSD = collateralAmountUSD;
+    fpmmTransaction.actionType=ACTION_TYPE_LIQUIDITY
     fpmmTransaction.collateralTokenAmount = fpmmLiquidity.collateralTokenAmount;
     fpmmTransaction.creationTimestamp = creationTimestamp;
 
