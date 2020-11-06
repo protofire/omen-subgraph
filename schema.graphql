@@ -206,6 +206,8 @@ type FpmmTrade @entity {
   # lifted from fpmm
   title: String
   collateralToken: Bytes!
+  outcomeTokenMarginalPrice: BigDecimal!
+  oldOutcomeTokenMarginalPrice: BigDecimal!
 
   type: TradeType!
   creator: Account!
@@ -215,6 +217,7 @@ type FpmmTrade @entity {
   feeAmount: BigInt!
   outcomeIndex: BigInt!
   outcomeTokensTraded: BigInt!
+  transactionHash: Bytes!
 }
 
 type FpmmLiquidity @entity {
@@ -227,7 +230,8 @@ type FpmmLiquidity @entity {
   funder: Account!
   sharesAmount: BigInt!
   collateralRemovedFromFeePool: BigInt
-  creationTimestamp: BigInt! 
+  creationTimestamp: BigInt!
+  transactionHash: Bytes!
 }
 
 type FpmmTransaction @entity {
