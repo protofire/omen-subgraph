@@ -220,6 +220,7 @@ type FpmmTrade @entity {
 
 type FpmmLiquidity @entity {
   id: ID!
+  txHash: Bytes!
   fpmm: FixedProductMarketMaker!
   type: LiquidityType!
   outcomeTokenAmounts: [BigInt!]
@@ -233,6 +234,7 @@ type FpmmLiquidity @entity {
 
 type FpmmTransaction @entity {
   id: ID!
+  txHash: Bytes!
   fpmm: FixedProductMarketMaker!
   user: Account!
   transactionType: TransactionType!

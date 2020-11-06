@@ -69,6 +69,7 @@ function recordTrade(fpmm: FixedProductMarketMaker,
     fpmmTrade.save();
 
     let fpmmTransaction = new FpmmTransaction(fpmmTradeId);
+    fpmmTransaction.txHash = txHash;
     fpmmTransaction.fpmm = fpmm.id;
     fpmmTransaction.user = traderAddress;
     fpmmTransaction.transactionType = tradeType;
@@ -88,7 +89,7 @@ function recordFPMMLiquidity(fpmm: FixedProductMarketMaker,
     funder: string,
     sharesAmount: BigInt,
     collateralRemovedFromFeePool: BigInt,
-    creationTimestamp: BigInt): void {
+    creationTimestamp: BigInt, txHash: Bytes): void {
   let account = requireAccount(funder);
   account.tradeNonce = account.tradeNonce.plus(BigInt.fromI32(1));
   account.save();
@@ -97,6 +98,7 @@ function recordFPMMLiquidity(fpmm: FixedProductMarketMaker,
   let fpmmLiquidity = FpmmLiquidity.load(fpmmLiquidityId);
   if (fpmmLiquidity == null) {
     fpmmLiquidity = new FpmmLiquidity(fpmmLiquidityId);
+    fpmmLiquidity.txHash = txHash;
     fpmmLiquidity.fpmm = fpmm.id;
     fpmmLiquidity.type = liquidityType;
     fpmmLiquidity.funder = funder;
@@ -116,6 +118,7 @@ function recordFPMMLiquidity(fpmm: FixedProductMarketMaker,
     fpmmLiquidity.save();
 
     let fpmmTransaction = new FpmmTransaction(fpmmLiquidityId);
+    fpmmTransaction.txHash = txHash;
     fpmmTransaction.fpmm = fpmm.id;
     fpmmTransaction.user = funder;
     fpmmTransaction.transactionType = liquidityType;
@@ -285,7 +288,8 @@ export function handleFundingAdded(event: FPMMFundingAdded): void {
     event.params.funder.toHexString(),
     event.params.sharesMinted,
     BigInt.fromI32(0),
-    event.block.timestamp);
+    event.block.timestamp,
+    event.transaction.hash);
 }
 
 export function handleFundingRemoved(event: FPMMFundingRemoved): void {
@@ -322,7 +326,8 @@ export function handleFundingRemoved(event: FPMMFundingRemoved): void {
     event.params.funder.toHexString(),
     event.params.sharesBurnt,
     event.params.collateralRemovedFromFeePool,
-    event.block.timestamp);
+    event.block.timestamp,
+    event.transaction.hash);
 }
 
 export function handleBuy(event: FPMMBuy): void {
