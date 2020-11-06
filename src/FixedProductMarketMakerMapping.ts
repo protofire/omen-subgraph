@@ -8,6 +8,7 @@ import {
   Global,
   FpmmTrade,
   FpmmLiquidity,
+  FpmmTransaction,
 } from "../generated/schema"
 import {
   FPMMFundingAdded,
@@ -66,6 +67,17 @@ function recordTrade(fpmm: FixedProductMarketMaker,
     fpmmTrade.outcomeTokensTraded = outcomeTokensTraded;
 
     fpmmTrade.save();
+
+    let fpmmTransaction = new FpmmTransaction(fpmmTradeId);
+    fpmmTransaction.fpmm = fpmm.id;
+    fpmmTransaction.user = traderAddress;
+    fpmmTransaction.transactionType = tradeType;
+    fpmmTransaction.collateralAmount = collateralAmount;
+    fpmmTransaction.collateralTokenAddress = fpmm.collateralToken;
+    fpmmTransaction.collateralTokenAmount = collateralAmount;
+    fpmmTransaction.creationTimestamp = creationTimestamp;
+
+    fpmmTransaction.save();
   }
 
 }
@@ -102,6 +114,17 @@ function recordFPMMLiquidity(fpmm: FixedProductMarketMaker,
     fpmmLiquidity.collateralRemovedFromFeePool = collateralRemovedFromFeePool;
 
     fpmmLiquidity.save();
+
+    let fpmmTransaction = new FpmmTransaction(fpmmLiquidityId);
+    fpmmTransaction.fpmm = fpmm.id;
+    fpmmTransaction.user = funder;
+    fpmmTransaction.transactionType = liquidityType;
+    fpmmTransaction.collateralAmount = sharesAmount;
+    fpmmTransaction.collateralTokenAddress = fpmm.collateralToken;
+    fpmmTransaction.collateralTokenAmount = fpmmLiquidity.collateralTokenAmount;
+    fpmmTransaction.creationTimestamp = creationTimestamp;
+
+    fpmmTransaction.save();
   }  
 
 }
