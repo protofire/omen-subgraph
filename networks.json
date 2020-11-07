@@ -214,5 +214,15 @@
       "address": "0x4ECaBa5870353805a9F068101A40E0f32ed605C6",
       "transactionHash": "0xad2eb5418b3011ee5173e6f90f354e8b6caf89877c8bba5b5fc10b21f00ee173"
     }
+  }, 
+  "GelatoCore": {
+    "1": {
+      "address": "0x1d681d76ce96E4d70a88A00EBbcfc1E47808d0b8",
+      "transactionHash": "0x032a0c76dd583fc1308fa26a3abdef9f9d51faba7e52c021c78bb91c43dfcdc6"
+    },
+    "4": {
+      "address": "0x733aDEf4f8346FD96107d8d6605eA9ab5645d632",
+      "transactionHash": "0xc91a3d72644877eb695e4b1e232655963d87f5f5b74dba7342118188ffdbe85b"
+    }
   }
 }
