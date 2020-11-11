@@ -24,6 +24,14 @@ type Question @entity {
   indexedFixedProductMarketMakers: [FixedProductMarketMaker!]!
 
   conditions: [Condition!]! @derivedFrom(field: "question")
+  answers: [Answer!] @derivedFrom(field: "question")
+}
+
+type Answer @entity {
+  id: ID!
+  answer: Bytes!
+  bondAggregate: BigInt!
+  question: Question!
 }
 
 type ScalarQuestionLink @entity {
