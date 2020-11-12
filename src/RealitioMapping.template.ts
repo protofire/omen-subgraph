@@ -8,7 +8,7 @@ import {
   LogAnswerReveal,
 } from '../generated/Realitio/Realitio'
 import { QuestionIdAnnouncement } from '../generated/RealitioScalarAdapter/RealitioScalarAdapter'
-import { Question, FixedProductMarketMaker, Category, ScalarQuestionLink, Condition } from '../generated/schema'
+import { Question, FixedProductMarketMaker, Category, ScalarQuestionLink, Condition, Answer } from '../generated/schema'
 import { assignQuestionToCondition } from './utils/condition'
 
 import { unescape } from './utils/unescape'
@@ -153,6 +153,19 @@ function saveNewAnswer(questionId: string, answer: Bytes, bond: BigInt, ts: BigI
   if (question == null) {
     log.info('cannot find question {} to answer', [questionId]);
     return;
+  }
+
+  let answerId = questionId + '_' + answer.toHexString();
+  let answerEntity = Answer.load(answerId);
+  if(answerEntity == null) {
+    answerEntity = new Answer(answerId);
+    answerEntity.question = questionId;
+    answerEntity.answer = answer;
+    answerEntity.bondAggregate = bond;
+    answerEntity.save();
+  } else {
+    answerEntity.bondAggregate = answerEntity.bondAggregate.plus(bond);
+    answerEntity.save();
   }
 
   let answerFinalizedTimestamp = question.arbitrationOccurred ? ts : ts.plus(question.timeout);
