@@ -49,6 +49,7 @@ function recordTrade(fpmm: FixedProductMarketMaker,
     outcomeTokensTraded: BigInt, tradeType: string,
     creationTimestamp: BigInt,
     transactionHash: Bytes): void {
+
   let account = requireAccount(traderAddress);
   account.tradeNonce = account.tradeNonce.plus(BigInt.fromI32(1));
   account.save();
@@ -82,7 +83,7 @@ function recordTrade(fpmm: FixedProductMarketMaker,
     fpmmTransaction.collateralAmount = collateralAmount;
     fpmmTransaction.collateralAmountUSD = collateralAmountUSD;
     fpmmTransaction.collateralTokenAddress = fpmm.collateralToken;
-    fpmmTransaction.collateralTokenAmount = collateralAmount;
+    fpmmTransaction.collateralTokenAmount = outcomeTokensTraded;
     fpmmTransaction.creationTimestamp = creationTimestamp;
     fpmmTransaction.transactionHash = transactionHash;
 
