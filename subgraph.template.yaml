@@ -93,10 +93,14 @@ dataSources:
       language: wasm/assemblyscript
       entities:
         - FixedProductMarketMaker
+        - RegisteredToken
+        - TokenList
       abis:
         - name: DXTokenRegistry
           file: ./abis/DXTokenRegistry.json
       eventHandlers:
+        - event: AddList(uint256,string)
+          handler: handleAddList
         - event: AddToken(uint256,address)
           handler: handleAddToken
         - event: RemoveToken(uint256,address)
