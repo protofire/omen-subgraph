@@ -98,6 +98,8 @@ dataSources:
       abis:
         - name: DXTokenRegistry
           file: ./abis/DXTokenRegistry.json
+        - name: ERC20Detailed
+          file: ./abis/ERC20Detailed.json
       eventHandlers:
         - event: AddList(uint256,string)
           handler: handleAddList
