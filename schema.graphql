@@ -274,6 +274,22 @@ type Token @entity {
   ethPerToken: BigDecimal
 }
 
+type RegisteredToken @entity {
+  id: ID!
+  address: Bytes!
+  decimals: Int!
+  name: String!
+  symbol: String!
+}
+
+type TokenList @entity {
+  id: ID!
+  listId: BigInt!
+  listName: String!
+  tokens: [RegisteredToken!]
+  activeTokenCount: BigInt!
+}
+
 type UniswapPair @entity {
   id: ID!
   token0: Token!
