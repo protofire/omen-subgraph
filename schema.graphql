@@ -253,10 +253,8 @@ type FpmmTransaction @entity {
   user: Account!
   fpmmType: FpmmType!
   transactionType: TransactionType!
-  collateralAmount: BigInt!
-  collateralAmountUSD: BigDecimal!
-  collateralTokenAddress: Bytes!
   collateralTokenAmount: BigInt!
+  sharesOrPoolTokenAmount: BigInt!
   creationTimestamp: BigInt!
   transactionHash: Bytes!
 }
