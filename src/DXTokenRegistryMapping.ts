@@ -84,8 +84,7 @@ export function handleRemoveToken(event: RemoveToken): void {
   }
 
   tokenList.activeTokenCount = tokenList.activeTokenCount.minus(one);
-  let tokens = tokenList.tokens;
-  tokenList.tokens = tokens.filter((tokenId) => tokenId !== event.params.token.toHexString());
+  tokenList.tokens = tokenList.tokens.filter((tokenId) => tokenId != token.id);
   tokenList.save();
 
   if(event.params.listId.toI32() == 4) {
