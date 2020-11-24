@@ -24,6 +24,23 @@ type Question @entity {
   indexedFixedProductMarketMakers: [FixedProductMarketMaker!]!
 
   conditions: [Condition!]! @derivedFrom(field: "question")
+  answers: [Answer!] @derivedFrom(field: "question")
+}
+
+type Answer @entity {
+  id: ID!
+  answer: Bytes!
+  bondAggregate: BigInt!
+  question: Question!
+}
+
+type ScalarQuestionLink @entity {
+  id: ID!
+  conditionQuestionId: Bytes!
+  realityEthQuestionId: Bytes!
+  question: Question
+  scalarLow: BigInt!
+  scalarHigh: BigInt!
 }
 
 type Category @entity {
@@ -41,6 +58,8 @@ type Condition @entity {
   outcomeSlotCount: Int!
   resolutionTimestamp: BigInt
   payouts: [BigDecimal!]
+  scalarLow: BigInt
+  scalarHigh: BigInt
   fixedProductMarketMakers: [FixedProductMarketMaker!]! @derivedFrom(field: "conditions")
 }
 
@@ -113,6 +132,8 @@ type FixedProductMarketMaker @entity {
   condition: Condition
   # lifted from condition
   question: Question
+  scalarLow: BigInt
+  scalarHigh: BigInt
   # lifted from condition's question
   templateId: BigInt
   data: String
@@ -169,8 +190,80 @@ type FpmmParticipation @entity {
   timeout: BigInt
 }
 
+enum TradeType {
+  Buy
+  Sell
+}
+
+enum LiquidityType {
+  Add
+  Remove
+}
+
+enum TransactionType {
+  Buy
+  Sell
+  Add
+  Remove
+}
+
+enum FpmmType {
+  Trade
+  Liquidity
+}
+
+type FpmmTrade @entity {
+  id: ID!
+  fpmm: FixedProductMarketMaker!
+
+  # lifted from fpmm
+  title: String
+  collateralToken: Bytes!
+  outcomeTokenMarginalPrice: BigDecimal!
+  oldOutcomeTokenMarginalPrice: BigDecimal!
+
+  type: TradeType!
+  creator: Account!
+  creationTimestamp: BigInt!
+  collateralAmount: BigInt!
+  collateralAmountUSD: BigDecimal!
+  feeAmount: BigInt!
+  outcomeIndex: BigInt!
+  outcomeTokensTraded: BigInt!
+  transactionHash: Bytes!
+}
+
+type FpmmLiquidity @entity {
+  id: ID!
+  fpmm: FixedProductMarketMaker!
+  type: LiquidityType!
+  outcomeTokenAmounts: [BigInt!]
+  collateralTokenAmount: BigInt!
+  additionalLiquidityParameter: BigInt!
+  funder: Account!
+  sharesAmount: BigInt!
+  collateralRemovedFromFeePool: BigInt
+  creationTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type FpmmTransaction @entity {
+  id: ID!
+  fpmm: FixedProductMarketMaker!
+  user: Account!
+  fpmmType: FpmmType!
+  transactionType: TransactionType!
+  collateralAmount: BigInt!
+  collateralAmountUSD: BigDecimal!
+  collateralTokenAddress: Bytes!
+  collateralTokenAmount: BigInt!
+  creationTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
 type Account @entity {
   id: ID!
+  tradeNonce: BigInt!
   fpmmPoolMemberships: [FpmmPoolMembership!] @derivedFrom(field: "funder")
   fpmmParticipations: [FpmmParticipation!] @derivedFrom(field: "participant")
 }
@@ -179,6 +272,22 @@ type Token @entity {
   id: ID!
   scale: BigInt!
   ethPerToken: BigDecimal
+}
+
+type RegisteredToken @entity {
+  id: ID!
+  address: Bytes!
+  decimals: Int!
+  name: String!
+  symbol: String!
+}
+
+type TokenList @entity {
+  id: ID!
+  listId: BigInt!
+  listName: String!
+  tokens: [RegisteredToken!]
+  activeTokenCount: BigInt!
 }
 
 type UniswapPair @entity {

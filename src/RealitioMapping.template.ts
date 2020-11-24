@@ -1,4 +1,4 @@
-import { log, BigInt, Bytes } from '@graphprotocol/graph-ts'
+import { crypto, log, BigInt, Bytes, ByteArray } from '@graphprotocol/graph-ts'
 
 import {
   LogNewQuestion,
@@ -7,7 +7,9 @@ import {
   LogFinalize,
   LogAnswerReveal,
 } from '../generated/Realitio/Realitio'
-import { Question, FixedProductMarketMaker, Category } from '../generated/schema'
+import { QuestionIdAnnouncement } from '../generated/RealitioScalarAdapter/RealitioScalarAdapter'
+import { Question, FixedProductMarketMaker, Category, ScalarQuestionLink, Condition, Answer } from '../generated/schema'
+import { assignQuestionToCondition } from './utils/condition'
 
 import { unescape } from './utils/unescape'
 
@@ -68,6 +70,7 @@ export function handleNewQuestion(event: LogNewQuestion): void {
     }
   } else if (
     templateIdI32 == 0 ||
+    templateIdI32 == 1 ||
     templateIdI32 == {{nuancedBinaryTemplateId}}
   ) {
     question.templateId = templateId;
@@ -106,11 +109,63 @@ export function handleNewQuestion(event: LogNewQuestion): void {
   question.save();
 }
 
+export function handleScalarQuestionIdAnnouncement(event: QuestionIdAnnouncement): void {
+  let realityEthQuestionId = event.params.realitioQuestionId;
+  let conditionQuestionId = event.params.conditionQuestionId;
+  let linkId = conditionQuestionId.toHexString();
+  let link = ScalarQuestionLink.load(linkId);
+  let scalarLow = event.params.low;
+  let scalarHigh = event.params.high;
+
+  if (link == null) {
+    link = new ScalarQuestionLink(linkId);
+    link.conditionQuestionId = conditionQuestionId;
+    link.realityEthQuestionId = realityEthQuestionId;
+    link.question = realityEthQuestionId.toHexString();
+    link.scalarLow = scalarLow;
+    link.scalarHigh = scalarHigh;
+    link.save();
+  } else {
+    log.info("Scalar link {} already announced", [linkId]);
+  }
+
+  let conditionIdHashPreimage = new Uint8Array(20 + 32 + 32) as ByteArray;
+  let oracleAddress = event.address;
+  for (let i = 0; i < 20 && i < oracleAddress.length; i++) {
+    conditionIdHashPreimage[i] = oracleAddress[i];
+  }
+  for (let i = 0; i < 32 && i < conditionQuestionId.length; i++) {
+    conditionIdHashPreimage[20 + i] = conditionQuestionId[i];
+  }
+  conditionIdHashPreimage[20 + 32 + 32 - 1] = 2;
+  let conditionId = crypto.keccak256(conditionIdHashPreimage).toHexString();
+  let condition = Condition.load(conditionId);
+  if (condition != null) {
+    assignQuestionToCondition(condition as Condition, realityEthQuestionId.toHexString());
+    condition.scalarLow = scalarLow;
+    condition.scalarHigh = scalarHigh;
+    condition.save();
+  }
+}
+
 function saveNewAnswer(questionId: string, answer: Bytes, bond: BigInt, ts: BigInt): void {
   let question = Question.load(questionId);
   if (question == null) {
     log.info('cannot find question {} to answer', [questionId]);
     return;
+  }
+
+  let answerId = questionId + '_' + answer.toHexString();
+  let answerEntity = Answer.load(answerId);
+  if(answerEntity == null) {
+    answerEntity = new Answer(answerId);
+    answerEntity.question = questionId;
+    answerEntity.answer = answer;
+    answerEntity.bondAggregate = bond;
+    answerEntity.save();
+  } else {
+    answerEntity.bondAggregate = answerEntity.bondAggregate.plus(bond);
+    answerEntity.save();
   }
 
   let answerFinalizedTimestamp = question.arbitrationOccurred ? ts : ts.plus(question.timeout);

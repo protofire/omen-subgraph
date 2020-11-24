@@ -35,6 +35,26 @@ dataSources:
           handler: handleFinalize
       file: ./src/RealitioMapping.ts
   - kind: ethereum/contract
+    name: RealitioScalarAdapter
+    network: {{network}}
+    source:
+      address: '{{RealitioScalarAdapter.address}}'
+      abi: RealitioScalarAdapter
+      startBlock: {{RealitioScalarAdapter.startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.3
+      language: wasm/assemblyscript
+      entities:
+        - ScalarQuestionLink
+      abis:
+        - name: RealitioScalarAdapter
+          file: ./abis/RealitioScalarAdapter.json
+      eventHandlers:
+        - event: QuestionIdAnnouncement(indexed bytes32,indexed bytes32,uint256,uint256)
+          handler: handleScalarQuestionIdAnnouncement
+      file: ./src/RealitioMapping.ts
+  - kind: ethereum/contract
     name: ConditionalTokens
     network: {{network}}
     source:
@@ -73,10 +93,16 @@ dataSources:
       language: wasm/assemblyscript
       entities:
         - FixedProductMarketMaker
+        - RegisteredToken
+        - TokenList
       abis:
         - name: DXTokenRegistry
           file: ./abis/DXTokenRegistry.json
+        - name: ERC20Detailed
+          file: ./abis/ERC20Detailed.json
       eventHandlers:
+        - event: AddList(uint256,string)
+          handler: handleAddList
         - event: AddToken(uint256,address)
           handler: handleAddToken
         - event: RemoveToken(uint256,address)

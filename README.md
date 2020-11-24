@@ -7,7 +7,8 @@ The `docker-compose.yml` contains a Docker Compose configuration suitable for sp
 The `package.json` contains a definition of this package. The `scripts` key defines a number of scripts useful for development. Among these are:
 
 * `npm test`: sets up the test environment, builds and deploys the subgraph onto the test environment, and runs the test suite.
-* `npm run bootstrap-test`: sets up the test environment by running the migrations and creating the subgraph to be used in the tests.
+* `npm run bootstrap-test`: sets up the test environment by creating the subgraph to be used in the tests.
+* `npm run test-fresh-deploy`: (re)deploys the contracts onto the development chain, builds and deploys the subgraph onto the test environment, and runs the test suite.
 * `npm run test-fresh-graph`: builds and deploys the subgraph onto the test environment, and runs the test suite.
 * `npm run test-existing-graph`: runs the test suite.
 * `npm run codegen`: rerenders code templates and runs the `graph codegen` command, which regenerates subgraph mapping support source files.
@@ -74,7 +75,7 @@ Represents conditions on the Conditional Tokens contract.
 * `id` - condition ID on the Conditional Tokens.
 * `oracle` - oracle account of the condition.
 * `questionId` - question ID of the condition.
-* `question` - if the oracle is the Realitio to Conditional Tokens oracle adapter, this field is the associated Realitio Question entity.
+* `question` - if the oracle is the Realitio to Conditional Tokens oracle adapter, this field is the associated Realitio Question entity. For scalar markets, this question's ID on Realitio differs from the `questionId` field above which is used in the ConditionalTokens contract, as the condition's `questionId` field also has the scalar market's bounds hashed into it.
 * `outcomeSlotCount` - outcome slot count of the condition.
 * `resolutionTimestamp` - unix timestamp marking when this condition got resolved.
 * `payouts` - array of payouts for each outcome slot reported by the oracle.
@@ -108,3 +109,19 @@ Represents a `FixedProductMarketMaker`, an automated market maker which buys and
 * `indexedOnQuestion` - if at the creation of this FPMM, a linked Question entity is successfully found, and this FPMM is one of the first 100 FPMMs linked to this question, then this flag is set to true, and the FPMM is appended to the question entity's `indexedFixedProductMarketMakers` field.
 * `resolutionTimestamp`, `payouts` - if this FPMM is `indexedOnQuestion`, these fields are actively mirrored from the associated `condition`.
 * `currentAnswer`, `currentAnswerBond`, `currentAnswerTimestamp`, `isPendingArbitration`, `arbitrationOccurred`, `answerFinalizedTimestamp` - if this FPMM is `indexedOnQuestion`, these fields are actively mirrored from the associated `question`.
+
+### FPMMTrade
+
+Represents a trade on a given `FixedProductMarketMaker`, the market maker with a buy or a sell conditional tokens.
+
+* `id` - address of the trade.
+* `creator` - address of the user.
+* `creationTimestamp` - unix timestamp.
+* `type` - Sell or Buy type
+* `fpmm` - The FixedProductMarketMaker.
+* `title` - The Question title.
+* `collateralToken` - The collateral token for the FixedProductMarketMaker market.
+* `investmentAmount` - the amount of the trade.
+* `feeAmount` - fee on the market for the trade.
+* `outcomeIndex` - the traded outcome.
+- `outcomeTokensBought` - amount of the outcome tokens bought on the trade.
