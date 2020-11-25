@@ -1,75 +1,80 @@
-const Web3 = require('web3');
+const Web3 = require("web3");
 const TruffleContract = require("@truffle/contract");
-const { default: axios } = require('axios');
-const delay = require('delay');
-const fs = require('fs-extra');
-const path = require('path');
-const should = require('should');
-const { gtcrEncode, ItemTypes } = require('@kleros/gtcr-encoder');
-const { expect } = require('chai');
-const { promisify } = require('util');
-const { step } = require('mocha-steps');
+const { default: axios } = require("axios");
+const delay = require("delay");
+const fs = require("fs-extra");
+const path = require("path");
+const should = require("should");
+const { gtcrEncode, ItemTypes } = require("@kleros/gtcr-encoder");
+const { expect } = require("chai");
+const { promisify } = require("util");
+const { step } = require("mocha-steps");
 
 const provider = new Web3.providers.HttpProvider("http://localhost:8545");
 const web3 = new Web3(provider);
-const {
-  toBN,
-  toWei,
-  toChecksumAddress,
-  randomHex,
-} = web3.utils;
+const { toBN, toWei, toChecksumAddress, randomHex } = web3.utils;
 
 const {
   getConditionId,
   getCollectionId,
   getPositionId,
-} = require('@gnosis.pm/conditional-tokens-contracts/utils/id-helpers')(web3.utils);
+} = require("@gnosis.pm/conditional-tokens-contracts/utils/id-helpers")(
+  web3.utils
+);
 
 function getContract(contractName) {
-  const C = TruffleContract(fs.readJsonSync(path.join(
-    __dirname, '..', 'build', 'contracts', `${contractName}.json`
-  )));
+  const C = TruffleContract(
+    fs.readJsonSync(
+      path.join(__dirname, "..", "build", "contracts", `${contractName}.json`)
+    )
+  );
   C.setProvider(provider);
   return C;
 }
 
-const WETH9 = getContract('WETH9');
-const Realitio = getContract('Realitio');
-const RealitioProxy = getContract('RealitioProxy');
-const RealitioScalarAdapter = getContract('RealitioScalarAdapter');
-const ConditionalTokens = getContract('ConditionalTokens');
-const FPMMDeterministicFactory = getContract('FPMMDeterministicFactory');
-const FixedProductMarketMaker = getContract('FixedProductMarketMaker');
-const SimpleCentralizedArbitrator = getContract('SimpleCentralizedArbitrator');
-const GeneralizedTCR = getContract('GeneralizedTCR');
-const DXTokenRegistry = getContract('DXTokenRegistry')
+const WETH9 = getContract("WETH9");
+const Realitio = getContract("Realitio");
+const RealitioProxy = getContract("RealitioProxy");
+const RealitioScalarAdapter = getContract("RealitioScalarAdapter");
+const ConditionalTokens = getContract("ConditionalTokens");
+const FPMMDeterministicFactory = getContract("FPMMDeterministicFactory");
+const FixedProductMarketMaker = getContract("FixedProductMarketMaker");
+const SimpleCentralizedArbitrator = getContract("SimpleCentralizedArbitrator");
+const GeneralizedTCR = getContract("GeneralizedTCR");
+const DXTokenRegistry = getContract("DXTokenRegistry");
+const GelatoCore = getContract("GelatoCore");
 
 async function queryGraph(query) {
-  return (await axios.post('http://localhost:8000/subgraphs', { query })).data.data;
+  return (await axios.post("http://localhost:8000/subgraphs", { query })).data
+    .data;
 }
 
-const subgraphName = 'protofire/omen';
+const subgraphName = "protofire/omen";
 
 async function querySubgraph(query) {
-  return (await axios.post(`http://localhost:8000/subgraphs/name/${subgraphName}`, { query })).data.data;
+  return (
+    await axios.post(`http://localhost:8000/subgraphs/name/${subgraphName}`, {
+      query,
+    })
+  ).data.data;
 }
 
 async function waitForGraphSync(targetBlockNumber) {
   if (targetBlockNumber == null)
     targetBlockNumber = await web3.eth.getBlockNumber();
 
-  while(true) {
+  while (true) {
     await delay(100);
     const {
-      subgraphs: [{
-        currentVersion: {
-          id: currentVersionId,
-          deployment: {
-            latestEthereumBlockNumber
-          }
+      subgraphs: [
+        {
+          currentVersion: {
+            id: currentVersionId,
+            deployment: { latestEthereumBlockNumber },
+          },
+          versions: [{ id: latestVersionId }],
         },
-        versions: [{ id: latestVersionId }]
-      }]
+      ],
     } = await queryGraph(`{
       subgraphs(
         where: {name: "${subgraphName}"}
@@ -91,7 +96,7 @@ async function waitForGraphSync(targetBlockNumber) {
       }
     }`);
 
-    if(
+    if (
       currentVersionId === latestVersionId &&
       latestEthereumBlockNumber == targetBlockNumber
     )
@@ -105,15 +110,20 @@ async function getTimestampFromReceipt({ blockHash }) {
 
 function advanceTime(time) {
   return new Promise((resolve, reject) => {
-    web3.currentProvider.send({
-      jsonrpc: '2.0',
-      method: 'evm_increaseTime',
-      params: [time],
-      id: new Date().getTime(),
-    }, (err, result) => {
-      if (err) { return reject(err) }
-      return resolve(result)
-    });
+    web3.currentProvider.send(
+      {
+        jsonrpc: "2.0",
+        method: "evm_increaseTime",
+        params: [time],
+        id: new Date().getTime(),
+      },
+      (err, result) => {
+        if (err) {
+          return reject(err);
+        }
+        return resolve(result);
+      }
+    );
   });
 }
 
@@ -125,9 +135,12 @@ function nthRoot(x, n) {
   let root = x;
   let deltaRoot;
   do {
-    deltaRoot = x.div(root.pow(toBN(n - 1))).sub(root).divn(n);
+    deltaRoot = x
+      .div(root.pow(toBN(n - 1)))
+      .sub(root)
+      .divn(n);
     root = root.add(deltaRoot);
-  } while (deltaRoot.ltn(0))
+  } while (deltaRoot.ltn(0));
 
   return root;
 }
@@ -135,10 +148,10 @@ function nthRoot(x, n) {
 /** Increases ganache time by the passed duration in seconds and mines a block.
  * @param {number} duration time in seconds
  */
-async function increaseTime (duration) {
+async function increaseTime(duration) {
   await promisify(web3.currentProvider.send.bind(web3.currentProvider))({
-    jsonrpc: '2.0',
-    method: 'evm_increaseTime',
+    jsonrpc: "2.0",
+    method: "evm_increaseTime",
     params: [duration],
     id: new Date().getTime(),
   });
@@ -149,29 +162,31 @@ async function increaseTime (duration) {
 /** Advance to next mined block using `evm_mine`
  * @returns {promise} Promise that block is mined
  */
-function advanceBlock () {
+function advanceBlock() {
   return promisify(web3.currentProvider.send.bind(web3.currentProvider))({
-    jsonrpc: '2.0',
-    method: 'evm_mine',
+    jsonrpc: "2.0",
+    method: "evm_mine",
     id: new Date().getTime(),
   });
 }
 
-describe('Omen subgraph', function() {
+describe("Omen subgraph", function () {
   function checkMarketMakerState({
     traderParticipated,
     shareholderParticipated,
     creatorParticipated,
     isScalar,
   }) {
-    step('check subgraph market maker data matches chain', async function() {
+    step("check subgraph market maker data matches chain", async function () {
       await waitForGraphSync();
 
       const mm = isScalar ? scalarFpmm : fpmm;
-      const mmCreationTimestamp = isScalar ? scalarFpmmCreationTimestamp : fpmmCreationTimestamp;
+      const mmCreationTimestamp = isScalar
+        ? scalarFpmmCreationTimestamp
+        : fpmmCreationTimestamp;
       const condId = isScalar ? scalarConditionId : conditionId;
       const posIds = isScalar ? scalarPositionIds : positionIds;
-      const templateId = isScalar ? '1': '2';
+      const templateId = isScalar ? "1" : "2";
 
       const { fixedProductMarketMaker } = await querySubgraph(`{
         fixedProductMarketMaker(id: "${mm.address.toLowerCase()}") {
@@ -225,38 +240,52 @@ describe('Omen subgraph', function() {
 
       should.exist(fixedProductMarketMaker);
       toChecksumAddress(fixedProductMarketMaker.creator).should.equal(creator);
-      Number(fixedProductMarketMaker.creationTimestamp).should.equal(mmCreationTimestamp);
-      toChecksumAddress(fixedProductMarketMaker.collateralToken).should.equal(weth.address);
+      Number(fixedProductMarketMaker.creationTimestamp).should.equal(
+        mmCreationTimestamp
+      );
+      toChecksumAddress(fixedProductMarketMaker.collateralToken).should.equal(
+        weth.address
+      );
       fixedProductMarketMaker.conditions.should.eql([{ id: condId }]);
       fixedProductMarketMaker.fee.should.equal(fee);
-      fixedProductMarketMaker.collateralVolume.should.equal(runningCollateralVolume.toString());
+      fixedProductMarketMaker.collateralVolume.should.equal(
+        runningCollateralVolume.toString()
+      );
       const chainOutcomeTokenAmounts = await conditionalTokens.balanceOfBatch(
         new Array(posIds.length).fill(mm.address),
-        posIds,
+        posIds
       );
       fixedProductMarketMaker.outcomeTokenAmounts.should.eql(
-        chainOutcomeTokenAmounts.map(v => v.toString()),
+        chainOutcomeTokenAmounts.map((v) => v.toString())
       );
-      if (chainOutcomeTokenAmounts.some(v => v.eqn(0))) {
+      if (chainOutcomeTokenAmounts.some((v) => v.eqn(0))) {
         should.not.exist(fixedProductMarketMaker.outcomeTokenMarginalPrices);
       } else {
         should.exist(fixedProductMarketMaker.outcomeTokenMarginalPrices);
       }
-      fixedProductMarketMaker.outcomeSlotCount.should.equal(isScalar ? 2 : outcomeSlotCount);
+      fixedProductMarketMaker.outcomeSlotCount.should.equal(
+        isScalar ? 2 : outcomeSlotCount
+      );
       fixedProductMarketMaker.liquidityParameter.should.equal(
         nthRoot(
-          chainOutcomeTokenAmounts.reduce((acc, amount) => acc.mul(amount), toBN(1)),
-          posIds.length,
-        ).toString(),
+          chainOutcomeTokenAmounts.reduce(
+            (acc, amount) => acc.mul(amount),
+            toBN(1)
+          ),
+          posIds.length
+        ).toString()
       );
 
       fixedProductMarketMaker.indexedOnQuestion.should.be.true();
       should.exist(fixedProductMarketMaker.condition);
       fixedProductMarketMaker.condition.id.should.equal(condId);
       should.exist(fixedProductMarketMaker.question);
-      fixedProductMarketMaker.question.id.should.equal(fixedProductMarketMaker.condition.question.id);
-      fixedProductMarketMaker.question.indexedFixedProductMarketMakers
-        .should.eql([{ id: mm.address.toLowerCase() }]);
+      fixedProductMarketMaker.question.id.should.equal(
+        fixedProductMarketMaker.condition.question.id
+      );
+      fixedProductMarketMaker.question.indexedFixedProductMarketMakers.should.eql(
+        [{ id: mm.address.toLowerCase() }]
+      );
 
       if (isScalar) {
         fixedProductMarketMaker.scalarLow.should.equal(scalarLow);
@@ -266,23 +295,31 @@ describe('Omen subgraph', function() {
         should.not.exist(fixedProductMarketMaker.scalarHigh);
       }
       fixedProductMarketMaker.templateId.should.equal(templateId);
-      fixedProductMarketMaker.data.should.equal(isScalar ? scalarQuestionData : questionData);
-      fixedProductMarketMaker.title.should.equal(isScalar ? scalarQuestionTitle : questionTitle);
+      fixedProductMarketMaker.data.should.equal(
+        isScalar ? scalarQuestionData : questionData
+      );
+      fixedProductMarketMaker.title.should.equal(
+        isScalar ? scalarQuestionTitle : questionTitle
+      );
       if (isScalar) {
         should.not.exist(fixedProductMarketMaker.outcomes);
       } else {
         should.exist(fixedProductMarketMaker.outcomes);
-        fixedProductMarketMaker.outcomes.should.eql(questionOutcomes)
+        fixedProductMarketMaker.outcomes.should.eql(questionOutcomes);
       }
       fixedProductMarketMaker.category.should.equal(questionCategory);
       fixedProductMarketMaker.language.should.equal(questionLanguage);
 
       fixedProductMarketMaker.arbitrator.should.equal(arbitrator.toLowerCase());
-      fixedProductMarketMaker.openingTimestamp.should.equal(answerSubmissionOpeningTimestamp.toString());
-      fixedProductMarketMaker.timeout.should.equal(finalizationTimeout.toString());
+      fixedProductMarketMaker.openingTimestamp.should.equal(
+        answerSubmissionOpeningTimestamp.toString()
+      );
+      fixedProductMarketMaker.timeout.should.equal(
+        finalizationTimeout.toString()
+      );
 
       for (const { funder, amount } of fixedProductMarketMaker.poolMembers) {
-        if (funder.id === `0x${'0'.repeat(40)}`) {
+        if (funder.id === `0x${"0".repeat(40)}`) {
           amount.should.equal((await mm.totalSupply()).neg().toString());
         } else {
           amount.should.equal((await mm.balanceOf(funder.id)).toString());
@@ -290,19 +327,19 @@ describe('Omen subgraph', function() {
       }
 
       if (traderParticipated) {
-        fixedProductMarketMaker.participants.should.containEql(
-          { participant: { id: trader.toLowerCase() } },
-        );
+        fixedProductMarketMaker.participants.should.containEql({
+          participant: { id: trader.toLowerCase() },
+        });
       }
-      if(shareholderParticipated) {
-        fixedProductMarketMaker.participants.should.containEql(
-          { participant: { id: shareholder.toLowerCase() } },
-        );
+      if (shareholderParticipated) {
+        fixedProductMarketMaker.participants.should.containEql({
+          participant: { id: shareholder.toLowerCase() },
+        });
       }
-      if(creatorParticipated) {
-        fixedProductMarketMaker.participants.should.containEql(
-          { participant: { id: creator.toLowerCase() } },
-        );
+      if (creatorParticipated) {
+        fixedProductMarketMaker.participants.should.containEql({
+          participant: { id: creator.toLowerCase() },
+        });
       }
     });
   }
@@ -312,7 +349,7 @@ describe('Omen subgraph', function() {
   let shareholder;
   let arbitrator;
   let reporter;
-  before('get accounts', async function() {
+  before("get accounts", async function () {
     [
       creator,
       trader,
@@ -331,7 +368,8 @@ describe('Omen subgraph', function() {
   let centralizedArbitrator;
   let marketsTCR;
   let dxTokenRegistry;
-  before('get deployed contracts', async function() {
+  let gelatoCore;
+  before("get deployed contracts", async function () {
     weth = await WETH9.deployed();
     realitio = await Realitio.deployed();
     oracle = await RealitioProxy.deployed();
@@ -339,11 +377,12 @@ describe('Omen subgraph', function() {
     conditionalTokens = await ConditionalTokens.deployed();
     factory = await FPMMDeterministicFactory.deployed();
     centralizedArbitrator = await SimpleCentralizedArbitrator.deployed();
-    marketsTCR = await GeneralizedTCR.deployed()
-    dxTokenRegistry = await DXTokenRegistry.deployed()
+    marketsTCR = await GeneralizedTCR.deployed();
+    dxTokenRegistry = await DXTokenRegistry.deployed();
+    gelatoCore = await GelatoCore.deployed();
   });
 
-  it('exists', async function() {
+  it("exists", async function () {
     const { subgraphs } = await queryGraph(`{
       subgraphs(first: 1, where: {name: "${subgraphName}"}) {
         id
@@ -358,19 +397,23 @@ describe('Omen subgraph', function() {
   const answerSubmissionOpeningTimestamp = 0;
   const questionData = [
     // title
-    'なに!?',
+    "なに!?",
     // outcomes
     ' "Something",\r"nothing, not something..." ,\t\n"A \\"thing\\""',
     // category
-    'Cat😈\\u732b\\ud83c\\uDCA1',
+    "Cat😈\\u732b\\ud83c\\uDCA1",
     // language
-    'en-US',
-  ].join('\u241f');
-  const questionTitle = 'なに!?';
-  const questionOutcomes = ['Something', 'nothing, not something...', 'A "thing"']
-  const questionCategory = 'Cat😈猫🂡';
-  const questionLanguage = 'en-US'
-  step('ask question', async function() {
+    "en-US",
+  ].join("\u241f");
+  const questionTitle = "なに!?";
+  const questionOutcomes = [
+    "Something",
+    "nothing, not something...",
+    'A "thing"',
+  ];
+  const questionCategory = "Cat😈猫🂡";
+  const questionLanguage = "en-US";
+  step("ask question", async function () {
     const nonce = randomHex(32);
     const { receipt, logs } = await realitio.askQuestion(
       2, // <- template ID
@@ -381,7 +424,8 @@ describe('Omen subgraph', function() {
       nonce,
       { from: creator }
     );
-    questionId = logs.find(({ event }) => event === 'LogNewQuestion').args.question_id;
+    questionId = logs.find(({ event }) => event === "LogNewQuestion").args
+      .question_id;
 
     await waitForGraphSync();
 
@@ -412,15 +456,17 @@ describe('Omen subgraph', function() {
       }
     }`);
 
-    question.templateId.should.equal('2');
+    question.templateId.should.equal("2");
     question.data.should.equal(questionData);
     question.title.should.equal(questionTitle);
-    question.outcomes.should.eql(questionOutcomes)
+    question.outcomes.should.eql(questionOutcomes);
     question.category.should.equal(questionCategory);
     question.language.should.equal(questionLanguage);
 
     question.arbitrator.should.equal(arbitrator.toLowerCase());
-    question.openingTimestamp.should.equal(answerSubmissionOpeningTimestamp.toString());
+    question.openingTimestamp.should.equal(
+      answerSubmissionOpeningTimestamp.toString()
+    );
     question.timeout.should.equal(finalizationTimeout.toString());
 
     should.not.exist(question.currentAnswer);
@@ -438,15 +484,16 @@ describe('Omen subgraph', function() {
 
   let scalarQuestionId;
   let scalarConditionQuestionId;
-  const scalarQuestionTitle = 'What is the average land speed of an unladen swallow? (mph)';
+  const scalarQuestionTitle =
+    "What is the average land speed of an unladen swallow? (mph)";
   const scalarQuestionData = [
     scalarQuestionTitle,
     questionCategory,
     questionLanguage,
-  ].join('\u241f');
-  const scalarLow = toWei('5');
-  const scalarHigh = toWei('40');
-  step('ask scalar question', async function() {
+  ].join("\u241f");
+  const scalarLow = toWei("5");
+  const scalarHigh = toWei("40");
+  step("ask scalar question", async function () {
     const nonce = randomHex(32);
     const { logs } = await realitio.askQuestion(
       1, // <- template ID
@@ -457,11 +504,14 @@ describe('Omen subgraph', function() {
       nonce,
       { from: creator }
     );
-    scalarQuestionId = logs.find(({ event }) => event === 'LogNewQuestion').args.question_id;
-    scalarConditionQuestionId = web3.utils.keccak256(web3.eth.abi.encodeParameters(
-      ['bytes32', 'uint256', 'uint256'],
-      [scalarQuestionId, scalarLow, scalarHigh],
-    ));
+    scalarQuestionId = logs.find(({ event }) => event === "LogNewQuestion").args
+      .question_id;
+    scalarConditionQuestionId = web3.utils.keccak256(
+      web3.eth.abi.encodeParameters(
+        ["bytes32", "uint256", "uint256"],
+        [scalarQuestionId, scalarLow, scalarHigh]
+      )
+    );
 
     await waitForGraphSync();
 
@@ -492,7 +542,7 @@ describe('Omen subgraph', function() {
       }
     }`);
 
-    question.templateId.should.equal('1');
+    question.templateId.should.equal("1");
     question.data.should.equal(scalarQuestionData);
     question.title.should.equal(scalarQuestionTitle);
     should.not.exist(question.outcomes);
@@ -500,7 +550,9 @@ describe('Omen subgraph', function() {
     question.language.should.equal(questionLanguage);
 
     question.arbitrator.should.equal(arbitrator.toLowerCase());
-    question.openingTimestamp.should.equal(answerSubmissionOpeningTimestamp.toString());
+    question.openingTimestamp.should.equal(
+      answerSubmissionOpeningTimestamp.toString()
+    );
     question.timeout.should.equal(finalizationTimeout.toString());
 
     should.not.exist(question.currentAnswer);
@@ -516,12 +568,12 @@ describe('Omen subgraph', function() {
     question.conditions.should.be.empty();
   });
 
-  step('make scalar condition question ID announcement', async function() {
+  step("make scalar condition question ID announcement", async function () {
     await scalarOracle.announceConditionQuestionId(
       scalarQuestionId,
       scalarLow,
       scalarHigh,
-      { from: creator },
+      { from: creator }
     );
 
     await waitForGraphSync();
@@ -536,7 +588,9 @@ describe('Omen subgraph', function() {
       }
     }`);
 
-    scalarQuestionLink.conditionQuestionId.should.equal(scalarConditionQuestionId);
+    scalarQuestionLink.conditionQuestionId.should.equal(
+      scalarConditionQuestionId
+    );
     scalarQuestionLink.realityEthQuestionId.should.equal(scalarQuestionId);
     scalarQuestionLink.question.should.eql({ id: scalarQuestionId });
     scalarQuestionLink.scalarLow.should.equal(scalarLow);
@@ -546,28 +600,30 @@ describe('Omen subgraph', function() {
   let conditionId, scalarConditionId;
   let positionIds, scalarPositionIds;
   const outcomeSlotCount = 3;
-  step('prepare conditions', async function() {
+  step("prepare conditions", async function () {
     await conditionalTokens.prepareCondition(
       oracle.address,
       questionId,
       outcomeSlotCount,
-      { from: creator },
+      { from: creator }
     );
     await conditionalTokens.prepareCondition(
       scalarOracle.address,
       scalarConditionQuestionId,
       2,
-      { from: creator },
+      { from: creator }
     );
     conditionId = getConditionId(oracle.address, questionId, outcomeSlotCount);
-    scalarConditionId = getConditionId(scalarOracle.address, scalarConditionQuestionId, 2);
-    positionIds = Array.from(
-      { length: outcomeSlotCount },
-      (v, i) => getPositionId(weth.address, getCollectionId(conditionId, 1 << i)),
+    scalarConditionId = getConditionId(
+      scalarOracle.address,
+      scalarConditionQuestionId,
+      2
     );
-    scalarPositionIds = Array.from(
-      { length: 2 },
-      (v, i) => getPositionId(weth.address, getCollectionId(scalarConditionId, 1 << i)),
+    positionIds = Array.from({ length: outcomeSlotCount }, (v, i) =>
+      getPositionId(weth.address, getCollectionId(conditionId, 1 << i))
+    );
+    scalarPositionIds = Array.from({ length: 2 }, (v, i) =>
+      getPositionId(weth.address, getCollectionId(scalarConditionId, 1 << i))
     );
 
     await waitForGraphSync();
@@ -587,7 +643,7 @@ describe('Omen subgraph', function() {
       }
     }`);
     condition.oracle.should.equal(oracle.address.toLowerCase());
-    condition.question.should.eql({ title: 'なに!?' });
+    condition.question.should.eql({ title: "なに!?" });
     condition.outcomeSlotCount.should.equal(outcomeSlotCount);
     should.not.exist(condition.resolutionTimestamp);
     should.not.exist(condition.payouts);
@@ -597,13 +653,13 @@ describe('Omen subgraph', function() {
 
   let fpmm;
   let fpmmCreationTimestamp;
-  const fee = toWei('0.001');
-  const initialFunds = toWei('1');
-  step('use factory to create market maker', async function() {
+  const fee = toWei("0.001");
+  const initialFunds = toWei("1");
+  step("use factory to create market maker", async function () {
     await weth.deposit({ value: initialFunds, from: creator });
     await weth.approve(factory.address, initialFunds, { from: creator });
 
-    const saltNonce = `0x${'1'.repeat(64)}`;
+    const saltNonce = `0x${"1".repeat(64)}`;
     const creationArgs = [
       saltNonce,
       conditionalTokens.address,
@@ -612,11 +668,15 @@ describe('Omen subgraph', function() {
       fee,
       initialFunds,
       [],
-      { from: creator }
-    ]
+      { from: creator },
+    ];
 
-    const fpmmAddress = await factory.create2FixedProductMarketMaker.call(...creationArgs);
-    const { receipt } = await factory.create2FixedProductMarketMaker(...creationArgs);
+    const fpmmAddress = await factory.create2FixedProductMarketMaker.call(
+      ...creationArgs
+    );
+    const { receipt } = await factory.create2FixedProductMarketMaker(
+      ...creationArgs
+    );
     fpmmCreationTimestamp = await getTimestampFromReceipt(receipt);
     fpmm = await FixedProductMarketMaker.at(fpmmAddress);
   });
@@ -627,29 +687,40 @@ describe('Omen subgraph', function() {
     creatorParticipated: true,
   });
 
-  step('should not index market makers on different ConditionalTokens', async function() {
-    const altConditionalTokens = await ConditionalTokens.new({ from: creator });
-    await altConditionalTokens.prepareCondition(oracle.address, questionId, outcomeSlotCount, { from: creator });
-    await weth.deposit({ value: initialFunds, from: creator });
-    await weth.approve(factory.address, initialFunds, { from: creator });
+  step(
+    "should not index market makers on different ConditionalTokens",
+    async function () {
+      const altConditionalTokens = await ConditionalTokens.new({
+        from: creator,
+      });
+      await altConditionalTokens.prepareCondition(
+        oracle.address,
+        questionId,
+        outcomeSlotCount,
+        { from: creator }
+      );
+      await weth.deposit({ value: initialFunds, from: creator });
+      await weth.approve(factory.address, initialFunds, { from: creator });
 
-    const saltNonce = `0x${'2'.repeat(64)}`;
-    const creationArgs = [
-      saltNonce,
-      altConditionalTokens.address,
-      weth.address,
-      [conditionId],
-      fee,
-      initialFunds,
-      [],
-      { from: creator }
-    ]
-    const fpmmAddress = await factory.create2FixedProductMarketMaker.call(...creationArgs);
-    await factory.create2FixedProductMarketMaker(...creationArgs);
+      const saltNonce = `0x${"2".repeat(64)}`;
+      const creationArgs = [
+        saltNonce,
+        altConditionalTokens.address,
+        weth.address,
+        [conditionId],
+        fee,
+        initialFunds,
+        [],
+        { from: creator },
+      ];
+      const fpmmAddress = await factory.create2FixedProductMarketMaker.call(
+        ...creationArgs
+      );
+      await factory.create2FixedProductMarketMaker(...creationArgs);
 
-    await waitForGraphSync();
+      await waitForGraphSync();
 
-    const { fixedProductMarketMaker } = await querySubgraph(`{
+      const { fixedProductMarketMaker } = await querySubgraph(`{
       fixedProductMarketMaker(id: "${fpmmAddress.toLowerCase()}") {
         creator
         creationTimestamp
@@ -661,32 +732,40 @@ describe('Omen subgraph', function() {
       }
     }`);
 
-    should.not.exist(fixedProductMarketMaker);
-  });
+      should.not.exist(fixedProductMarketMaker);
+    }
+  );
 
   let scalarFpmm;
   let scalarFpmmCreationTimestamp;
-  step('use factory to create another market maker based on scalar question', async function() {
-    await weth.deposit({ value: initialFunds, from: creator });
-    await weth.approve(factory.address, initialFunds, { from: creator });
+  step(
+    "use factory to create another market maker based on scalar question",
+    async function () {
+      await weth.deposit({ value: initialFunds, from: creator });
+      await weth.approve(factory.address, initialFunds, { from: creator });
 
-    const saltNonce = `0x${'1'.repeat(64)}`;
-    const creationArgs = [
-      saltNonce,
-      conditionalTokens.address,
-      weth.address,
-      [scalarConditionId],
-      fee,
-      initialFunds,
-      [],
-      { from: creator }
-    ]
+      const saltNonce = `0x${"1".repeat(64)}`;
+      const creationArgs = [
+        saltNonce,
+        conditionalTokens.address,
+        weth.address,
+        [scalarConditionId],
+        fee,
+        initialFunds,
+        [],
+        { from: creator },
+      ];
 
-    const fpmmAddress = await factory.create2FixedProductMarketMaker.call(...creationArgs);
-    const { receipt } = await factory.create2FixedProductMarketMaker(...creationArgs);
-    scalarFpmmCreationTimestamp = await getTimestampFromReceipt(receipt);
-    scalarFpmm = await FixedProductMarketMaker.at(fpmmAddress);
-  });
+      const fpmmAddress = await factory.create2FixedProductMarketMaker.call(
+        ...creationArgs
+      );
+      const { receipt } = await factory.create2FixedProductMarketMaker(
+        ...creationArgs
+      );
+      scalarFpmmCreationTimestamp = await getTimestampFromReceipt(receipt);
+      scalarFpmm = await FixedProductMarketMaker.at(fpmmAddress);
+    }
+  );
 
   checkMarketMakerState({
     traderParticipated: false,
@@ -696,15 +775,17 @@ describe('Omen subgraph', function() {
   });
 
   const runningCollateralVolume = toBN(0);
-  const investmentAmount = toWei('1');
-  step('have trader buy from market maker', async function() {
+  const investmentAmount = toWei("1");
+  step("have trader buy from market maker", async function () {
     await weth.deposit({ value: investmentAmount, from: trader });
     await weth.approve(fpmm.address, investmentAmount, { from: trader });
 
     const buyAmount = await fpmm.calcBuyAmount(investmentAmount, 0);
     await fpmm.buy(investmentAmount, 0, buyAmount, { from: trader });
     runningCollateralVolume.iadd(toBN(investmentAmount)).isub(
-      toBN(investmentAmount).mul(toBN(fee)).div(toBN(toWei('1')))
+      toBN(investmentAmount)
+        .mul(toBN(fee))
+        .div(toBN(toWei("1")))
     );
 
     await waitForGraphSync();
@@ -715,7 +796,9 @@ describe('Omen subgraph', function() {
       }
     }`);
 
-    fixedProductMarketMaker.collateralVolume.should.equal(runningCollateralVolume.toString());
+    fixedProductMarketMaker.collateralVolume.should.equal(
+      runningCollateralVolume.toString()
+    );
   });
 
   checkMarketMakerState({
@@ -724,14 +807,18 @@ describe('Omen subgraph', function() {
     creatorParticipated: true,
   });
 
-  const returnAmount = toWei('0.5');
-  step('have trader sell to market maker', async function() {
-    await conditionalTokens.setApprovalForAll(fpmm.address, true, { from: trader });
+  const returnAmount = toWei("0.5");
+  step("have trader sell to market maker", async function () {
+    await conditionalTokens.setApprovalForAll(fpmm.address, true, {
+      from: trader,
+    });
 
     const sellAmount = await fpmm.calcSellAmount(returnAmount, 0);
     await fpmm.sell(returnAmount, 0, sellAmount, { from: trader });
     runningCollateralVolume.iadd(toBN(returnAmount)).iadd(
-      toBN(returnAmount).mul(toBN(fee)).div(toBN(toWei('1')).sub(toBN(fee)))
+      toBN(returnAmount)
+        .mul(toBN(fee))
+        .div(toBN(toWei("1")).sub(toBN(fee)))
     );
 
     await waitForGraphSync();
@@ -742,7 +829,9 @@ describe('Omen subgraph', function() {
       }
     }`);
 
-    fixedProductMarketMaker.collateralVolume.should.equal(runningCollateralVolume.toString());
+    fixedProductMarketMaker.collateralVolume.should.equal(
+      runningCollateralVolume.toString()
+    );
   });
 
   checkMarketMakerState({
@@ -751,8 +840,8 @@ describe('Omen subgraph', function() {
     creatorParticipated: true,
   });
 
-  step('transfer pool shares', async function() {
-    const shareholderPoolAmount = toWei('0.5');
+  step("transfer pool shares", async function () {
+    const shareholderPoolAmount = toWei("0.5");
     await fpmm.transfer(shareholder, shareholderPoolAmount, { from: creator });
 
     await waitForGraphSync();
@@ -768,10 +857,12 @@ describe('Omen subgraph', function() {
       }
     }`);
 
-    (await fpmm.balanceOf(shareholder)).toString()
+    (await fpmm.balanceOf(shareholder))
+      .toString()
       .should.equal(shareholderPoolAmount)
       .and.equal(shareholderMembership.amount);
-    (await fpmm.balanceOf(creator)).toString()
+    (await fpmm.balanceOf(creator))
+      .toString()
       .should.equal(creatorMembership.amount);
   });
 
@@ -781,15 +872,13 @@ describe('Omen subgraph', function() {
     creatorParticipated: true,
   });
 
-  step('submit answer', async function() {
-    const answer = `0x${'0'.repeat(63)}1`;
-    const bond = toWei('1');
-    const { receipt } = await realitio.submitAnswer(
-      questionId,
-      answer,
-      0,
-      { from: reporter, value: bond },
-    );
+  step("submit answer", async function () {
+    const answer = `0x${"0".repeat(63)}1`;
+    const bond = toWei("1");
+    const { receipt } = await realitio.submitAnswer(questionId, answer, 0, {
+      from: reporter,
+      value: bond,
+    });
 
     await waitForGraphSync();
 
@@ -814,23 +903,27 @@ describe('Omen subgraph', function() {
     question.currentAnswer.should.equal(answer);
     question.currentAnswerBond.should.equal(bond);
     question.currentAnswerTimestamp.should.equal(timestamp.toString());
-    question.answerFinalizedTimestamp.should.equal(finalizedTimestamp.toString());
+    question.answerFinalizedTimestamp.should.equal(
+      finalizedTimestamp.toString()
+    );
     fixedProductMarketMaker.currentAnswer.should.equal(answer);
     fixedProductMarketMaker.currentAnswerBond.should.equal(bond);
-    fixedProductMarketMaker.currentAnswerTimestamp.should.equal(timestamp.toString());
-    fixedProductMarketMaker.answerFinalizedTimestamp.should.equal(finalizedTimestamp.toString());
+    fixedProductMarketMaker.currentAnswerTimestamp.should.equal(
+      timestamp.toString()
+    );
+    fixedProductMarketMaker.answerFinalizedTimestamp.should.equal(
+      finalizedTimestamp.toString()
+    );
   });
 
-  step('resolve condition', async function() {
+  step("resolve condition", async function () {
     await advanceTime(finalizationTimeout);
 
-    const { receipt: { blockHash } } = await oracle.resolve(
-      questionId,
-      2,
-      questionData,
-      3,
-      { from: reporter },
-    );
+    const {
+      receipt: { blockHash },
+    } = await oracle.resolve(questionId, 2, questionData, 3, {
+      from: reporter,
+    });
     const { timestamp } = await web3.eth.getBlock(blockHash);
 
     await waitForGraphSync();
@@ -846,140 +939,307 @@ describe('Omen subgraph', function() {
       }
     }`);
     condition.resolutionTimestamp.should.equal(timestamp.toString());
-    condition.payouts.should.deepEqual(['0', '1', '0']);
-    fixedProductMarketMaker.resolutionTimestamp.should.equal(timestamp.toString());
-    fixedProductMarketMaker.payouts.should.eql(['0', '1', '0']);
+    condition.payouts.should.deepEqual(["0", "1", "0"]);
+    fixedProductMarketMaker.resolutionTimestamp.should.equal(
+      timestamp.toString()
+    );
+    fixedProductMarketMaker.payouts.should.eql(["0", "1", "0"]);
   });
 
-  step('curate market', async function() {
+  step("curate market", async function () {
     const columns = [
       {
-        "label": "Question",
-        "type": ItemTypes.TEXT,
+        label: "Question",
+        type: ItemTypes.TEXT,
       },
       {
-        "label": "Market URL",
-        "type": ItemTypes.LINK,
-      }
-    ] // This information can be found in the TCR meta evidence.
+        label: "Market URL",
+        type: ItemTypes.LINK,
+      },
+    ]; // This information can be found in the TCR meta evidence.
     const marketData = {
-      Question: 'Will Bitcoin dominance be below 50% at any time in January 2021 according to https://coinmarketcap.com/charts/#dominance-percentage',
-      'Market URL':`https://omen.eth.link/#/${fpmm.address}`
-    }
+      Question:
+        "Will Bitcoin dominance be below 50% at any time in January 2021 according to https://coinmarketcap.com/charts/#dominance-percentage",
+      "Market URL": `https://omen.eth.link/#/${fpmm.address}`,
+    };
 
-    const arbitrationCost = await centralizedArbitrator.arbitrationCost('0x00')
-    await marketsTCR.addItem(gtcrEncode({ columns, values: marketData }), { from: creator, value: arbitrationCost })
+    const arbitrationCost = await centralizedArbitrator.arbitrationCost("0x00");
+    await marketsTCR.addItem(gtcrEncode({ columns, values: marketData }), {
+      from: creator,
+      value: arbitrationCost,
+    });
 
-    await advanceBlock()
+    await advanceBlock();
     await waitForGraphSync();
-    expect((await querySubgraph(`{
+    expect(
+      (
+        await querySubgraph(`{
       fixedProductMarketMaker(id: "${fpmm.address.toLowerCase()}") {
         klerosTCRregistered
         curatedByDxDaoOrKleros
       }
-    }`)).fixedProductMarketMaker).to.deep.equal({ klerosTCRregistered: false, curatedByDxDaoOrKleros: false })
+    }`)
+      ).fixedProductMarketMaker
+    ).to.deep.equal({
+      klerosTCRregistered: false,
+      curatedByDxDaoOrKleros: false,
+    });
 
-    await increaseTime(1)
-    const itemID = await marketsTCR.itemList(0)
-    await marketsTCR.challengeRequest(itemID, '', { from: creator, value: arbitrationCost })
+    await increaseTime(1);
+    const itemID = await marketsTCR.itemList(0);
+    await marketsTCR.challengeRequest(itemID, "", {
+      from: creator,
+      value: arbitrationCost,
+    });
 
-    await advanceBlock()
+    await advanceBlock();
     await waitForGraphSync();
-    expect((await querySubgraph(`{
+    expect(
+      (
+        await querySubgraph(`{
       fixedProductMarketMaker(id: "${fpmm.address.toLowerCase()}") {
         klerosTCRregistered
         curatedByDxDaoOrKleros
       }
-    }`)).fixedProductMarketMaker).to.deep.equal({ klerosTCRregistered: false, curatedByDxDaoOrKleros: false })
+    }`)
+      ).fixedProductMarketMaker
+    ).to.deep.equal({
+      klerosTCRregistered: false,
+      curatedByDxDaoOrKleros: false,
+    });
 
-    const [ACCEPT, REJECT] = [1, 2] // Possible rulings
-    await centralizedArbitrator.rule(0, ACCEPT, { from: creator })
+    const [ACCEPT, REJECT] = [1, 2]; // Possible rulings
+    await centralizedArbitrator.rule(0, ACCEPT, { from: creator });
 
-    await advanceBlock()
+    await advanceBlock();
     await waitForGraphSync();
-    expect((await querySubgraph(`{
+    expect(
+      (
+        await querySubgraph(`{
       fixedProductMarketMaker(id: "${fpmm.address.toLowerCase()}") {
         klerosTCRregistered
         curatedByDxDaoOrKleros
       }
-    }`)).fixedProductMarketMaker).to.deep.equal({ klerosTCRregistered: true, curatedByDxDaoOrKleros: true })
+    }`)
+      ).fixedProductMarketMaker
+    ).to.deep.equal({
+      klerosTCRregistered: true,
+      curatedByDxDaoOrKleros: true,
+    });
 
-    increaseTime(10)
-    await marketsTCR.removeItem(itemID, '', { from: creator, value: arbitrationCost })
-    await advanceBlock()
+    increaseTime(10);
+    await marketsTCR.removeItem(itemID, "", {
+      from: creator,
+      value: arbitrationCost,
+    });
+    await advanceBlock();
     await waitForGraphSync();
-    expect((await querySubgraph(`{
+    expect(
+      (
+        await querySubgraph(`{
       fixedProductMarketMaker(id: "${fpmm.address.toLowerCase()}") {
         klerosTCRregistered
         curatedByDxDaoOrKleros
         curatedByDxDao
       }
-    }`)).fixedProductMarketMaker).to.deep.equal({ klerosTCRregistered: true, curatedByDxDaoOrKleros: true, curatedByDxDao: false })
+    }`)
+      ).fixedProductMarketMaker
+    ).to.deep.equal({
+      klerosTCRregistered: true,
+      curatedByDxDaoOrKleros: true,
+      curatedByDxDao: false,
+    });
 
-    increaseTime(10)
-    await marketsTCR.executeRequest(itemID, { from: creator })
-    await advanceBlock()
+    increaseTime(10);
+    await marketsTCR.executeRequest(itemID, { from: creator });
+    await advanceBlock();
     await waitForGraphSync();
-    expect((await querySubgraph(`{
+    expect(
+      (
+        await querySubgraph(`{
       fixedProductMarketMaker(id: "${fpmm.address.toLowerCase()}") {
         klerosTCRregistered
         curatedByDxDaoOrKleros
         curatedByDxDao
       }
-    }`)).fixedProductMarketMaker).to.deep.equal({ klerosTCRregistered: false, curatedByDxDaoOrKleros: false, curatedByDxDao: false })
+    }`)
+      ).fixedProductMarketMaker
+    ).to.deep.equal({
+      klerosTCRregistered: false,
+      curatedByDxDaoOrKleros: false,
+      curatedByDxDao: false,
+    });
 
     // DXTokenRegistryMapping only handles AddToken for the 4th list.
     // Add some lists.
-    await dxTokenRegistry.addList('List 1', { from: creator })
-    await dxTokenRegistry.addList('List 2', { from: creator })
-    await dxTokenRegistry.addList('List 3', { from: creator })
-    await dxTokenRegistry.addList('List 4', { from: creator })
+    await dxTokenRegistry.addList("List 1", { from: creator });
+    await dxTokenRegistry.addList("List 2", { from: creator });
+    await dxTokenRegistry.addList("List 3", { from: creator });
+    await dxTokenRegistry.addList("List 4", { from: creator });
 
-    await dxTokenRegistry.addTokens(4, [fpmm.address], { from: creator })
-    await advanceBlock()
+    await dxTokenRegistry.addTokens(4, [fpmm.address], { from: creator });
+    await advanceBlock();
     await waitForGraphSync();
-    expect((await querySubgraph(`{
+    expect(
+      (
+        await querySubgraph(`{
       fixedProductMarketMaker(id: "${fpmm.address.toLowerCase()}") {
         curatedByDxDaoOrKleros
         curatedByDxDao
         klerosTCRregistered
       }
-    }`)).fixedProductMarketMaker).to.deep.equal({ curatedByDxDaoOrKleros: true, curatedByDxDao: true, klerosTCRregistered: false })
+    }`)
+      ).fixedProductMarketMaker
+    ).to.deep.equal({
+      curatedByDxDaoOrKleros: true,
+      curatedByDxDao: true,
+      klerosTCRregistered: false,
+    });
 
-    await dxTokenRegistry.removeTokens(4, [fpmm.address], { from: creator })
-    await advanceBlock()
+    await dxTokenRegistry.removeTokens(4, [fpmm.address], { from: creator });
+    await advanceBlock();
     await waitForGraphSync();
-    expect((await querySubgraph(`{
+    expect(
+      (
+        await querySubgraph(`{
       fixedProductMarketMaker(id: "${fpmm.address.toLowerCase()}") {
         curatedByDxDaoOrKleros
         curatedByDxDao
         klerosTCRregistered
       }
-    }`)).fixedProductMarketMaker).to.deep.equal({ curatedByDxDaoOrKleros: false, curatedByDxDao: false, klerosTCRregistered: false })
+    }`)
+      ).fixedProductMarketMaker
+    ).to.deep.equal({
+      curatedByDxDaoOrKleros: false,
+      curatedByDxDao: false,
+      klerosTCRregistered: false,
+    });
 
     // Test that having one market is enough for klerosTCRregistered to be true.
-    await marketsTCR.addItem(gtcrEncode({ columns, values: marketData }), { from: creator, value: arbitrationCost})
+    await marketsTCR.addItem(gtcrEncode({ columns, values: marketData }), {
+      from: creator,
+      value: arbitrationCost,
+    });
     const marketBData = {
-      Question: 'Will Ethereum 2.0 Phase 0 launch before 2021?',
-      'Market URL':`https://omen.eth.link/#/${fpmm.address}`
-    }
-    await marketsTCR.addItem(gtcrEncode({ columns, values: marketBData }), { from: creator, value: arbitrationCost})
-    increaseTime(10)
-    await marketsTCR.executeRequest(itemID, { from: creator })
-    const itemIDB = await marketsTCR.itemList(1)
-    await marketsTCR.executeRequest(itemIDB, { from: creator })
+      Question: "Will Ethereum 2.0 Phase 0 launch before 2021?",
+      "Market URL": `https://omen.eth.link/#/${fpmm.address}`,
+    };
+    await marketsTCR.addItem(gtcrEncode({ columns, values: marketBData }), {
+      from: creator,
+      value: arbitrationCost,
+    });
+    increaseTime(10);
+    await marketsTCR.executeRequest(itemID, { from: creator });
+    const itemIDB = await marketsTCR.itemList(1);
+    await marketsTCR.executeRequest(itemIDB, { from: creator });
 
-    await marketsTCR.removeItem(itemIDB, '', { from: creator, value: arbitrationCost })
-    increaseTime(10)
-    await marketsTCR.executeRequest(itemIDB, { from: creator })
+    await marketsTCR.removeItem(itemIDB, "", {
+      from: creator,
+      value: arbitrationCost,
+    });
+    increaseTime(10);
+    await marketsTCR.executeRequest(itemIDB, { from: creator });
 
-    await advanceBlock()
+    await advanceBlock();
     await waitForGraphSync();
-    expect((await querySubgraph(`{
+    expect(
+      (
+        await querySubgraph(`{
       fixedProductMarketMaker(id: "${fpmm.address.toLowerCase()}") {
         klerosTCRregistered
         curatedByDxDaoOrKleros
       }
-    }`)).fixedProductMarketMaker).to.deep.equal({ klerosTCRregistered: true, curatedByDxDaoOrKleros: true })
-  })
+    }`)
+      ).fixedProductMarketMaker
+    ).to.deep.equal({
+      klerosTCRregistered: true,
+      curatedByDxDaoOrKleros: true,
+    });
+  });
+
+  step("submit task to gelato", async function () {
+    const zeroAddress = "0x0000000000000000000000000000000000000000";
+
+    const provider = {
+      addr: zeroAddress,
+      module: zeroAddress,
+    };
+
+    const condition = {
+      inst: zeroAddress,
+      data: zeroAddress,
+    };
+
+    const action = {
+      addr: zeroAddress,
+      data: zeroAddress,
+      operation: 0,
+      dataFlow: 0,
+      value: 0,
+      termsOkCheck: false,
+    };
+
+    const task = {
+      conditions: [condition],
+      actions: [action],
+      selfProviderGasLimit: 0,
+      selfProviderGasPriceCeil: 0,
+    };
+
+    const {
+      receipt: { blockHash },
+      logs,
+    } = await gelatoCore.submitTask(provider, task, 0, { from: reporter });
+
+    const submissionArgs = logs.find(
+      ({ event }) => event === "LogTaskSubmitted"
+    ).args;
+
+    // console.log(submissionArgs);
+
+    await web3.eth.getBlock(blockHash);
+
+    await waitForGraphSync();
+
+    const data = await querySubgraph(`{
+      taskReceiptWrappers {
+        id
+        taskReceipt {
+          id
+          userProxy
+          provider {
+            addr
+            module
+          }
+          index
+          tasks {
+            conditions {
+              inst
+              data
+            }
+            actions {
+              addr
+              data
+              operation
+              dataFlow
+              value
+              termsOkCheck
+            }
+            selfProviderGasLimit
+            selfProviderGasPriceCeil
+          }
+          expiryDate
+          cycleId
+          submissionsLeft
+        }
+        submissionHash
+        status
+        submissionDate
+        executionDate
+        executionHash
+        selfProvided
+      }
+    }`);
+    // Data is empty, should be showing the task receipt we submitted
+  });
 });
