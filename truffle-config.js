@@ -8,13 +8,14 @@ const networks = Object.assign(...[
   [5, 'goerli', `${2e9}`],
   [42, 'kovan'],
   [77, 'sokol'],
+  [100, 'xdai'],
 ].map(([networkId, network, gasPrice]) => ({
   [network]: {
     network_id: networkId,
     gasPrice,
     provider: () => new HDWalletProvider(
       seed,
-      `https://sokol.poa.network`,
+      `https://rpc.xdaichain.com`,
     ),
   },
 })), {
