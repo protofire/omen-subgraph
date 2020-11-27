@@ -69,19 +69,14 @@ export function handleAddToken(event: AddToken): void {
 }
 
 export function handleRemoveToken(event: RemoveToken): void {
-  log.info('handleRemoveToken event starting!', []);
   let tokenListId = event.params.listId.toString();
-  log.info('handleRemoveToken event tokenListId {}', [tokenListId]);
   let tokenList = TokenList.load(tokenListId);
-  log.info('handleRemoveToken event tokenList loaded, listName is {}', [tokenList.listName]);
   if(tokenList == null) {
     log.info('cannot find tokenList {}', [tokenListId]);
     return;
   }
 
   let tokenAddress = event.params.token;
-  let tokenAddressAsString = tokenAddress.toHexString();
-  log.info('handleRemoveToken event event.params.token address {}', [tokenAddressAsString]);
   let token = RegisteredToken.load(tokenAddress.toHexString());
   if(token == null) {
     log.info('cannot find token {} to remove', [tokenAddress.toHexString()]);
@@ -89,29 +84,13 @@ export function handleRemoveToken(event: RemoveToken): void {
   }
 
   tokenList.activeTokenCount = tokenList.activeTokenCount.minus(one);
-  log.info('handleRemoveToken event tokenList activeTokenCound {}', [tokenList.activeTokenCount.toString()]);
   let tokens = tokenList.tokens;
-  let l1 = tokens.length;
-  log.info('handleRemoveToken event tokenList.tokens {}', [l1.toString()]);
-  // tokenList.tokens = tokens.filter((tokenId) => tokenId !== tokenAddressAsString);
-  let newTokens = new Array<string>(0);
-  for (let i = 0; i < tokenList.tokens.length; i++) {
-    log.info('tokenList.tokens[{}] value is {}', [i.toString(), tokenList.tokens[i]]);
-    if (tokenList.tokens[i].toString() !== tokenAddressAsString) {
-      newTokens.push(tokenList.tokens[i]);
-    }
-  }
-  tokenList.tokens = newTokens;
-  let l2 = tokenList.tokens.length;
-  log.info('handleRemoveToken event filtered tokenList.tokens {} by tokenId is event.params.token {}', [l2.toString(), tokenAddressAsString]);
+  tokenList.tokens = tokens.filter((tokenId) => tokenId !== event.params.token.toHexString());
   tokenList.save();
-  log.info('handleRemoveToken event saving tokenList', []);
 
   if(event.params.listId.toI32() == 4) {
-    log.info('handleRemoveToken event listID is 4', []);
     let fpmmAddress = event.params.token.toHex();
     let fpmm = FixedProductMarketMaker.load(fpmmAddress);
-    log.info('handleRemoveToken event load fpmm.id {}', [fpmm.id]);
 
     if (fpmm == null) {
       log.warning("could not unregister FPMM {} as curated by dxDAO", [fpmmAddress]);
@@ -120,8 +99,6 @@ export function handleRemoveToken(event: RemoveToken): void {
 
     fpmm.curatedByDxDao = false;
     fpmm.curatedByDxDaoOrKleros = fpmm.klerosTCRregistered == true;
-    log.info('handleRemoveToken event curatedByDxDaoOrKleros is {}', [fpmm.curatedByDxDaoOrKleros ? 'true' : 'false']);
     fpmm.save();
-    log.info('handleRemoveToken event saved fpmm', []);
   }
 }
