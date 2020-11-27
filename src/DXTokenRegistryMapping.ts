@@ -48,7 +48,7 @@ export function handleAddToken(event: AddToken): void {
 
   let token = getOrCreateToken(event.params.token);
   tokenList.activeTokenCount = tokenList.activeTokenCount.plus(one);
-  let tokens = tokenList.tokens;
+  let tokens = tokenList.tokens as Array<string>;
   tokens.push(token.id);
   tokenList.tokens = tokens;
   tokenList.save();
@@ -84,7 +84,7 @@ export function handleRemoveToken(event: RemoveToken): void {
   }
 
   tokenList.activeTokenCount = tokenList.activeTokenCount.minus(one);
-  let tokens = tokenList.tokens;
+  let tokens = tokenList.tokens as Array<string>;
   tokenList.tokens = tokens.filter((tokenId) => tokenId !== event.params.token.toHexString());
   tokenList.save();
 
