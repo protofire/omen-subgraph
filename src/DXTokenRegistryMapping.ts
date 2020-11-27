@@ -77,15 +77,27 @@ export function handleRemoveToken(event: RemoveToken): void {
   }
 
   let tokenAddress = event.params.token;
-  let token = RegisteredToken.load(tokenAddress.toHexString());
+  let tokenAddressAsString = tokenAddress.toHexString();
+  let token = RegisteredToken.load(tokenAddressAsString);
   if(token == null) {
-    log.info('cannot find token {} to remove', [tokenAddress.toHexString()]);
+    log.info('cannot find token {} to remove', [tokenAddressAsString]);
     return;
   }
 
+  if(tokenList.tokens == null || tokenList.tokens.length == 0) {
+    log.info('the given tokenList.tokens is null', []);
+    return;
+  }  
+
   tokenList.activeTokenCount = tokenList.activeTokenCount.minus(one);
   let tokens = tokenList.tokens as Array<string>;
-  tokenList.tokens = tokens.filter((tokenId) => tokenId !== event.params.token.toHexString());
+  let newTokens = new Array<string>(tokens.length - 1);
+  for (let i = 0; i < tokens.length; i++) {
+    if (tokens[i] != tokenAddressAsString) {
+      newTokens.push(tokens[i]);
+    }
+  }
+  tokenList.tokens = newTokens;
   tokenList.save();
 
   if(event.params.listId.toI32() == 4) {
