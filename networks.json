@@ -35,8 +35,8 @@
       "transactionHash": "0x8737379f9eb9e8e98aa77b74f46b40122770c96b7e87d85d37d18414166e5d49"
     },
     "4": {
-      "address": "0x576B76eebE6B5411c0ef310E65De9Bff8A60130F",
-      "transactionHash": "0x2adf9ab9541091ff2ea1035247fb4b5fa49c847018f4ce96c53657cbb0c13a67"
+      "address": "0x17174dC1b62add32a1DE477A357e75b0dcDEed6E",
+      "transactionHash": "0x02a4080fc1c72e4aae4e970740012315a6cbc9509a8d0b1e683fa6b03c49a79a"
     }
   },
   "RealitioScalarAdapter": {
@@ -45,8 +45,8 @@
       "transactionHash": "0x781e582a3476bd59d35faa6c47164e5e51f0356a6756a7fcc5fbc7a79d4eed58"
     },
     "4": {
-      "address": "0x3A4A1EFF11b81d3ecEbc92f1Ce902F2C738867b8",
-      "transactionHash": "0x5fcc9f527246b8992aa38615dd59ac68b448c0dd4377fd2e47deb13915ee64a5"
+      "address": "0x0e8Db8caD541C0Bf5b611636e81fEc0828bc7902",
+      "transactionHash": "0xbb128a058cd4a3ca7535da2a646ec813a2e9362e48a8b8d447e9f09007ef441b"
     }
   },
   "DXTokenRegistry": {
