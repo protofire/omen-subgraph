@@ -90,15 +90,15 @@ export function handleRemoveToken(event: RemoveToken): void {
 
   tokenList.activeTokenCount = tokenList.activeTokenCount.minus(one);
   log.info('handleRemoveToken event tokenList activeTokenCound {}', [tokenList.activeTokenCount.toString()]);
-  let tokens = tokenList.tokens as Array<string>;
+  let tokens = tokenList.tokens;
   let l1 = tokens.length;
   log.info('handleRemoveToken event tokenList.tokens {}', [l1.toString()]);
-  let newTokens = new Array<string>(tokens.length - 1);
-  for (let i = 0; i < tokens.length; i++) {
-    log.info('tokenList.tokens[{}] value is {}', [i.toString(), tokens[i]]);
-    if (tokens[i] !== tokenAddressAsString) {
-      log.info('Adding {} to newTokens variable', [tokens[i]]);
-      newTokens.push(tokens[i]);
+  // tokenList.tokens = tokens.filter((tokenId) => tokenId !== tokenAddressAsString);
+  let newTokens = new Array<string>(0);
+  for (let i = 0; i < tokenList.tokens.length; i++) {
+    log.info('tokenList.tokens[{}] value is {}', [i.toString(), tokenList.tokens[i]]);
+    if (tokenList.tokens[i].toString() !== tokenAddressAsString) {
+      newTokens.push(tokenList.tokens[i]);
     }
   }
   tokenList.tokens = newTokens;
