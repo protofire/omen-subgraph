@@ -10,6 +10,7 @@ export function handleConditionPreparation(event: ConditionPreparation): void {
   let condition = new Condition(event.params.conditionId.toHexString());
   condition.oracle = event.params.oracle;
   condition.questionId = event.params.questionId;
+  condition.question = event.params.questionId.toHexString();
 
   if (event.params.oracle.toHexString() == '{{RealitioProxy.addressLowerCase}}') {
     assignQuestionToCondition(condition, event.params.questionId.toHexString());
