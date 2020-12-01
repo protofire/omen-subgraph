@@ -12,8 +12,10 @@ export function handleConditionPreparation(event: ConditionPreparation): void {
   condition.questionId = event.params.questionId;
 
   if (event.params.oracle.toHexString() == '{{RealitioProxy.addressLowerCase}}') {
+    log.info('Condition oracle address is RealitioProxy {}', ['{{RealitioProxy.addressLowerCase}}']);
     assignQuestionToCondition(condition, event.params.questionId.toHexString());
   } else if (event.params.oracle.toHexString() == '{{RealitioScalarAdapter.addressLowerCase}}') {
+    log.info('Condition oracle address is RealitioScalarAdapter {}', ['{{RealitioScalarAdapter.addressLowerCase}}']);
     let linkId = event.params.questionId.toHexString();
     let link = ScalarQuestionLink.load(linkId);
     if (link != null) {
@@ -21,6 +23,9 @@ export function handleConditionPreparation(event: ConditionPreparation): void {
       condition.scalarLow = link.scalarLow;
       condition.scalarHigh = link.scalarHigh;
     }
+  } else {
+    log.warning('Condition oracle address {} is not a known Realitio address.', [condition.oracle.toHexString()]);
+    assignQuestionToCondition(condition, event.params.questionId.toHexString());
   }
 
   let global = requireGlobal();
