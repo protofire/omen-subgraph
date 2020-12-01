@@ -1194,13 +1194,10 @@ describe("Omen subgraph", function () {
     const submissionArgs = logs.find(
       ({ event }) => event === "LogTaskSubmitted"
     ).args;
-
     // console.log(submissionArgs);
-
     await web3.eth.getBlock(blockHash);
-
+    // Fails here: graph won't sync
     await waitForGraphSync();
-
     const data = await querySubgraph(`{
       taskReceiptWrappers {
         id
@@ -1240,6 +1237,5 @@ describe("Omen subgraph", function () {
         selfProvided
       }
     }`);
-    // Data is empty, should be showing the task receipt we submitted
   });
 });
