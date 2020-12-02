@@ -1,8 +1,8 @@
-const GelatoCore = artifacts.require("GelatoCore");
-const GelatoGasPriceOracle = artifacts.require("GelatoGasPriceOracle");
+const GelatoCore = artifacts.require('GelatoCore');
+const GelatoGasPriceOracle = artifacts.require('GelatoGasPriceOracle');
 
 module.exports = async function(deployer) {
-  const ORACLE_REQUEST_DATA = "0x50d25bcd"; // latestAnswer() selector
+  const ORACLE_REQUEST_DATA = '0x50d25bcd'; // latestAnswer() selector
   const GELATO_MAX_GAS = 7000000;
   const INTERNAL_GAS_REQUIREMENT = 100000;
   const MIN_EXECUTOR_STAKE = 10; // 1 Ether

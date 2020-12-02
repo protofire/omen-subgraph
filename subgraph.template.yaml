@@ -8,7 +8,7 @@ dataSources:
     name: Realitio
     network: {{network}}
     source:
-      address: "{{Realitio.address}}"
+      address: '{{Realitio.address}}'
       abi: Realitio
       startBlock: {{Realitio.startBlock}}
     mapping:
@@ -38,7 +38,7 @@ dataSources:
     name: GelatoCore
     network: {{network}}
     source:
-      address: "{{GelatoCore.address}}"
+      address: '{{GelatoCore.address}}'
       abi: GelatoCore
       startBlock: {{GelatoCore.startBlock}}
     mapping:
@@ -67,7 +67,7 @@ dataSources:
     name: RealitioScalarAdapter
     network: {{network}}
     source:
-      address: "{{RealitioScalarAdapter.address}}"
+      address: '{{RealitioScalarAdapter.address}}'
       abi: RealitioScalarAdapter
       startBlock: {{RealitioScalarAdapter.startBlock}}
     mapping:
@@ -87,7 +87,7 @@ dataSources:
     name: ConditionalTokens
     network: {{network}}
     source:
-      address: "{{ConditionalTokens.address}}"
+      address: '{{ConditionalTokens.address}}'
       abi: ConditionalTokens
       startBlock: {{ConditionalTokens.startBlock}}
     mapping:
@@ -114,7 +114,7 @@ dataSources:
     name: DXTokenRegistry
     network: {{network}}
     source:
-      address: "{{DXTokenRegistry.address}}"
+      address: '{{DXTokenRegistry.address}}'
       abi: DXTokenRegistry
       startBlock: {{DXTokenRegistry.startBlock}}
     mapping:
@@ -143,7 +143,7 @@ dataSources:
     name: FPMMDeterministicFactory
     network: {{network}}
     source:
-      address: "{{FPMMDeterministicFactory.address}}"
+      address: '{{FPMMDeterministicFactory.address}}'
       abi: FPMMDeterministicFactory
       startBlock: {{FPMMDeterministicFactory.startBlock}}
     mapping:
@@ -170,7 +170,7 @@ dataSources:
     name: GeneralizedTCR
     network: {{network}}
     source:
-      address: "{{GeneralizedTCR.address}}"
+      address: '{{GeneralizedTCR.address}}'
       abi: GeneralizedTCR
       startBlock: {{GeneralizedTCR.startBlock}}
     mapping:
@@ -191,7 +191,7 @@ dataSources:
     name: UniswapV2Factory
     network: {{network}}
     source:
-      address: "{{UniswapV2Factory.address}}"
+      address: '{{UniswapV2Factory.address}}'
       abi: UniswapV2Factory
       startBlock: {{UniswapV2Factory.startBlock}}
     mapping:
