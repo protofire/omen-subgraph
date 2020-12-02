@@ -12,12 +12,12 @@ services:
       - '5001:5001'
 
   ganache:
-    image: trufflesuite/ganache-cli:v6.9.1
+    image: trufflesuite/ganache-cli
     ports:
       - '8545:8545'
 
   graph-node:
-    image: graphprotocol/graph-node:v0.18.0
+    image: graphprotocol/graph-node:v0.19.0
     ports:
       - '8000:8000'
       - '8020:8020'

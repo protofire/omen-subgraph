@@ -43,6 +43,7 @@ const FixedProductMarketMaker = getContract('FixedProductMarketMaker');
 const SimpleCentralizedArbitrator = getContract('SimpleCentralizedArbitrator');
 const GeneralizedTCR = getContract('GeneralizedTCR');
 const DXTokenRegistry = getContract('DXTokenRegistry')
+const GelatoCore = getContract('GelatoCore')
 
 async function queryGraph(query) {
   return (await axios.post('http://localhost:8000/subgraphs', { query })).data.data;
@@ -331,6 +332,7 @@ describe('Omen subgraph', function() {
   let centralizedArbitrator;
   let marketsTCR;
   let dxTokenRegistry;
+  let gelatoCore
   before('get deployed contracts', async function() {
     weth = await WETH9.deployed();
     realitio = await Realitio.deployed();
@@ -341,6 +343,7 @@ describe('Omen subgraph', function() {
     centralizedArbitrator = await SimpleCentralizedArbitrator.deployed();
     marketsTCR = await GeneralizedTCR.deployed()
     dxTokenRegistry = await DXTokenRegistry.deployed()
+    gelatoCore = await GelatoCore.deployed()
   });
 
   it('exists', async function() {
@@ -1009,11 +1012,8 @@ describe('Omen subgraph', function() {
       ({ event }) => event === 'LogTaskSubmitted'
     ).args;
 
-    // console.log(submissionArgs);
-
     await web3.eth.getBlock(blockHash);
 
-    // Fails here: graph won't sync
     await waitForGraphSync();
 
     const data = await querySubgraph(`{
@@ -1055,5 +1055,7 @@ describe('Omen subgraph', function() {
         selfProvided
       }
     }`);
+    expect(data.taskReceiptWrappers[0].id).to.deep.equal(submissionArgs.taskReceipt.id)
+
   });
 });
