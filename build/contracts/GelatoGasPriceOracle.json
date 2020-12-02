@@ -2404,10 +2404,266 @@
       "links": {},
       "address": "0x7181A13F32C9bcF7D4aaDeb41FE53B3F0C27eb0b",
       "transactionHash": "0xc81d3ae0dd7e5afa8c1187c1727ac8520badf6795c4f8e1e456b88c227c6ea36"
+    },
+    "1606934956000": {
+      "events": {
+        "0x9e880dd32a256bb37410fe140b43261e1aa9d93f7924eadd6b640b9c33e04d26": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "uint256",
+              "name": "oldGasPrice",
+              "type": "uint256"
+            },
+            {
+              "indexed": true,
+              "internalType": "uint256",
+              "name": "newGasPrice",
+              "type": "uint256"
+            }
+          ],
+          "name": "LogGasPriceSet",
+          "type": "event"
+        },
+        "0x08be550583392abc38214c337c72da7a61cbeeec1ddd332e4c5468eee66490ba": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "oldOracle",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "newOracle",
+              "type": "address"
+            }
+          ],
+          "name": "LogOracleSet",
+          "type": "event"
+        },
+        "0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "previousOwner",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "newOwner",
+              "type": "address"
+            }
+          ],
+          "name": "OwnershipTransferred",
+          "type": "event"
+        }
+      },
+      "links": {},
+      "address": "0x93CddB495BB71f6c71C0e9544492a07aE3e5b532",
+      "transactionHash": "0xa8cfe25a7e25eadf7920ffaafd5096ca8d86a74a6dc357911220adc817bbfe13"
+    },
+    "1606936265748": {
+      "events": {
+        "0x9e880dd32a256bb37410fe140b43261e1aa9d93f7924eadd6b640b9c33e04d26": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "uint256",
+              "name": "oldGasPrice",
+              "type": "uint256"
+            },
+            {
+              "indexed": true,
+              "internalType": "uint256",
+              "name": "newGasPrice",
+              "type": "uint256"
+            }
+          ],
+          "name": "LogGasPriceSet",
+          "type": "event"
+        },
+        "0x08be550583392abc38214c337c72da7a61cbeeec1ddd332e4c5468eee66490ba": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "oldOracle",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "newOracle",
+              "type": "address"
+            }
+          ],
+          "name": "LogOracleSet",
+          "type": "event"
+        },
+        "0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "previousOwner",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "newOwner",
+              "type": "address"
+            }
+          ],
+          "name": "OwnershipTransferred",
+          "type": "event"
+        }
+      },
+      "links": {},
+      "address": "0xA5Cb59A20E02ef7DDaFFeb713FAb075AA61f69b0",
+      "transactionHash": "0x7159c7eb9b9afe0b992dccf8fa1f92757f6270c04cd2ec823aa07fd50dd7508f"
+    },
+    "1606936956690": {
+      "events": {
+        "0x9e880dd32a256bb37410fe140b43261e1aa9d93f7924eadd6b640b9c33e04d26": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "uint256",
+              "name": "oldGasPrice",
+              "type": "uint256"
+            },
+            {
+              "indexed": true,
+              "internalType": "uint256",
+              "name": "newGasPrice",
+              "type": "uint256"
+            }
+          ],
+          "name": "LogGasPriceSet",
+          "type": "event"
+        },
+        "0x08be550583392abc38214c337c72da7a61cbeeec1ddd332e4c5468eee66490ba": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "oldOracle",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "newOracle",
+              "type": "address"
+            }
+          ],
+          "name": "LogOracleSet",
+          "type": "event"
+        },
+        "0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "previousOwner",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "newOwner",
+              "type": "address"
+            }
+          ],
+          "name": "OwnershipTransferred",
+          "type": "event"
+        }
+      },
+      "links": {},
+      "address": "0x31A4c97E557866bA459516cBe46634F2d71D3c72",
+      "transactionHash": "0xc97bbf43df358fc0c76b77bcd5e218e2801773bece21642fdd0ff61da80b5210"
+    },
+    "1606937396448": {
+      "events": {
+        "0x9e880dd32a256bb37410fe140b43261e1aa9d93f7924eadd6b640b9c33e04d26": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "uint256",
+              "name": "oldGasPrice",
+              "type": "uint256"
+            },
+            {
+              "indexed": true,
+              "internalType": "uint256",
+              "name": "newGasPrice",
+              "type": "uint256"
+            }
+          ],
+          "name": "LogGasPriceSet",
+          "type": "event"
+        },
+        "0x08be550583392abc38214c337c72da7a61cbeeec1ddd332e4c5468eee66490ba": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "oldOracle",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "newOracle",
+              "type": "address"
+            }
+          ],
+          "name": "LogOracleSet",
+          "type": "event"
+        },
+        "0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "previousOwner",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "newOwner",
+              "type": "address"
+            }
+          ],
+          "name": "OwnershipTransferred",
+          "type": "event"
+        }
+      },
+      "links": {},
+      "address": "0xc202f6c47e8AeDc9969Aec52eB0684Ade5bD1D6B",
+      "transactionHash": "0x056745925a6576ef7e6b022f567112d54acda1ca09c3342e0f628fecf03ab9c9"
     }
   },
-  "schemaVersion": "3.3.0",
-  "updatedAt": "2020-12-02T16:23:50.018Z",
+  "schemaVersion": "3.2.2",
+  "updatedAt": "2020-12-02T19:31:13.294Z",
   "networkType": "ethereum",
   "devdoc": {
     "methods": {
