@@ -104,10 +104,13 @@ dist
 .tern-port
 
 # Truffle and Graph build artifacts
-build/
+build/**
+!/build/contracts
+build/contracts/**
 
 # Exception for dxDAO contract build artifacts
 !/build/contracts/DX*.json
+!/build/contracts/Gelato*.json
 
 # Subgraph stuff
 abis/
