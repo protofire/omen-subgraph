@@ -18177,10 +18177,176 @@
       "links": {},
       "address": "0x7C9010d0B518cC5dC32caBb434Aec0fa874fD058",
       "transactionHash": "0x6c7d54256abbae71428d47992af596adae428aac593cc0c5ef6c7a1e3eeb4214"
+    },
+    "1606925349943": {
+      "events": {
+        "0xa35fec3c33a3546583876608bc467b00398be7ad08a751bff377f3636e1d45b8": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "listId",
+              "type": "uint256"
+            },
+            {
+              "indexed": false,
+              "internalType": "string",
+              "name": "listName",
+              "type": "string"
+            }
+          ],
+          "name": "AddList",
+          "type": "event"
+        },
+        "0x374195d639167721eee596157426d922ffedad376d1ec774751088e8de1dcd0d": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "listId",
+              "type": "uint256"
+            },
+            {
+              "indexed": false,
+              "internalType": "address",
+              "name": "token",
+              "type": "address"
+            }
+          ],
+          "name": "AddToken",
+          "type": "event"
+        },
+        "0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "previousOwner",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "newOwner",
+              "type": "address"
+            }
+          ],
+          "name": "OwnershipTransferred",
+          "type": "event"
+        },
+        "0xcadf6fd3968e653eef0f298763a80925d054059a599c46fadf9d319d9653bd86": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "listId",
+              "type": "uint256"
+            },
+            {
+              "indexed": false,
+              "internalType": "address",
+              "name": "token",
+              "type": "address"
+            }
+          ],
+          "name": "RemoveToken",
+          "type": "event"
+        }
+      },
+      "links": {},
+      "address": "0xb4a9c6eB04B10BfdED942f21cBa5076C8ead2c30",
+      "transactionHash": "0xa6074af95cb79463df1b8230440f12b9d74032a935ff0a8446664cd010fc4a14"
+    },
+    "1606926196265": {
+      "events": {
+        "0xa35fec3c33a3546583876608bc467b00398be7ad08a751bff377f3636e1d45b8": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "listId",
+              "type": "uint256"
+            },
+            {
+              "indexed": false,
+              "internalType": "string",
+              "name": "listName",
+              "type": "string"
+            }
+          ],
+          "name": "AddList",
+          "type": "event"
+        },
+        "0x374195d639167721eee596157426d922ffedad376d1ec774751088e8de1dcd0d": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "listId",
+              "type": "uint256"
+            },
+            {
+              "indexed": false,
+              "internalType": "address",
+              "name": "token",
+              "type": "address"
+            }
+          ],
+          "name": "AddToken",
+          "type": "event"
+        },
+        "0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "previousOwner",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "newOwner",
+              "type": "address"
+            }
+          ],
+          "name": "OwnershipTransferred",
+          "type": "event"
+        },
+        "0xcadf6fd3968e653eef0f298763a80925d054059a599c46fadf9d319d9653bd86": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "listId",
+              "type": "uint256"
+            },
+            {
+              "indexed": false,
+              "internalType": "address",
+              "name": "token",
+              "type": "address"
+            }
+          ],
+          "name": "RemoveToken",
+          "type": "event"
+        }
+      },
+      "links": {},
+      "address": "0x8A4997Dd599A2A7BA0eC4B3c5835a20C54223770",
+      "transactionHash": "0x473541055db3c4aae4ccf84c90d5e6c794d9061ffb3dd7ea598f2573342e7e28"
     }
   },
-  "schemaVersion": "3.3.2",
-  "updatedAt": "2020-12-02T11:38:00.908Z",
+  "schemaVersion": "3.3.0",
+  "updatedAt": "2020-12-02T16:23:44.139Z",
   "networkType": "ethereum",
   "devdoc": {
     "methods": {
