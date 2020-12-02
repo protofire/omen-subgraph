@@ -3,16 +3,17 @@ const mustache = require('mustache');
 
 module.exports = function(callback) {
   (async () => {
-    const networkType = await web3.eth.net.getNetworkType();
+    const chainId = await web3.eth.net.getId();
     const templateData = {
       network: {
-        main: 'mainnet',
-        private: 'development',
-      }[networkType] || networkType,
+        [1]: 'mainnet',
+        [4]: 'rinkeby',
+        [77]: 'poa-sokol',
+        [100]: 'xdai',
+      }[chainId] || 'development',
       nuancedBinaryTemplateId: {
-        main: 6,
-        rinkeby: 5,
-      }[networkType] || 5,
+        [1]: 6,
+      }[chainId] || 5,
     };
 
     for(const contractName of [
