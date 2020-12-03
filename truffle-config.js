@@ -7,13 +7,15 @@ const networks = Object.assign(...[
   [4, 'rinkeby'],
   [5, 'goerli', `${2e9}`],
   [42, 'kovan'],
-].map(([networkId, network, gasPrice]) => ({
+  [77, 'sokol',, 'https://sokol.poa.network'],
+  [100, 'xdai',, 'https://rpc.xdaichain.com'],
+].map(([networkId, network, gasPrice, rpcUrl]) => ({
   [network]: {
     network_id: networkId,
     gasPrice,
     provider: () => new HDWalletProvider(
       seed,
-      `https://${network}.infura.io/v3/17d5bb5953564f589d48d535f573e486`,
+      rpcUrl || `https://${network}.infura.io/v3/17d5bb5953564f589d48d535f573e486`,
     ),
   },
 })), {
