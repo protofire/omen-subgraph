@@ -257,6 +257,7 @@ type FpmmTransaction @entity {
   sharesOrPoolTokenAmount: BigInt!
   creationTimestamp: BigInt!
   transactionHash: Bytes!
+  blockNumber:BigInt!
 }
 
 type Account @entity {

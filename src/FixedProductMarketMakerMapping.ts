@@ -96,7 +96,8 @@ function recordFPMMLiquidity(fpmm: FixedProductMarketMaker,
     sharesAmount: BigInt,
     collateralRemovedFromFeePool: BigInt,
     creationTimestamp: BigInt,
-    transactionHash: Bytes): void {
+    transactionHash: Bytes,
+blockNumber:BigInt): void {
   let account = requireAccount(funder);
   account.tradeNonce = account.tradeNonce.plus(BigInt.fromI32(1));
   account.save();
@@ -137,7 +138,7 @@ function recordFPMMLiquidity(fpmm: FixedProductMarketMaker,
     fpmmTransaction.sharesOrPoolTokenAmount = sharesAmount;
     fpmmTransaction.creationTimestamp = creationTimestamp;
     fpmmTransaction.transactionHash = transactionHash;
-
+    fpmmTransaction.blockNumber=blockNumber
     fpmmTransaction.save();
   }  
 
@@ -300,7 +301,8 @@ export function handleFundingAdded(event: FPMMFundingAdded): void {
     event.params.sharesMinted,
     BigInt.fromI32(0),
     event.block.timestamp,
-    event.transaction.hash);
+    event.transaction.hash,
+      event.block.number);
 }
 
 export function handleFundingRemoved(event: FPMMFundingRemoved): void {
@@ -337,7 +339,8 @@ export function handleFundingRemoved(event: FPMMFundingRemoved): void {
     event.params.sharesBurnt,
     event.params.collateralRemovedFromFeePool,
     event.block.timestamp,
-    event.transaction.hash);
+    event.transaction.hash,
+  event.block.number);
 }
 
 export function handleBuy(event: FPMMBuy): void {
