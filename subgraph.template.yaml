@@ -46,10 +46,14 @@ dataSources:
       apiVersion: 0.0.3
       language: wasm/assemblyscript
       entities:
-        - LogTaskSubmitted
-        - handleLogExecReverted
-        - handleLogExecSuccess
-        - handleLogTaskCancelled
+        - GelatoUser
+        - Task
+        - Provider
+        - TaskReceiptWrapper
+        - TaskCycle
+        - TaskReceipt
+        - TaskCondition
+        - Action
       abis:
         - name: GelatoCore
           file: ./abis/GelatoCore.json

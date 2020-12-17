@@ -11,14 +11,14 @@ import {
 } from '../generated/GelatoCore/GelatoCore';
 
 import {
-  User,
+  GelatoUser,
   TaskReceiptWrapper,
   TaskReceipt,
   Task,
   Provider,
   TaskCondition,
   Action,
-  TaskCycle
+  TaskCycle,
 } from '../generated/schema';
 
 function getAction(
@@ -56,9 +56,9 @@ function getCondition(
 // Task Submitted
 export function handleLogTaskSubmitted(event: LogTaskSubmitted): void {
   // setting Id of taskreceipt
-  let user = User.load(event.params.taskReceipt.userProxy.toHex());
+  let user = GelatoUser.load(event.params.taskReceipt.userProxy.toHex());
   if (user == null) {
-    user = new User(event.params.taskReceipt.userProxy.toHex());
+    user = new GelatoUser(event.params.taskReceipt.userProxy.toHex());
     user.address = event.params.taskReceipt.userProxy;
     user.signUpDate = event.block.timestamp;
     user.save();
