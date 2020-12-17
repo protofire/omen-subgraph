@@ -261,7 +261,7 @@ type FpmmTransaction @entity {
   transactionHash: Bytes!
 }
 
-type User @entity {
+type GelatoUser @entity {
   id: ID!
   address: Bytes!
   # taskReceiptWrappers: [TaskReceiptWrapper!]
@@ -286,7 +286,7 @@ type Provider @entity {
 
 type TaskReceiptWrapper @entity {
   id: ID!
-  user: User!
+  user: GelatoUser!
   taskReceipt: TaskReceipt!
   submissionHash: Bytes!
   status: TaskReceiptStatus!
@@ -417,4 +417,3 @@ type _Schema_
       }
     ]
   )
-

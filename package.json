@@ -63,7 +63,7 @@
     "realitio-gnosis-proxy": "github:gnosis/realitio-gnosis-proxy",
     "replace-in-file": "^6.1.0",
     "should": "^13.2.3",
-    "truffle": "5.1.35",
+    "truffle": "^5.1.35",
     "wait-on": "^4.0.1",
     "web3": "^1.2.6"
   }
