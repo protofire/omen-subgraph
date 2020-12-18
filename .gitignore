@@ -102,6 +102,7 @@ dist
 
 # TernJS port file
 .tern-port
+.idea
 
 # Truffle and Graph build artifacts
 build/

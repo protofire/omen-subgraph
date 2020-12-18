@@ -48,7 +48,7 @@ export function handleAddToken(event: AddToken): void {
 
   let token = getOrCreateToken(event.params.token);
   tokenList.activeTokenCount = tokenList.activeTokenCount.plus(one);
-  let tokens = tokenList.tokens as Array<string>;
+  let tokens = tokenList.tokens;
   tokens.push(token.id);
   tokenList.tokens = tokens;
   tokenList.save();
@@ -77,27 +77,14 @@ export function handleRemoveToken(event: RemoveToken): void {
   }
 
   let tokenAddress = event.params.token;
-  let tokenAddressAsString = tokenAddress.toHexString();
-  let token = RegisteredToken.load(tokenAddressAsString);
+  let token = RegisteredToken.load(tokenAddress.toHexString());
   if(token == null) {
-    log.info('cannot find token {} to remove', [tokenAddressAsString]);
+    log.info('cannot find token {} to remove', [tokenAddress.toHexString()]);
     return;
   }
-
-  if(tokenList.tokens == null || tokenList.tokens.length == 0) {
-    log.info('the given tokenList.tokens is null', []);
-    return;
-  }  
 
   tokenList.activeTokenCount = tokenList.activeTokenCount.minus(one);
-  let tokens = tokenList.tokens as Array<string>;
-  let newTokens = new Array<string>(tokens.length - 1);
-  for (let i = 0; i < tokens.length; i++) {
-    if (tokens[i] != tokenAddressAsString) {
-      newTokens.push(tokens[i]);
-    }
-  }
-  tokenList.tokens = newTokens;
+  tokenList.tokens = tokenList.tokens.filter((tokenId) => tokenId != token.id);
   tokenList.save();
 
   if(event.params.listId.toI32() == 4) {
