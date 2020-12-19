@@ -4,13 +4,13 @@ import { ERC20Detailed } from "../../generated/templates/ERC20Detailed/ERC20Deta
 import { one, ten, oneDec } from "./constants";
 
 export function isWETH(addressHex: string): boolean {
-  return addressHex == "{{WETH9.addressLowerCase}}";
+  return addressHex == '{{WETH9.addressLowerCase}}';
 }
 
 export const usdStablecoins: string[] = [
-  "{{DAI.addressLowerCase}}",
-  "{{USDC.addressLowerCase}}",
-  "{{USDT.addressLowerCase}}",
+  '{{DAI.addressLowerCase}}',
+  '{{USDC.addressLowerCase}}',
+  '{{USDT.addressLowerCase}}',
 ];
 
 export function isUSDStablecoin(addressHex: string): boolean {
@@ -25,13 +25,12 @@ export function requireToken(address: Address): Token {
 
     let erc20 = ERC20Detailed.bind(address);
     let decimalsResult = erc20.try_decimals();
+    token.scale = decimalsResult.reverted ?
+      one :
+      ten.pow(<u8>decimalsResult.value);
 
-    token.scale =
-      decimalsResult.reverted || decimalsResult.value > 18
-        ? one
-        : ten.pow(<u8>decimalsResult.value);
-
-    if (isWETH(addressHex)) token.ethPerToken = oneDec;
+    if (isWETH(addressHex))
+      token.ethPerToken = oneDec;
 
     token.save();
   }
