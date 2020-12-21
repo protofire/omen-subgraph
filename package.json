@@ -1,6 +1,6 @@
 {
   "name": "omen-subgraph",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Subgraph for Omen",
   "main": "index.js",
   "scripts": {
@@ -10,10 +10,14 @@
     "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 protofire/omen",
     "deploy:rinkeby": "graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ protofire/omen-rinkeby",
     "deploy:mainnet": "graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ protofire/omen",
+    "deploy:sokol": "graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ protofire/omen-sokol",
+    "deploy:xdai": "graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ protofire/omen-xdai",
     "fix-schema.ts": "replace-in-file '/(;\\s*if \\()value === null/mg' '$1value === null || value.kind === ValueKind.NULL' generated/schema.ts --isRegex",
     "codegen": "truffle exec render-templates.js && graph codegen && yarn fix-schema.ts",
     "codegen:rinkeby": "tnt iN && truffle exec --network=rinkeby render-templates.js && graph codegen && yarn fix-schema.ts",
     "codegen:mainnet": "tnt iN && truffle exec --network=mainnet render-templates.js && graph codegen && yarn fix-schema.ts",
+    "codegen:sokol": "tnt iN && truffle exec --network=sokol render-templates.js && graph codegen && yarn fix-schema.ts",
+    "codegen:xdai": "tnt iN && truffle exec --network=xdai render-templates.js && graph codegen && yarn fix-schema.ts",
     "build": "graph build",
     "bootstrap-test": "wait-on http-get://localhost:8000 && yarn create-local",
     "bootstrap": "truffle compile --all && tnt iN",
@@ -22,7 +26,9 @@
     "test-existing-graph": "mocha",
     "test": "yarn bootstrap-test && yarn test-fresh-deploy",
     "publish-graph:rinkeby": "yarn codegen:rinkeby && yarn deploy:rinkeby",
-    "publish-graph:mainnet": "yarn codegen:mainnet && yarn deploy:mainnet"
+    "publish-graph:mainnet": "yarn codegen:mainnet && yarn deploy:mainnet",
+    "publish-graph:sokol": "yarn codegen:sokol && yarn deploy:sokol",
+    "publish-graph:xdai": "yarn codegen:xdai && yarn deploy:xdai"
   },
   "repository": {
     "type": "git",
@@ -38,8 +44,8 @@
     "@gnosis.pm/conditional-tokens-contracts": "^1.0.1",
     "@gnosis.pm/conditional-tokens-market-makers": "^1.8.1",
     "@gnosis.pm/truffle-nice-tools": "^1.3.1",
-    "@graphprotocol/graph-cli": "^0.18.0",
-    "@graphprotocol/graph-ts": "^0.18.1",
+    "@graphprotocol/graph-cli": "0.19.0",
+    "@graphprotocol/graph-ts": "0.19.0",
     "@kleros/erc-792": "3.0.0",
     "@kleros/gtcr-encoder": "^1.1.3",
     "@kleros/tcr": "^1.9.2",
