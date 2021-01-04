@@ -257,7 +257,6 @@ type FpmmTransaction @entity {
   sharesOrPoolTokenAmount: BigInt!
   creationTimestamp: BigInt!
   transactionHash: Bytes!
-  blockNumber:BigInt!
 }
 
 type Account @entity {
@@ -327,17 +326,16 @@ type KlerosSubmission @entity {
 }
 
 type _Schema_
-  @fulltext(
-    name: "marketSearch",
-    language: en
-    algorithm: rank,
-    include: [
-      {
-        entity: "FixedProductMarketMaker",
-        fields: [
-          { name: "title" }
-        ]
-      }
-    ]
-  )
-
+@fulltext(
+  name: "marketSearch",
+  language: en
+  algorithm: rank,
+  include: [
+    {
+      entity: "FixedProductMarketMaker",
+      fields: [
+        { name: "title" }
+      ]
+    }
+  ]
+)
