@@ -43,6 +43,7 @@ const FixedProductMarketMaker = getContract('FixedProductMarketMaker');
 const SimpleCentralizedArbitrator = getContract('SimpleCentralizedArbitrator');
 const GeneralizedTCR = getContract('GeneralizedTCR');
 const DXTokenRegistry = getContract('DXTokenRegistry')
+const GelatoCore = getContract('GelatoCore')
 
 async function queryGraph(query) {
   return (await axios.post('http://localhost:8000/subgraphs', { query })).data.data;
@@ -331,6 +332,7 @@ describe('Omen subgraph', function() {
   let centralizedArbitrator;
   let marketsTCR;
   let dxTokenRegistry;
+  let gelatoCore
   before('get deployed contracts', async function() {
     weth = await WETH9.deployed();
     realitio = await Realitio.deployed();
@@ -341,6 +343,7 @@ describe('Omen subgraph', function() {
     centralizedArbitrator = await SimpleCentralizedArbitrator.deployed();
     marketsTCR = await GeneralizedTCR.deployed()
     dxTokenRegistry = await DXTokenRegistry.deployed()
+    gelatoCore = await GelatoCore.deployed()
   });
 
   it('exists', async function() {
@@ -393,21 +396,15 @@ describe('Omen subgraph', function() {
         outcomes
         category
         language
-
         arbitrator
         openingTimestamp
         timeout
-
         currentAnswer
         currentAnswerBond
         currentAnswerTimestamp
-
         isPendingArbitration
-
         answerFinalizedTimestamp
-
         indexedFixedProductMarketMakers { id }
-
         conditions { id }
       }
     }`);
@@ -473,21 +470,15 @@ describe('Omen subgraph', function() {
         outcomes
         category
         language
-
         arbitrator
         openingTimestamp
         timeout
-
         currentAnswer
         currentAnswerBond
         currentAnswerTimestamp
-
         isPendingArbitration
-
         answerFinalizedTimestamp
-
         indexedFixedProductMarketMakers { id }
-
         conditions { id }
       }
     }`);
@@ -982,4 +973,89 @@ describe('Omen subgraph', function() {
       }
     }`)).fixedProductMarketMaker).to.deep.equal({ klerosTCRregistered: true, curatedByDxDaoOrKleros: true })
   })
+
+  step('submit task to gelato', async function () {
+    const zeroAddress = '0x0000000000000000000000000000000000000000';
+
+    const provider = {
+      addr: zeroAddress,
+      module: zeroAddress,
+    };
+
+    const condition = {
+      inst: zeroAddress,
+      data: zeroAddress,
+    };
+
+    const action = {
+      addr: zeroAddress,
+      data: zeroAddress,
+      operation: 0,
+      dataFlow: 0,
+      value: 0,
+      termsOkCheck: false,
+    };
+
+    const task = {
+      conditions: [condition],
+      actions: [action],
+      selfProviderGasLimit: 0,
+      selfProviderGasPriceCeil: 0,
+    };
+
+    const {
+      receipt: { blockHash },
+      logs,
+    } = await gelatoCore.submitTask(provider, task, 0, { from: reporter });
+
+    const submissionArgs = logs.find(
+      ({ event }) => event === 'LogTaskSubmitted'
+    ).args;
+
+    await web3.eth.getBlock(blockHash);
+
+    await waitForGraphSync();
+
+    const data = await querySubgraph(`{
+      taskReceiptWrappers {
+        id
+        taskReceipt {
+          id
+          userProxy
+          provider {
+            addr
+            module
+          }
+          index
+          tasks {
+            conditions {
+              inst
+              data
+            }
+            actions {
+              addr
+              data
+              operation
+              dataFlow
+              value
+              termsOkCheck
+            }
+            selfProviderGasLimit
+            selfProviderGasPriceCeil
+          }
+          expiryDate
+          cycleId
+          submissionsLeft
+        }
+        submissionHash
+        status
+        submissionDate
+        executionDate
+        executionHash
+        selfProvided
+      }
+    }`);
+    expect(data.taskReceiptWrappers[0].id).to.deep.equal(submissionArgs.taskReceipt.id)
+
+  });
 });
