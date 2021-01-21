@@ -144,6 +144,9 @@ function recordFPMMLiquidity(
 
     fpmmLiquidity.sharesAmount = sharesAmount;
     fpmmLiquidity.collateralRemovedFromFeePool = collateralRemovedFromFeePool;
+    fpmmLiquidity.additionalSharesCost = max(outcomeTokenAmounts).minus(
+      min(outcomeTokenAmounts)
+    );
 
     fpmmLiquidity.save();
 
@@ -156,6 +159,7 @@ function recordFPMMLiquidity(
     fpmmTransaction.sharesOrPoolTokenAmount = sharesAmount;
     fpmmTransaction.creationTimestamp = creationTimestamp;
     fpmmTransaction.transactionHash = transactionHash;
+    fpmmTransaction.additionalSharesCost = fpmmLiquidity.additionalSharesCost;
 
     fpmmTransaction.save();
   }
