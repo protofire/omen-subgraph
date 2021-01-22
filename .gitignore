@@ -37,6 +37,8 @@ bower_components
 # Compiled binary addons (https://nodejs.org/api/addons.html)
 build/Release
 
+.idea/
+
 # Dependency directories
 node_modules/
 jspm_packages/
@@ -108,6 +110,7 @@ build/
 
 # Exception for dxDAO contract build artifacts
 !/build/contracts/DX*.json
+!/build/contracts/Gelato*.json
 
 # Subgraph stuff
 abis/

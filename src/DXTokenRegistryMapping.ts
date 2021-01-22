@@ -87,7 +87,7 @@ export function handleRemoveToken(event: RemoveToken): void {
   if(tokenList.tokens == null || tokenList.tokens.length == 0) {
     log.info('the given tokenList.tokens is null', []);
     return;
-  }  
+  }
 
   tokenList.activeTokenCount = tokenList.activeTokenCount.minus(one);
   let tokens = tokenList.tokens as Array<string>;
