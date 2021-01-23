@@ -1,6 +1,7 @@
 import { log } from '@graphprotocol/graph-ts';
 import { ItemStatusChange, GeneralizedTCR } from '../generated/GeneralizedTCR/GeneralizedTCR';
 import { FixedProductMarketMaker, KlerosSubmission } from '../generated/schema';
+import { Address } from '../generated/'
 
 function hexStringToLowerCase(input: string): string {
   // Code looks weird? Unfortunately the current version
@@ -51,6 +52,11 @@ function getStatus(status: number): string {
 }
 
 export function handleItemStatusChange(event: ItemStatusChange): void {
+  let address = event.address;
+  let addressHexString = address.toHexString();
+  if (addressHexString == '0x0000000000000000000000000000000000000000') {
+    return;
+  }
   let tcr = GeneralizedTCR.bind(event.address);
   let itemInfo = tcr.getItemInfo(event.params._itemID);
   let decodedData = itemInfo.value0.toString();
