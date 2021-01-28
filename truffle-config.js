@@ -8,7 +8,7 @@ const networks = Object.assign(...[
   [5, 'goerli', `${2e9}`],
   [42, 'kovan'],
   [77, 'sokol',, 'https://sokol.poa.network'],
-  [100, 'xdai',, 'https://rpc.xdaichain.com'],
+  [100, 'xdai',, 'https://lively-empty-wind.xdai.quiknode.pro/827b90b45d544848ea8a880d30567297d3c9ef6e/'],
 ].map(([networkId, network, gasPrice, rpcUrl]) => ({
   [network]: {
     network_id: networkId,
