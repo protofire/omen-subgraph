@@ -1,4 +1,4 @@
-import { log } from '@graphprotocol/graph-ts'
+import { log } from "@graphprotocol/graph-ts";
 
 enum UnescapeState {
   Normal,
@@ -10,7 +10,7 @@ enum UnescapeState {
 }
 
 export function unescape(input: string): string {
-  let output = '';
+  let output = "";
   let i = 0;
   let state = UnescapeState.Normal;
   let escapedCodeUnitBuffer = 0;
@@ -20,7 +20,7 @@ export function unescape(input: string): string {
     if (state == UnescapeState.Normal) {
       if (codeUnit == 0x5c) {
         // \
-        state = UnescapeState.Escaped
+        state = UnescapeState.Escaped;
       } else {
         output += String.fromCharCode(codeUnit);
       }
@@ -31,33 +31,28 @@ export function unescape(input: string): string {
       } else {
         if (codeUnit == 0x62) {
           // %x62 /          ; b    backspace       U+0008
-          output += '\b';
+          output += "\b";
         } else if (codeUnit == 0x66) {
           // %x66 /          ; f    form feed       U+000C
-          output += '\f';
+          output += "\f";
         } else if (codeUnit == 0x6e) {
           // %x6E /          ; n    line feed       U+000A
-          output += '\n';
+          output += "\n";
         } else if (codeUnit == 0x72) {
           // %x72 /          ; r    carriage return U+000D
-          output += '\r';
+          output += "\r";
         } else if (codeUnit == 0x74) {
           // %x74 /          ; t    tab             U+0009
-          output += '\t';
-        } else if (
-          codeUnit == 0x22 ||
-          codeUnit == 0x5c || 
-          codeUnit == 0x2f
-        ) {
+          output += "\t";
+        } else if (codeUnit == 0x22 || codeUnit == 0x5c || codeUnit == 0x2f) {
           output += String.fromCharCode(codeUnit);
         } else {
           let badEscCode = String.fromCharCode(codeUnit);
-          log.warning('got invalid escape code \\{} in position {} while unescaping "{}"', [
-            badEscCode,
-            i.toString(),
-            input,
-          ]);
-          output += '�';
+          log.warning(
+            'got invalid escape code \\{} in position {} while unescaping "{}"',
+            [badEscCode, i.toString(), input]
+          );
+          output += "�";
         }
         state = UnescapeState.Normal;
       }
@@ -76,14 +71,13 @@ export function unescape(input: string): string {
       } else {
         nibble = -1;
       }
-      
+
       if (nibble < 0) {
-        log.warning('got invalid hex character {} in position {} while unescaping "{}"', [
-          String.fromCharCode(codeUnit),
-          i.toString(),
-          input,
-        ]);
-        output += '�';
+        log.warning(
+          'got invalid hex character {} in position {} while unescaping "{}"',
+          [String.fromCharCode(codeUnit), i.toString(), input]
+        );
+        output += "�";
         state = UnescapeState.Normal;
       } else {
         if (state == UnescapeState.ReadingHex1) {

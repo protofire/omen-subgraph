@@ -1,9 +1,9 @@
 /* eslint-disable prefer-const */
-import { UniswapPair } from '../generated/schema'
-import { PairCreated } from '../generated/UniswapV2Factory/UniswapV2Factory'
-import { UniswapV2Pair } from '../generated/templates'
-import { zero } from './utils/constants'
-import { requireToken } from './utils/token'
+import { UniswapPair } from "../generated/schema";
+import { PairCreated } from "../generated/UniswapV2Factory/UniswapV2Factory";
+import { UniswapV2Pair } from "../generated/templates";
+import { zero } from "./utils/constants";
+import { requireToken } from "./utils/token";
 
 export function handleNewPair(event: PairCreated): void {
   let token0 = requireToken(event.params.token0);

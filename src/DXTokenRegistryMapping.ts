@@ -1,8 +1,16 @@
-import { log, BigInt, Address } from '@graphprotocol/graph-ts'
-import { AddList, AddToken, RemoveToken } from '../generated/DXTokenRegistry/DXTokenRegistry'
+import { log, BigInt, Address } from "@graphprotocol/graph-ts";
+import {
+  AddList,
+  AddToken,
+  RemoveToken,
+} from "../generated/DXTokenRegistry/DXTokenRegistry";
 import { ERC20Detailed } from "../generated/templates/ERC20Detailed/ERC20Detailed";
-import { FixedProductMarketMaker, TokenList, RegisteredToken } from '../generated/schema'
-import { zero, one } from './utils/constants';
+import {
+  FixedProductMarketMaker,
+  TokenList,
+  RegisteredToken,
+} from "../generated/schema";
+import { zero, one } from "./utils/constants";
 
 function getOrCreateToken(address: Address): RegisteredToken {
   let token = RegisteredToken.load(address.toHexString());
@@ -17,10 +25,10 @@ function getOrCreateToken(address: Address): RegisteredToken {
   let nameResult = contract.try_name();
   let symbolResult = contract.try_symbol();
   let decimalsResult = contract.try_decimals();
-  token.name = nameResult.reverted ? 'token' : nameResult.value;
-  token.symbol = symbolResult.reverted ? 'tkn' : symbolResult.value;
+  token.name = nameResult.reverted ? "token" : nameResult.value;
+  token.symbol = symbolResult.reverted ? "tkn" : symbolResult.value;
   token.decimals = decimalsResult.reverted ? 0 : decimalsResult.value;
-  token.save()
+  token.save();
 
   return token as RegisteredToken;
 }
@@ -28,7 +36,7 @@ function getOrCreateToken(address: Address): RegisteredToken {
 export function handleAddList(event: AddList): void {
   let id = event.params.listId.toString();
   let tokenList = TokenList.load(id);
-  if(tokenList == null) {
+  if (tokenList == null) {
     tokenList = new TokenList(id);
     tokenList.listId = event.params.listId;
     tokenList.listName = event.params.listName;
@@ -41,8 +49,8 @@ export function handleAddList(event: AddList): void {
 export function handleAddToken(event: AddToken): void {
   let tokenListId = event.params.listId.toString();
   let tokenList = TokenList.load(tokenListId);
-  if(tokenList == null) {
-    log.info('cannot find tokenList {}', [tokenListId]);
+  if (tokenList == null) {
+    log.info("cannot find tokenList {}", [tokenListId]);
     return;
   }
 
@@ -53,12 +61,14 @@ export function handleAddToken(event: AddToken): void {
   tokenList.tokens = tokens;
   tokenList.save();
 
-  if(event.params.listId.toI32() == 4) {
+  if (event.params.listId.toI32() == 4) {
     let fpmmAddress = event.params.token.toHex();
     let fpmm = FixedProductMarketMaker.load(fpmmAddress);
 
     if (fpmm == null) {
-      log.warning("could not register FPMM {} as curated by dxDAO", [fpmmAddress]);
+      log.warning("could not register FPMM {} as curated by dxDAO", [
+        fpmmAddress,
+      ]);
       return;
     }
 
@@ -71,21 +81,21 @@ export function handleAddToken(event: AddToken): void {
 export function handleRemoveToken(event: RemoveToken): void {
   let tokenListId = event.params.listId.toString();
   let tokenList = TokenList.load(tokenListId);
-  if(tokenList == null) {
-    log.info('cannot find tokenList {}', [tokenListId]);
+  if (tokenList == null) {
+    log.info("cannot find tokenList {}", [tokenListId]);
     return;
   }
 
   let tokenAddress = event.params.token;
   let tokenAddressAsString = tokenAddress.toHexString();
   let token = RegisteredToken.load(tokenAddressAsString);
-  if(token == null) {
-    log.info('cannot find token {} to remove', [tokenAddressAsString]);
+  if (token == null) {
+    log.info("cannot find token {} to remove", [tokenAddressAsString]);
     return;
   }
 
-  if(tokenList.tokens == null || tokenList.tokens.length == 0) {
-    log.info('the given tokenList.tokens is null', []);
+  if (tokenList.tokens == null || tokenList.tokens.length == 0) {
+    log.info("the given tokenList.tokens is null", []);
     return;
   }
 
@@ -100,12 +110,14 @@ export function handleRemoveToken(event: RemoveToken): void {
   tokenList.tokens = newTokens;
   tokenList.save();
 
-  if(event.params.listId.toI32() == 4) {
+  if (event.params.listId.toI32() == 4) {
     let fpmmAddress = event.params.token.toHex();
     let fpmm = FixedProductMarketMaker.load(fpmmAddress);
 
     if (fpmm == null) {
-      log.warning("could not unregister FPMM {} as curated by dxDAO", [fpmmAddress]);
+      log.warning("could not unregister FPMM {} as curated by dxDAO", [
+        fpmmAddress,
+      ]);
       return;
     }
 

@@ -28,7 +28,21 @@
     "publish-graph:rinkeby": "yarn codegen:rinkeby && yarn deploy:rinkeby",
     "publish-graph:mainnet": "yarn codegen:mainnet && yarn deploy:mainnet",
     "publish-graph:sokol": "yarn codegen:sokol && yarn deploy:sokol",
-    "publish-graph:xdai": "yarn codegen:xdai && yarn deploy:xdai"
+    "publish-graph:xdai": "yarn codegen:xdai && yarn deploy:xdai",
+    "prettier": "prettier './src/**/*.{js,ts,tsx}'",
+    "prettier:check": "yarn prettier --check",
+    "prettier:fix": "yarn prettier --write"
+  },
+  "lint-staged": {
+    "src/**/*.{js,ts,tsx}": [
+      "prettier --write"
+    ]
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged --allow-empty",
+      "pre-push": "yarn prettier:check"
+    }
   },
   "repository": {
     "type": "git",
@@ -57,14 +71,17 @@
     "canonical-weth": "^1.4.0",
     "delay": "^4.3.0",
     "fs-extra": "^8.1.0",
+    "husky": "^4.3.8",
     "mocha": "^7.1.1",
     "mocha-steps": "^1.3.0",
     "mustache": "^4.0.1",
+    "prettier": "^2.2.1",
     "realitio-gnosis-proxy": "github:gnosis/realitio-gnosis-proxy",
     "replace-in-file": "^6.1.0",
     "should": "^13.2.3",
     "truffle": "^5.1.35",
     "wait-on": "^4.0.1",
     "web3": "^1.2.6"
-  }
+  },
+  "dependencies": {}
 }

@@ -1,4 +1,4 @@
-import { BigInt, Address } from '@graphprotocol/graph-ts';
+import { BigInt, Address } from "@graphprotocol/graph-ts";
 
 import {
   GelatoCore,
@@ -8,7 +8,7 @@ import {
   LogTaskSubmitted,
   LogTaskSubmittedTaskReceiptTasksActionsStruct,
   LogTaskSubmittedTaskReceiptTasksConditionsStruct,
-} from '../generated/GelatoCore/GelatoCore';
+} from "../generated/GelatoCore/GelatoCore";
 
 import {
   GelatoUser,
@@ -19,7 +19,7 @@ import {
   TaskCondition,
   Action,
   TaskCycle,
-} from '../generated/schema';
+} from "../generated/schema";
 
 function getAction(
   actionId: string,
@@ -86,7 +86,7 @@ export function handleLogTaskSubmitted(event: LogTaskSubmitted): void {
   let eventTaskArray = event.params.taskReceipt.tasks;
   let tasksNum = eventTaskArray.length;
   for (let i = 0; i < tasksNum; ++i) {
-    let taskId = taskReceiptId.toString() + '.' + i.toString();
+    let taskId = taskReceiptId.toString() + "." + i.toString();
     let task = new Task(taskId);
     if (eventTaskArray[i] != null) {
       let eventTask = eventTaskArray[i];
@@ -100,7 +100,7 @@ export function handleLogTaskSubmitted(event: LogTaskSubmitted): void {
         if (actions[j] != null) {
           let eventAction = actions[j];
           let action = getAction(
-            taskId + '.' + j.toString(),
+            taskId + "." + j.toString(),
             eventAction
           ) as Action;
           actionArray.push(action.id);
@@ -117,7 +117,7 @@ export function handleLogTaskSubmitted(event: LogTaskSubmitted): void {
         if (conditions[j] != null) {
           let eventCondition = conditions[j];
           let condition = getCondition(
-            taskId + '.' + j.toString(),
+            taskId + "." + j.toString(),
             eventCondition
           ) as TaskCondition;
           conditionArray.push(condition.id);
@@ -152,7 +152,7 @@ export function handleLogTaskSubmitted(event: LogTaskSubmitted): void {
   taskReceiptWrapper.taskReceipt = taskReceipt.id;
   taskReceiptWrapper.taskReceipt = taskReceipt.id;
   taskReceiptWrapper.submissionHash = event.transaction.hash;
-  taskReceiptWrapper.status = 'awaitingExec';
+  taskReceiptWrapper.status = "awaitingExec";
   taskReceiptWrapper.submissionDate = event.block.timestamp;
 
   // Assigned Executor
@@ -186,7 +186,7 @@ export function handleLogTaskCancelled(event: LogTaskCancelled): void {
   );
   taskReceiptWrapper.executionDate = event.block.timestamp;
   taskReceiptWrapper.executionHash = event.transaction.hash;
-  taskReceiptWrapper.status = 'canceled';
+  taskReceiptWrapper.status = "canceled";
   taskReceiptWrapper.save();
 }
 
@@ -196,7 +196,7 @@ export function handleLogExecSuccess(event: LogExecSuccess): void {
   );
   taskReceiptWrapper.executionDate = event.block.timestamp;
   taskReceiptWrapper.executionHash = event.transaction.hash;
-  taskReceiptWrapper.status = 'execSuccess';
+  taskReceiptWrapper.status = "execSuccess";
   taskReceiptWrapper.save();
 }
 
@@ -206,6 +206,6 @@ export function handleLogExecReverted(event: LogExecReverted): void {
   );
   taskReceiptWrapper.executionDate = event.block.timestamp;
   taskReceiptWrapper.executionHash = event.transaction.hash;
-  taskReceiptWrapper.status = 'execReverted';
+  taskReceiptWrapper.status = "execReverted";
   taskReceiptWrapper.save();
 }

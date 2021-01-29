@@ -1,30 +1,54 @@
-import { BigDecimal, log } from '@graphprotocol/graph-ts'
+import { BigDecimal, log } from "@graphprotocol/graph-ts";
 
-import { ConditionPreparation, ConditionResolution } from '../generated/ConditionalTokens/ConditionalTokens'
-import { Condition, Question, FixedProductMarketMaker, Category, ScalarQuestionLink } from '../generated/schema'
-import { assignQuestionToCondition } from './utils/condition';
-import { zero } from './utils/constants';
-import { requireGlobal } from './utils/global';
+import {
+  ConditionPreparation,
+  ConditionResolution,
+} from "../generated/ConditionalTokens/ConditionalTokens";
+import {
+  Condition,
+  Question,
+  FixedProductMarketMaker,
+  Category,
+  ScalarQuestionLink,
+} from "../generated/schema";
+import { assignQuestionToCondition } from "./utils/condition";
+import { zero } from "./utils/constants";
+import { requireGlobal } from "./utils/global";
 
 export function handleConditionPreparation(event: ConditionPreparation): void {
   let condition = new Condition(event.params.conditionId.toHexString());
   condition.oracle = event.params.oracle;
   condition.questionId = event.params.questionId;
 
-  if (event.params.oracle.toHexString() == '{{RealitioProxy.addressLowerCase}}') {
-    log.info('Condition oracle address is RealitioProxy {}', ['{{RealitioProxy.addressLowerCase}}']);
+  if (
+    event.params.oracle.toHexString() == "{{RealitioProxy.addressLowerCase}}"
+  ) {
+    log.info("Condition oracle address is RealitioProxy {}", [
+      "{{RealitioProxy.addressLowerCase}}",
+    ]);
     assignQuestionToCondition(condition, event.params.questionId.toHexString());
-  } else if (event.params.oracle.toHexString() == '{{RealitioScalarAdapter.addressLowerCase}}') {
-    log.info('Condition oracle address is RealitioScalarAdapter {}', ['{{RealitioScalarAdapter.addressLowerCase}}']);
+  } else if (
+    event.params.oracle.toHexString() ==
+    "{{RealitioScalarAdapter.addressLowerCase}}"
+  ) {
+    log.info("Condition oracle address is RealitioScalarAdapter {}", [
+      "{{RealitioScalarAdapter.addressLowerCase}}",
+    ]);
     let linkId = event.params.questionId.toHexString();
     let link = ScalarQuestionLink.load(linkId);
     if (link != null) {
-      assignQuestionToCondition(condition, link.realityEthQuestionId.toHexString());
+      assignQuestionToCondition(
+        condition,
+        link.realityEthQuestionId.toHexString()
+      );
       condition.scalarLow = link.scalarLow;
       condition.scalarHigh = link.scalarHigh;
     }
   } else {
-    log.warning('Condition oracle address {} is not a known Realitio address.', [condition.oracle.toHexString()]);
+    log.warning(
+      "Condition oracle address {} is not a known Realitio address.",
+      [condition.oracle.toHexString()]
+    );
     assignQuestionToCondition(condition, event.params.questionId.toHexString());
   }
 
@@ -38,10 +62,10 @@ export function handleConditionPreparation(event: ConditionPreparation): void {
 }
 
 export function handleConditionResolution(event: ConditionResolution): void {
-  let conditionId = event.params.conditionId.toHexString()
+  let conditionId = event.params.conditionId.toHexString();
   let condition = Condition.load(conditionId);
   if (condition == null) {
-    log.error('could not find condition {} to resolve', [conditionId]);
+    log.error("could not find condition {} to resolve", [conditionId]);
     return;
   }
 
@@ -65,7 +89,9 @@ export function handleConditionResolution(event: ConditionResolution): void {
   global.save();
 
   if (condition.resolutionTimestamp != null || condition.payouts != null) {
-    log.error('should not be able to resolve condition {} more than once', [conditionId]);
+    log.error("should not be able to resolve condition {} more than once", [
+      conditionId,
+    ]);
     return;
   }
 
@@ -85,10 +111,10 @@ export function handleConditionResolution(event: ConditionResolution): void {
 
   condition.save();
 
-  let questionId = condition.question
+  let questionId = condition.question;
   let question = Question.load(questionId);
   if (question == null) {
-    log.info('resolving unlinked condition {}', [conditionId]);
+    log.info("resolving unlinked condition {}", [conditionId]);
     return;
   }
 
@@ -97,7 +123,11 @@ export function handleConditionResolution(event: ConditionResolution): void {
     let fpmmId = fpmms[i];
     let fpmm = FixedProductMarketMaker.load(fpmmId);
     if (fpmm == null) {
-      log.error('indexed fpmm {} not found for question {} for condition {}', [fpmmId, questionId, conditionId]);
+      log.error("indexed fpmm {} not found for question {} for condition {}", [
+        fpmmId,
+        questionId,
+        conditionId,
+      ]);
       continue;
     }
 
