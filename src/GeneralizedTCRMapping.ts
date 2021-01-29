@@ -4,8 +4,6 @@ import {
   GeneralizedTCR,
 } from "../generated/GeneralizedTCR/GeneralizedTCR";
 import { FixedProductMarketMaker, KlerosSubmission } from "../generated/schema";
-import { Address } from "../generated/";
-
 function hexStringToLowerCase(input: string): string {
   // Code looks weird? Unfortunately the current version
   // of assemblyscript does not support things like regex
