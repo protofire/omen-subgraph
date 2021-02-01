@@ -1,28 +1,38 @@
-import { BigInt, log, Address, BigDecimal, Bytes } from '@graphprotocol/graph-ts'
+import {
+  BigInt,
+  log,
+  Address,
+  BigDecimal,
+  Bytes,
+} from "@graphprotocol/graph-ts";
 
 import {
   FixedProductMarketMaker,
-  Account,  
+  Account,
   FpmmPoolMembership,
   FpmmParticipation,
   Global,
   FpmmTrade,
   FpmmLiquidity,
   FpmmTransaction,
-} from "../generated/schema"
+} from "../generated/schema";
 import {
   FPMMFundingAdded,
   FPMMFundingRemoved,
   FPMMBuy,
   FPMMSell,
   Transfer,
-} from "../generated/templates/FixedProductMarketMaker/FixedProductMarketMaker"
-import { secondsPerHour, hoursPerDay, zero, zeroDec } from './utils/constants';
-import { joinDayAndVolume } from './utils/day-volume';
-import { updateScaledVolumes, calculateLiquidityParameter, setLiquidity } from './utils/fpmm';
-import { requireToken } from './utils/token';
-import { requireGlobal } from './utils/global';
-import { max, min } from './utils/math';
+} from "../generated/templates/FixedProductMarketMaker/FixedProductMarketMaker";
+import { secondsPerHour, hoursPerDay, zero, zeroDec } from "./utils/constants";
+import { joinDayAndVolume } from "./utils/day-volume";
+import {
+  updateScaledVolumes,
+  calculateLiquidityParameter,
+  setLiquidity,
+} from "./utils/fpmm";
+import { requireToken } from "./utils/token";
+import { requireGlobal } from "./utils/global";
+import { max, min } from "./utils/math";
 
 const TRADE_TYPE_BUY = "Buy";
 const TRADE_TYPE_SELL = "Sell";
@@ -41,19 +51,27 @@ function requireAccount(accountAddress: string): Account | null {
   return account;
 }
 
-function recordTrade(fpmm: FixedProductMarketMaker, 
-    traderAddress: string,
-    collateralAmount: BigInt, collateralAmountUSD: BigDecimal,
-    outcomeTokenMarginalPrice: BigDecimal, oldOutcomeTokenMarginalPrice: BigDecimal,
-    feeAmount: BigInt, outcomeIndex: BigInt,
-    outcomeTokensTraded: BigInt, tradeType: string,
-    creationTimestamp: BigInt,
-    transactionHash: Bytes): void {
+function recordTrade(
+  fpmm: FixedProductMarketMaker,
+  traderAddress: string,
+  collateralAmount: BigInt,
+  collateralAmountUSD: BigDecimal,
+  outcomeTokenMarginalPrice: BigDecimal,
+  oldOutcomeTokenMarginalPrice: BigDecimal,
+  feeAmount: BigInt,
+  outcomeIndex: BigInt,
+  outcomeTokensTraded: BigInt,
+  tradeType: string,
+  creationTimestamp: BigInt,
+  transactionHash: Bytes
+): void {
   let account = requireAccount(traderAddress);
   account.tradeNonce = account.tradeNonce.plus(BigInt.fromI32(1));
   account.save();
 
-  let fpmmTradeId = fpmm.id.concat(traderAddress).concat(account.tradeNonce.toHexString());
+  let fpmmTradeId = fpmm.id
+    .concat(traderAddress)
+    .concat(account.tradeNonce.toHexString());
   let fpmmTrade = FpmmTrade.load(fpmmTradeId);
   if (fpmmTrade == null) {
     fpmmTrade = new FpmmTrade(fpmmTradeId);
@@ -86,22 +104,25 @@ function recordTrade(fpmm: FixedProductMarketMaker,
 
     fpmmTransaction.save();
   }
-
 }
 
-function recordFPMMLiquidity(fpmm: FixedProductMarketMaker, 
-    liquidityType: string,
-    outcomeTokenAmounts: BigInt[],
-    funder: string,
-    sharesAmount: BigInt,
-    collateralRemovedFromFeePool: BigInt,
-    creationTimestamp: BigInt,
-    transactionHash: Bytes): void {
+function recordFPMMLiquidity(
+  fpmm: FixedProductMarketMaker,
+  liquidityType: string,
+  outcomeTokenAmounts: BigInt[],
+  funder: string,
+  sharesAmount: BigInt,
+  collateralRemovedFromFeePool: BigInt,
+  creationTimestamp: BigInt,
+  transactionHash: Bytes
+): void {
   let account = requireAccount(funder);
   account.tradeNonce = account.tradeNonce.plus(BigInt.fromI32(1));
   account.save();
 
-  let fpmmLiquidityId = fpmm.id.concat(funder).concat(account.tradeNonce.toHexString());
+  let fpmmLiquidityId = fpmm.id
+    .concat(funder)
+    .concat(account.tradeNonce.toHexString());
   let fpmmLiquidity = FpmmLiquidity.load(fpmmLiquidityId);
   if (fpmmLiquidity == null) {
     fpmmLiquidity = new FpmmLiquidity(fpmmLiquidityId);
@@ -117,10 +138,15 @@ function recordFPMMLiquidity(fpmm: FixedProductMarketMaker,
     } else {
       fpmmLiquidity.collateralTokenAmount = min(outcomeTokenAmounts);
     }
-    fpmmLiquidity.additionalLiquidityParameter = calculateLiquidityParameter(outcomeTokenAmounts);
+    fpmmLiquidity.additionalLiquidityParameter = calculateLiquidityParameter(
+      outcomeTokenAmounts
+    );
 
     fpmmLiquidity.sharesAmount = sharesAmount;
     fpmmLiquidity.collateralRemovedFromFeePool = collateralRemovedFromFeePool;
+    fpmmLiquidity.additionalSharesCost = max(outcomeTokenAmounts).minus(
+      min(outcomeTokenAmounts)
+    );
 
     fpmmLiquidity.save();
 
@@ -129,21 +155,20 @@ function recordFPMMLiquidity(fpmm: FixedProductMarketMaker,
     fpmmTransaction.user = funder;
     fpmmTransaction.fpmmType = FPMM_TYPE_LIQUIDITY;
     fpmmTransaction.transactionType = liquidityType;
-    if (liquidityType === LIQUIDITY_TYPE_ADD) {
-      fpmmTransaction.collateralTokenAmount = max(outcomeTokenAmounts);
-    } else {
-      fpmmTransaction.collateralTokenAmount = collateralRemovedFromFeePool;
-    }
+    fpmmTransaction.collateralTokenAmount = fpmmLiquidity.collateralTokenAmount;
     fpmmTransaction.sharesOrPoolTokenAmount = sharesAmount;
     fpmmTransaction.creationTimestamp = creationTimestamp;
     fpmmTransaction.transactionHash = transactionHash;
+    fpmmTransaction.additionalSharesCost = fpmmLiquidity.additionalSharesCost;
 
     fpmmTransaction.save();
-  }  
-
+  }
 }
 
-function recordParticipation(fpmm: FixedProductMarketMaker, participantAddress: string): void {
+function recordParticipation(
+  fpmm: FixedProductMarketMaker,
+  participantAddress: string
+): void {
   requireAccount(participantAddress);
 
   let fpmmParticipationId = fpmm.id.concat(participantAddress);
@@ -163,7 +188,7 @@ function recordParticipation(fpmm: FixedProductMarketMaker, participantAddress: 
     fpmmParticipation.arbitrator = fpmm.arbitrator;
     fpmmParticipation.openingTimestamp = fpmm.openingTimestamp;
     fpmmParticipation.timeout = fpmm.timeout;
-  
+
     fpmmParticipation.save();
   }
 }
@@ -175,11 +200,13 @@ function increaseVolume(
   timestamp: BigInt,
   collateralScale: BigInt,
   collateralScaleDec: BigDecimal,
-  collateralUSDPrice: BigDecimal,
+  collateralUSDPrice: BigDecimal
 ): void {
   let currentHour = timestamp.div(secondsPerHour);
   let currentDay = currentHour.div(hoursPerDay);
-  let currentHourInDay = currentHour.minus(currentDay.times(hoursPerDay)).toI32();
+  let currentHourInDay = currentHour
+    .minus(currentDay.times(hoursPerDay))
+    .toI32();
   if (currentHourInDay < 0 || currentHourInDay >= 24) {
     log.error("current hour in day is {}", [
       BigInt.fromI32(currentHourInDay).toString(),
@@ -188,7 +215,9 @@ function increaseVolume(
   }
   if (fpmm.collateralVolumeBeforeLastActiveDayByHour.length !== 24) {
     log.error("length of collateralVolumeBeforeLastActiveDayByHour is {}", [
-      BigInt.fromI32(fpmm.collateralVolumeBeforeLastActiveDayByHour.length).toString(),
+      BigInt.fromI32(
+        fpmm.collateralVolumeBeforeLastActiveDayByHour.length
+      ).toString(),
     ]);
     return;
   }
@@ -198,7 +227,9 @@ function increaseVolume(
   let usdVolumeByHour = fpmm.usdVolumeBeforeLastActiveDayByHour;
   if (lastActiveHour.notEqual(currentHour)) {
     let lastActiveDay = lastActiveHour.div(hoursPerDay);
-    let lastActiveHourInDay = lastActiveHour.minus(lastActiveDay.times(hoursPerDay)).toI32();
+    let lastActiveHourInDay = lastActiveHour
+      .minus(lastActiveDay.times(hoursPerDay))
+      .toI32();
     if (lastActiveHourInDay < 0 || lastActiveHourInDay >= 24) {
       log.error("last active hour in day is {}", [
         BigInt.fromI32(lastActiveHourInDay).toString(),
@@ -215,7 +246,8 @@ function increaseVolume(
       return;
     }
 
-    let lastRecordedCollateralVolume = collateralVolumeByHour[lastActiveHourInDay];
+    let lastRecordedCollateralVolume =
+      collateralVolumeByHour[lastActiveHourInDay];
     for (let i = 1; i < 24 && i < deltaHours; i++) {
       let j = (lastActiveHourInDay + i) % 24;
       collateralVolumeByHour[j] = lastRecordedCollateralVolume;
@@ -236,9 +268,11 @@ function increaseVolume(
   }
 
   let collateralVolume = fpmm.collateralVolume.plus(amount);
-  fpmm.collateralVolume = collateralVolume
+  fpmm.collateralVolume = collateralVolume;
 
-  let usdAdded = amount.divDecimal(collateralScaleDec).times(collateralUSDPrice);
+  let usdAdded = amount
+    .divDecimal(collateralScaleDec)
+    .times(collateralUSDPrice);
 
   let usdVolume = fpmm.usdVolume.plus(usdAdded);
   fpmm.usdVolume = usdVolume;
@@ -248,7 +282,9 @@ function increaseVolume(
 
   let runningDailyVolumeByHour = fpmm.runningDailyVolumeByHour;
   for (let i = 0; i < 24; i++) {
-    runningDailyVolumeByHour[i] = collateralVolume.minus(collateralVolumeByHour[i]);
+    runningDailyVolumeByHour[i] = collateralVolume.minus(
+      collateralVolumeByHour[i]
+    );
   }
   fpmm.runningDailyVolumeByHour = runningDailyVolumeByHour;
 
@@ -258,25 +294,40 @@ function increaseVolume(
   }
   fpmm.usdRunningDailyVolumeByHour = usdRunningDailyVolumeByHour;
 
-  fpmm.runningDailyVolume = runningDailyVolumeByHour[(currentHourInDay + 1) % 24];
-  fpmm.usdRunningDailyVolume = usdRunningDailyVolumeByHour[(currentHourInDay + 1) % 24];
-  fpmm.lastActiveDayAndRunningDailyVolume = joinDayAndVolume(currentDay, fpmm.runningDailyVolume);
+  fpmm.runningDailyVolume =
+    runningDailyVolumeByHour[(currentHourInDay + 1) % 24];
+  fpmm.usdRunningDailyVolume =
+    usdRunningDailyVolumeByHour[(currentHourInDay + 1) % 24];
+  fpmm.lastActiveDayAndRunningDailyVolume = joinDayAndVolume(
+    currentDay,
+    fpmm.runningDailyVolume
+  );
 
-  updateScaledVolumes(fpmm as FixedProductMarketMaker, collateralScale, collateralScaleDec, usdRunningDailyVolumeByHour, currentDay, currentHourInDay);
+  updateScaledVolumes(
+    fpmm as FixedProductMarketMaker,
+    collateralScale,
+    collateralScaleDec,
+    usdRunningDailyVolumeByHour,
+    currentDay,
+    currentHourInDay
+  );
 }
 
 export function handleFundingAdded(event: FPMMFundingAdded): void {
   let fpmmAddress = event.address.toHexString();
   let fpmm = FixedProductMarketMaker.load(fpmmAddress);
   if (fpmm == null) {
-    log.error('cannot add funding: FixedProductMarketMaker instance for {} not found', [fpmmAddress]);
+    log.error(
+      "cannot add funding: FixedProductMarketMaker instance for {} not found",
+      [fpmmAddress]
+    );
     return;
   }
 
   let oldAmounts = fpmm.outcomeTokenAmounts;
   let amountsAdded = event.params.amountsAdded;
   let newAmounts = new Array<BigInt>(oldAmounts.length);
-  for(let i = 0; i < newAmounts.length; i++) {
+  for (let i = 0; i < newAmounts.length; i++) {
     newAmounts[i] = oldAmounts[i].plus(amountsAdded[i]);
   }
 
@@ -285,36 +336,47 @@ export function handleFundingAdded(event: FPMMFundingAdded): void {
   let collateralScaleDec = collateralScale.toBigDecimal();
   let ethPerCollateral = collateral.ethPerToken;
   let usdPerEth = requireGlobal().usdPerEth;
-  let collateralUSDPrice = ethPerCollateral != null && usdPerEth != null ?
-    ethPerCollateral.times(usdPerEth as BigDecimal) :
-    zeroDec;
-  
-  setLiquidity(fpmm as FixedProductMarketMaker, newAmounts, collateralScaleDec, collateralUSDPrice)
+  let collateralUSDPrice =
+    ethPerCollateral != null && usdPerEth != null
+      ? ethPerCollateral.times(usdPerEth as BigDecimal)
+      : zeroDec;
+
+  setLiquidity(
+    fpmm as FixedProductMarketMaker,
+    newAmounts,
+    collateralScaleDec,
+    collateralUSDPrice
+  );
 
   fpmm.save();
 
-  recordFPMMLiquidity(fpmm as FixedProductMarketMaker, 
+  recordFPMMLiquidity(
+    fpmm as FixedProductMarketMaker,
     LIQUIDITY_TYPE_ADD,
     event.params.amountsAdded,
     event.params.funder.toHexString(),
     event.params.sharesMinted,
     BigInt.fromI32(0),
     event.block.timestamp,
-    event.transaction.hash,);
+    event.transaction.hash
+  );
 }
 
 export function handleFundingRemoved(event: FPMMFundingRemoved): void {
   let fpmmAddress = event.address.toHexString();
   let fpmm = FixedProductMarketMaker.load(fpmmAddress);
   if (fpmm == null) {
-    log.error('cannot remove funding: FixedProductMarketMaker instance for {} not found', [fpmmAddress]);
+    log.error(
+      "cannot remove funding: FixedProductMarketMaker instance for {} not found",
+      [fpmmAddress]
+    );
     return;
   }
 
   let oldAmounts = fpmm.outcomeTokenAmounts;
   let amountsRemoved = event.params.amountsRemoved;
   let newAmounts = new Array<BigInt>(oldAmounts.length);
-  for(let i = 0; i < newAmounts.length; i++) {
+  for (let i = 0; i < newAmounts.length; i++) {
     newAmounts[i] = oldAmounts[i].minus(amountsRemoved[i]);
   }
 
@@ -323,38 +385,52 @@ export function handleFundingRemoved(event: FPMMFundingRemoved): void {
   let collateralScaleDec = collateralScale.toBigDecimal();
   let ethPerCollateral = collateral.ethPerToken;
   let usdPerEth = requireGlobal().usdPerEth;
-  let collateralUSDPrice = ethPerCollateral != null && usdPerEth != null ?
-    ethPerCollateral.times(usdPerEth as BigDecimal) :
-    zeroDec;
-  setLiquidity(fpmm as FixedProductMarketMaker, newAmounts, collateralScaleDec, collateralUSDPrice);
+  let collateralUSDPrice =
+    ethPerCollateral != null && usdPerEth != null
+      ? ethPerCollateral.times(usdPerEth as BigDecimal)
+      : zeroDec;
+  setLiquidity(
+    fpmm as FixedProductMarketMaker,
+    newAmounts,
+    collateralScaleDec,
+    collateralUSDPrice
+  );
 
   fpmm.save();
 
-  recordFPMMLiquidity(fpmm as FixedProductMarketMaker, 
+  recordFPMMLiquidity(
+    fpmm as FixedProductMarketMaker,
     LIQUIDITY_TYPE_REMOVE,
     event.params.amountsRemoved,
     event.params.funder.toHexString(),
     event.params.sharesBurnt,
     event.params.collateralRemovedFromFeePool,
     event.block.timestamp,
-    event.transaction.hash);
+    event.transaction.hash
+  );
 }
 
 export function handleBuy(event: FPMMBuy): void {
   let fpmmAddress = event.address.toHexString();
   let fpmm = FixedProductMarketMaker.load(fpmmAddress);
   if (fpmm == null) {
-    log.error('cannot buy: FixedProductMarketMaker instance for {} not found', [fpmmAddress]);
+    log.error("cannot buy: FixedProductMarketMaker instance for {} not found", [
+      fpmmAddress,
+    ]);
     return;
   }
 
   let oldAmounts = fpmm.outcomeTokenAmounts;
-  let investmentAmountMinusFees = event.params.investmentAmount.minus(event.params.feeAmount);
+  let investmentAmountMinusFees = event.params.investmentAmount.minus(
+    event.params.feeAmount
+  );
   let outcomeIndex = event.params.outcomeIndex.toI32();
   let newAmounts = new Array<BigInt>(oldAmounts.length);
-  for(let i = 0; i < newAmounts.length; i++) {
+  for (let i = 0; i < newAmounts.length; i++) {
     if (i == outcomeIndex) {
-      newAmounts[i] = oldAmounts[i].plus(investmentAmountMinusFees).minus(event.params.outcomeTokensBought);
+      newAmounts[i] = oldAmounts[i]
+        .plus(investmentAmountMinusFees)
+        .minus(event.params.outcomeTokensBought);
     } else {
       newAmounts[i] = oldAmounts[i].plus(investmentAmountMinusFees);
     }
@@ -370,12 +446,24 @@ export function handleBuy(event: FPMMBuy): void {
   let collateralAmountUSD = zeroDec;
   if (ethPerCollateral != null && usdPerEth != null) {
     collateralUSDPrice = ethPerCollateral.times(usdPerEth as BigDecimal);
-    collateralAmountUSD = collateralUSDPrice.times(event.params.investmentAmount.divDecimal(collateralScaleDec));
+    collateralAmountUSD = collateralUSDPrice.times(
+      event.params.investmentAmount.divDecimal(collateralScaleDec)
+    );
   }
 
-  let oldOutcomeTokenMarginalPrices = fpmm.outcomeTokenMarginalPrices as Array<BigDecimal>;
-  let oldOutcomeTokenMarginalPrice = (oldOutcomeTokenMarginalPrices != null) ? oldOutcomeTokenMarginalPrices[outcomeIndex] as BigDecimal : zeroDec;
-  setLiquidity(fpmm as FixedProductMarketMaker, newAmounts, collateralScaleDec, collateralUSDPrice);
+  let oldOutcomeTokenMarginalPrices = fpmm.outcomeTokenMarginalPrices as Array<
+    BigDecimal
+  >;
+  let oldOutcomeTokenMarginalPrice =
+    oldOutcomeTokenMarginalPrices != null
+      ? (oldOutcomeTokenMarginalPrices[outcomeIndex] as BigDecimal)
+      : zeroDec;
+  setLiquidity(
+    fpmm as FixedProductMarketMaker,
+    newAmounts,
+    collateralScaleDec,
+    collateralUSDPrice
+  );
   increaseVolume(
     global,
     fpmm as FixedProductMarketMaker,
@@ -383,41 +471,61 @@ export function handleBuy(event: FPMMBuy): void {
     event.block.timestamp,
     collateralScale,
     collateralScaleDec,
-    collateralUSDPrice,
+    collateralUSDPrice
   );
 
   fpmm.save();
-  let newOutcomeTokenMarginalPrices = fpmm.outcomeTokenMarginalPrices as Array<BigDecimal>;
-  let newOutcomeTokenMarginalPrice = (newOutcomeTokenMarginalPrices != null) ? newOutcomeTokenMarginalPrices[outcomeIndex] as BigDecimal : zeroDec;
+  let newOutcomeTokenMarginalPrices = fpmm.outcomeTokenMarginalPrices as Array<
+    BigDecimal
+  >;
+  let newOutcomeTokenMarginalPrice =
+    newOutcomeTokenMarginalPrices != null
+      ? (newOutcomeTokenMarginalPrices[outcomeIndex] as BigDecimal)
+      : zeroDec;
 
-  recordParticipation(fpmm as FixedProductMarketMaker, 
-    event.params.buyer.toHexString());
+  recordParticipation(
+    fpmm as FixedProductMarketMaker,
+    event.params.buyer.toHexString()
+  );
 
-  recordTrade(fpmm as FixedProductMarketMaker, 
+  recordTrade(
+    fpmm as FixedProductMarketMaker,
     event.params.buyer.toHexString(),
-    event.params.investmentAmount, collateralAmountUSD,
-    newOutcomeTokenMarginalPrice, oldOutcomeTokenMarginalPrice,
-    event.params.feeAmount, event.params.outcomeIndex,
-    event.params.outcomeTokensBought, TRADE_TYPE_BUY,
+    event.params.investmentAmount,
+    collateralAmountUSD,
+    newOutcomeTokenMarginalPrice,
+    oldOutcomeTokenMarginalPrice,
+    event.params.feeAmount,
+    event.params.outcomeIndex,
+    event.params.outcomeTokensBought,
+    TRADE_TYPE_BUY,
     event.block.timestamp,
-    event.transaction.hash);
+    event.transaction.hash
+  );
 }
 
 export function handleSell(event: FPMMSell): void {
-  let fpmmAddress = event.address.toHexString()
+  let fpmmAddress = event.address.toHexString();
   let fpmm = FixedProductMarketMaker.load(fpmmAddress);
   if (fpmm == null) {
-    log.error('cannot sell: FixedProductMarketMaker instance for {} not found', [fpmmAddress]);
+    log.error(
+      "cannot sell: FixedProductMarketMaker instance for {} not found",
+      [fpmmAddress]
+    );
     return;
   }
 
   let oldAmounts = fpmm.outcomeTokenAmounts;
-  let returnAmountPlusFees = event.params.returnAmount.plus(event.params.feeAmount);
+  let returnAmountPlusFees = event.params.returnAmount.plus(
+    event.params.feeAmount
+  );
   let outcomeIndex = event.params.outcomeIndex.toI32();
   let newAmounts = new Array<BigInt>(oldAmounts.length);
-  for(let i = 0; i < newAmounts.length; i++) {
+  for (let i = 0; i < newAmounts.length; i++) {
     if (i == outcomeIndex) {
-      newAmounts[i] = oldAmounts[i].minus(returnAmountPlusFees).plus(event.params.outcomeTokensSold);
+      newAmounts[i] = oldAmounts[i]
+        .minus(returnAmountPlusFees)
+        .plus(event.params.outcomeTokensSold);
     } else {
       newAmounts[i] = oldAmounts[i].minus(returnAmountPlusFees);
     }
@@ -433,12 +541,24 @@ export function handleSell(event: FPMMSell): void {
   let collateralAmountUSD = zeroDec;
   if (ethPerCollateral != null && usdPerEth != null) {
     collateralUSDPrice = ethPerCollateral.times(usdPerEth as BigDecimal);
-    collateralAmountUSD = collateralUSDPrice.times(event.params.returnAmount.divDecimal(collateralScaleDec));
+    collateralAmountUSD = collateralUSDPrice.times(
+      event.params.returnAmount.divDecimal(collateralScaleDec)
+    );
   }
 
-  let oldOutcomeTokenMarginalPrices = fpmm.outcomeTokenMarginalPrices as Array<BigDecimal>;
-  let oldOutcomeTokenMarginalPrice = (oldOutcomeTokenMarginalPrices != null) ? oldOutcomeTokenMarginalPrices[outcomeIndex] as BigDecimal : zeroDec;
-  setLiquidity(fpmm as FixedProductMarketMaker, newAmounts, collateralScaleDec, collateralUSDPrice);
+  let oldOutcomeTokenMarginalPrices = fpmm.outcomeTokenMarginalPrices as Array<
+    BigDecimal
+  >;
+  let oldOutcomeTokenMarginalPrice =
+    oldOutcomeTokenMarginalPrices != null
+      ? (oldOutcomeTokenMarginalPrices[outcomeIndex] as BigDecimal)
+      : zeroDec;
+  setLiquidity(
+    fpmm as FixedProductMarketMaker,
+    newAmounts,
+    collateralScaleDec,
+    collateralUSDPrice
+  );
   increaseVolume(
     global,
     fpmm as FixedProductMarketMaker,
@@ -446,28 +566,41 @@ export function handleSell(event: FPMMSell): void {
     event.block.timestamp,
     collateralScale,
     collateralScaleDec,
-    collateralUSDPrice,
+    collateralUSDPrice
   );
 
   fpmm.save();
-  let newOutcomeTokenMarginalPrices = fpmm.outcomeTokenMarginalPrices as Array<BigDecimal>;
-  let newOutcomeTokenMarginalPrice = (newOutcomeTokenMarginalPrices != null) ? newOutcomeTokenMarginalPrices[outcomeIndex] as BigDecimal : zeroDec;
+  let newOutcomeTokenMarginalPrices = fpmm.outcomeTokenMarginalPrices as Array<
+    BigDecimal
+  >;
+  let newOutcomeTokenMarginalPrice =
+    newOutcomeTokenMarginalPrices != null
+      ? (newOutcomeTokenMarginalPrices[outcomeIndex] as BigDecimal)
+      : zeroDec;
 
-  recordParticipation(fpmm as FixedProductMarketMaker, 
-    event.params.seller.toHexString());
+  recordParticipation(
+    fpmm as FixedProductMarketMaker,
+    event.params.seller.toHexString()
+  );
 
-  recordTrade(fpmm as FixedProductMarketMaker, 
+  recordTrade(
+    fpmm as FixedProductMarketMaker,
     event.params.seller.toHexString(),
-    event.params.returnAmount, collateralAmountUSD,
-    newOutcomeTokenMarginalPrice, oldOutcomeTokenMarginalPrice,
-    event.params.feeAmount, event.params.outcomeIndex,
-    event.params.outcomeTokensSold, TRADE_TYPE_SELL,
+    event.params.returnAmount,
+    collateralAmountUSD,
+    newOutcomeTokenMarginalPrice,
+    oldOutcomeTokenMarginalPrice,
+    event.params.feeAmount,
+    event.params.outcomeIndex,
+    event.params.outcomeTokensSold,
+    TRADE_TYPE_SELL,
     event.block.timestamp,
-    event.transaction.hash);
+    event.transaction.hash
+  );
 }
 
 export function handlePoolShareTransfer(event: Transfer): void {
-  let fpmmAddress = event.address.toHexString()
+  let fpmmAddress = event.address.toHexString();
   let fpmm = FixedProductMarketMaker.load(fpmmAddress);
 
   let fromAddress = event.params.from.toHexString();

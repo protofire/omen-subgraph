@@ -60,7 +60,8 @@ type Condition @entity {
   payouts: [BigDecimal!]
   scalarLow: BigInt
   scalarHigh: BigInt
-  fixedProductMarketMakers: [FixedProductMarketMaker!]! @derivedFrom(field: "conditions")
+  fixedProductMarketMakers: [FixedProductMarketMaker!]!
+    @derivedFrom(field: "conditions")
 }
 
 type FixedProductMarketMaker @entity {
@@ -245,6 +246,7 @@ type FpmmLiquidity @entity {
   collateralRemovedFromFeePool: BigInt
   creationTimestamp: BigInt!
   transactionHash: Bytes!
+  additionalSharesCost: BigInt!
 }
 
 type FpmmTransaction @entity {
@@ -257,6 +259,7 @@ type FpmmTransaction @entity {
   sharesOrPoolTokenAmount: BigInt!
   creationTimestamp: BigInt!
   transactionHash: Bytes!
+  additionalSharesCost: BigInt
 }
 
 type GelatoUser @entity {
@@ -403,15 +406,10 @@ type KlerosSubmission @entity {
 
 type _Schema_
   @fulltext(
-    name: "marketSearch",
+    name: "marketSearch"
     language: en
-    algorithm: rank,
+    algorithm: rank
     include: [
-      {
-        entity: "FixedProductMarketMaker",
-        fields: [
-          { name: "title" }
-        ]
-      }
+      { entity: "FixedProductMarketMaker", fields: [{ name: "title" }] }
     ]
   )
