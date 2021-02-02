@@ -1,4 +1,4 @@
-import { BigInt } from '@graphprotocol/graph-ts'
+import { BigInt } from "@graphprotocol/graph-ts";
 
 export let zero = BigInt.fromI32(0);
 export let one = BigInt.fromI32(1);

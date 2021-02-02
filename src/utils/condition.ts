@@ -1,6 +1,9 @@
 import { Category, Condition, Question } from "../../generated/schema";
 
-export function assignQuestionToCondition(condition: Condition, questionId: string): void {
+export function assignQuestionToCondition(
+  condition: Condition,
+  questionId: string
+): void {
   condition.question = questionId;
   let question = Question.load(questionId);
   if (question != null) {

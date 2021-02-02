@@ -14,9 +14,9 @@ export function max(array: BigInt[]): BigInt {
 
 export function min(array: BigInt[]): BigInt {
   let len = array.length;
-  let minValue: BigInt;
+  let minValue = BigInt.fromI32(i32.MAX_VALUE);
   while (len--) {
-    if (array[len].lt(minValue) || !minValue) {
+    if (array[len].lt(minValue)) {
       minValue = array[len];
     }
   }

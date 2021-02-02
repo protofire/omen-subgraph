@@ -1,12 +1,10 @@
-import { log, BigInt } from '@graphprotocol/graph-ts'
-import { zero, one } from './constants';
+import { log, BigInt } from "@graphprotocol/graph-ts";
+import { zero, one } from "./constants";
 
 // Adapted from https://en.wikipedia.org/wiki/Nth_root_algorithm
 export function nthRoot(x: BigInt, n: i32): BigInt {
   if (n <= 0) {
-    log.error("invalid n {} passed to nthRoot", [
-      BigInt.fromI32(n).toString()
-    ])
+    log.error("invalid n {} passed to nthRoot", [BigInt.fromI32(n).toString()]);
   }
 
   if (x.equals(zero)) {
@@ -24,7 +22,7 @@ export function nthRoot(x: BigInt, n: i32): BigInt {
     }
     deltaRoot = x.div(rootPowNLess1).minus(root).div(nAsBigInt);
     root = root.plus(deltaRoot);
-  } while (deltaRoot.lt(zero))
+  } while (deltaRoot.lt(zero));
 
   return root;
 }
