@@ -116,3 +116,7 @@ build/
 abis/
 subgraph.yaml
 generated/
+
+# Lock files
+package-lock.json
+yarn.lock

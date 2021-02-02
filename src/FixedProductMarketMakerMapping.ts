@@ -144,6 +144,9 @@ function recordFPMMLiquidity(
 
     fpmmLiquidity.sharesAmount = sharesAmount;
     fpmmLiquidity.collateralRemovedFromFeePool = collateralRemovedFromFeePool;
+    fpmmLiquidity.additionalSharesCost = max(outcomeTokenAmounts).minus(
+      min(outcomeTokenAmounts)
+    );
 
     fpmmLiquidity.save();
 
@@ -152,14 +155,11 @@ function recordFPMMLiquidity(
     fpmmTransaction.user = funder;
     fpmmTransaction.fpmmType = FPMM_TYPE_LIQUIDITY;
     fpmmTransaction.transactionType = liquidityType;
-    if (liquidityType === LIQUIDITY_TYPE_ADD) {
-      fpmmTransaction.collateralTokenAmount = max(outcomeTokenAmounts);
-    } else {
-      fpmmTransaction.collateralTokenAmount = collateralRemovedFromFeePool;
-    }
+    fpmmTransaction.collateralTokenAmount = fpmmLiquidity.collateralTokenAmount;
     fpmmTransaction.sharesOrPoolTokenAmount = sharesAmount;
     fpmmTransaction.creationTimestamp = creationTimestamp;
     fpmmTransaction.transactionHash = transactionHash;
+    fpmmTransaction.additionalSharesCost = fpmmLiquidity.additionalSharesCost;
 
     fpmmTransaction.save();
   }
