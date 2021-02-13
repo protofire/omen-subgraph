@@ -25,8 +25,8 @@ function getOrCreateToken(address: Address): RegisteredToken {
   let nameResult = contract.try_name();
   let symbolResult = contract.try_symbol();
   let decimalsResult = contract.try_decimals();
-  token.name = nameResult.reverted ? "token" : nameResult.value;
-  token.symbol = symbolResult.reverted ? "tkn" : symbolResult.value;
+  token.name = nameResult.reverted ? "Maker" : nameResult.value;
+  token.symbol = symbolResult.reverted ? "MKR" : symbolResult.value;
   token.decimals = decimalsResult.reverted ? 0 : decimalsResult.value;
   token.save();
 
