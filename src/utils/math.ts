@@ -16,7 +16,7 @@ export function min(array: BigInt[]): BigInt {
   let len = array.length;
   let minValue: BigInt;
   while (len--) {
-    if (array[len].lt(minValue) || !minValue) {
+    if (!minValue || array[len].lt(minValue)) {
       minValue = array[len];
     }
   }
