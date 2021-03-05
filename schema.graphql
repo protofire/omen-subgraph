@@ -16,6 +16,8 @@ type Question @entity {
   currentAnswerBond: BigInt
   currentAnswerTimestamp: BigInt
 
+  arbitrationRequestedTimestamp: BigInt
+  arbitrationRequestedBy: String
   isPendingArbitration: Boolean!
   arbitrationOccurred: Boolean!
 

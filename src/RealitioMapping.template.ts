@@ -222,6 +222,8 @@ export function handleArbitrationRequest(event: LogNotifyOfArbitrationRequest): 
 
   question.isPendingArbitration = true;
   question.answerFinalizedTimestamp = null;
+  question.arbitrationRequestedTimestamp = event.block.timestamp;
+  question.arbitrationRequestedBy = event.params.user.toHexString();
 
   question.save();
 
