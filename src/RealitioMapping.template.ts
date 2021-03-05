@@ -253,6 +253,7 @@ export function handleFinalize(event: LogFinalize): void {
 
   question.isPendingArbitration = false;
   question.arbitrationOccurred = true;
+  question.currentAnswer = event.params.answer;
 
   question.save();
 
