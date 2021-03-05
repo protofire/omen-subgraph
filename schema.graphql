@@ -29,6 +29,7 @@ type Question @entity {
 
 type Answer @entity {
   id: ID!
+  timestamp: BigInt!
   answer: Bytes!
   bondAggregate: BigInt!
   question: Question!

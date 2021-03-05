@@ -162,9 +162,11 @@ function saveNewAnswer(questionId: string, answer: Bytes, bond: BigInt, ts: BigI
     answerEntity.question = questionId;
     answerEntity.answer = answer;
     answerEntity.bondAggregate = bond;
+    answerEntity.timestamp = ts;
     answerEntity.save();
   } else {
     answerEntity.bondAggregate = answerEntity.bondAggregate.plus(bond);
+    answerEntity.timestamp = ts;
     answerEntity.save();
   }
 
