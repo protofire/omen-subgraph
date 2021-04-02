@@ -191,6 +191,28 @@ dataSources:
           handler: handleItemStatusChange
       file: ./src/GeneralizedTCRMapping.ts
 {{/GeneralizedTCR.address}}
+{{#StakingRewardsFactory.address}}
+  - kind: ethereum/contract
+    name: StakingRewardsFactory
+    network: {{network}}
+    source:
+      address: '{{StakingRewardsFactory.address}}'
+      abi: StakingRewardsFactory
+      startBlock: {{StakingRewardsFactory.startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.3
+      language: wasm/assemblyscript
+      entities:
+        - Distribution
+      abis:
+        - name: StakingRewardsFactory
+          file: ./abis/StakingRewardsFactory.json
+      eventHandlers:
+        - event: DistributionCreated(address,address)
+          handler: handleDistributionCreation
+      file: ./src/StakingRewardsFactoryMapping.ts
+{{/StakingRewardsFactory.address}}
   - kind: ethereum/contract
     name: UniswapV2Factory
     network: {{network}}
@@ -289,3 +311,34 @@ templates:
         - name: ERC20Detailed
           file: ./abis/ERC20Detailed.json
       file: ./src/utils/empty.ts
+  - kind: ethereum/contract
+    name: Distribution
+    network: {{network}}
+    source:
+      abi: StakingRewardsDistribution
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ./src/StakingRewardsDistributionMapping.ts
+      entities:
+        - Deposit
+        - Withdrawal
+        - Claim
+        - Recovery
+      abis:
+        - name: StakingRewardsDistribution
+          file: ./abis/StakingRewardsDistribution.json
+      eventHandlers:
+        - event: Initialized(address[],address,uint256[],uint64,uint64,bool)
+          handler: handleDistributionInitialization
+        - event: Canceled()
+          handler: handleCancelation
+        - event: Staked(indexed address,uint256)
+          handler: handleDeposit
+        - event: Withdrawn(indexed address,uint256)
+          handler: handleWithdrawal
+        - event: Claimed(indexed address,uint256[])
+          handler: handleClaim
+        - event: Recovered(uint256[])
+          handler: handleRecovery
