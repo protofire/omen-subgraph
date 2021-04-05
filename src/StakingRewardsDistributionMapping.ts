@@ -31,7 +31,7 @@ import {
 } from "../generated/templates/Distribution/StakingRewardsDistribution";
 import networks from "../networks.json";
 import { one, ten } from "./utils/constants";
-import { convertTokenToDecimal, ZERO_BD } from "./utils/helpers";
+import { BI_18, convertTokenToDecimal, ZERO_BD } from "./utils/helpers";
 
 export function handleDistributionInitialization(event: Initialized): void {
   // load factory (create if first distribution)
@@ -130,4 +130,19 @@ export function handleDistributionCancelation(event: Canceled): void {
   );
   canceledDistribution.initialized = false;
   canceledDistribution.save();
+}
+
+export function handleDeposit(event: Staked): void {
+  let campaign = LiquidityMiningCampaign.load(event.address.toHexString());
+  let stakedAmount = convertTokenToDecimal(event.params.amount, BI_18); // lp tokens have hardcoded 18 decimals
+  campaign.stakedAmount = campaign.stakedAmount.plus(stakedAmount);
+  campaign.save();
+
+  // populating the stake deposit entity
+  let deposit = new LMDeposit(event.transaction.hash.toHexString());
+  deposit.liquidityMiningCampaign = campaign.id;
+  deposit.user = event.params.staker;
+  deposit.timestamp = event.block.timestamp;
+  deposit.amount = stakedAmount;
+  deposit.save();
 }
