@@ -161,3 +161,24 @@ export function handleWithdrawal(event: Withdrawn): void {
   withdrawal.amount = withdrawnAmount;
   withdrawal.save();
 }
+
+export function handleClaim(event: Claimed): void {
+  let campaign = LiquidityMiningCampaign.load(event.address.toHexString());
+
+  // populating the claim entity
+  let claim = new LMClaim(event.transaction.hash.toHexString());
+  claim.amounts = [];
+  claim.liquidityMiningCampaign = campaign.id;
+  claim.user = event.params.claimer;
+  claim.timestamp = event.block.timestamp;
+
+  let distributionRewardTokens = campaign.rewardTokens;
+  let claimedAmounts = event.params.amounts;
+  for (let i = 0; i < distributionRewardTokens.length; i++) {
+    let token = Token.load(distributionRewardTokens[i]) as Token;
+    claim.amounts.push(
+      convertTokenToDecimal(claimedAmounts[i], token.decimals)
+    );
+  }
+  claim.save();
+}
