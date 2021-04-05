@@ -16,10 +16,8 @@ import {
   LMClaim,
   LMRecovery,
 } from "../generated/schema";
-import {
-  Distribution as DistributionTemplate,
-  ERC20Detailed,
-} from "../generated/templates";
+import { Distribution as DistributionTemplate } from "../generated/templates";
+import { ERC20Detailed } from "../generated/templates/ERC20Detailed/ERC20Detailed";
 import {
   Canceled,
   Claimed,
@@ -97,7 +95,7 @@ export function handleDistributionInitialization(event: Initialized): void {
       rewardToken.save();
     }
     rewardAmounts.push(
-      convertTokenToDecimal(eventRewardAmounts[index], rewardToken.decimals)
+      convertTokenToDecimal(eventRewardAmounts[index], rewardToken.scale)
     );
     rewardTokenIds.push(rewardToken.id);
   }
@@ -172,9 +170,7 @@ export function handleClaim(event: Claimed): void {
   let claimedAmounts = event.params.amounts;
   for (let i = 0; i < distributionRewardTokens.length; i++) {
     let token = Token.load(distributionRewardTokens[i]) as Token;
-    claim.amounts.push(
-      convertTokenToDecimal(claimedAmounts[i], token.decimals)
-    );
+    claim.amounts.push(convertTokenToDecimal(claimedAmounts[i], token.scale));
   }
   claim.save();
 }
@@ -193,7 +189,7 @@ export function handleRecovery(event: Recovered): void {
   for (let i = 0; i < distributionRewardTokens.length; i++) {
     let token = Token.load(distributionRewardTokens[i]) as Token;
     recovery.amounts.push(
-      convertTokenToDecimal(recoveredAmounts[i], token.decimals)
+      convertTokenToDecimal(recoveredAmounts[i], token.scale)
     );
   }
   recovery.save();
