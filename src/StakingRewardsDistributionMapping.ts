@@ -110,3 +110,24 @@ export function handleDistributionInitialization(event: Initialized): void {
   distribution.initialized = true;
   distribution.save();
 }
+
+export function handleDistributionCancelation(event: Canceled): void {
+  // load factory (create if first distribution)
+  let network = dataSource.network() as string;
+  let stakingRewardsFactoryAddress =
+    networks.StakingRewardsFactory[network].address;
+  let factory = StakingRewardsFactory.load(stakingRewardsFactoryAddress);
+  if (factory === null) {
+    // bail if factory is null
+    log.error("factory must be initialized when canceling a distribution", []);
+    return;
+  }
+  factory.initializedCampaignsCount = factory.initializedCampaignsCount - 1;
+  factory.save();
+
+  let canceledDistribution = LiquidityMiningCampaign.load(
+    event.address.toHexString()
+  );
+  canceledDistribution.initialized = false;
+  canceledDistribution.save();
+}
