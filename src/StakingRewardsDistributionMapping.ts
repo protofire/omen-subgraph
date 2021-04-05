@@ -20,7 +20,6 @@ import {
   Distribution as DistributionTemplate,
   ERC20Detailed,
 } from "../generated/templates";
-import { DistributionCreated } from "../generated/StakingRewardsFactory/StakingRewardsFactory";
 import {
   Canceled,
   Claimed,
@@ -29,15 +28,13 @@ import {
   Staked,
   Withdrawn,
 } from "../generated/templates/Distribution/StakingRewardsDistribution";
-import networks from "../networks.json";
+import { getStakingRewardsFactoryAddress } from "./utils/addresses";
 import { one, ten } from "./utils/constants";
 import { BI_18, convertTokenToDecimal, ZERO_BD } from "./utils/helpers";
 
 export function handleDistributionInitialization(event: Initialized): void {
   // load factory (create if first distribution)
-  let network = dataSource.network() as string;
-  let stakingRewardsFactoryAddress =
-    networks.StakingRewardsFactory[network].address;
+  let stakingRewardsFactoryAddress = getStakingRewardsFactoryAddress();
   let factory = StakingRewardsFactory.load(stakingRewardsFactoryAddress);
   if (factory === null) {
     factory = new StakingRewardsFactory(stakingRewardsFactoryAddress);
@@ -113,9 +110,8 @@ export function handleDistributionInitialization(event: Initialized): void {
 
 export function handleDistributionCancelation(event: Canceled): void {
   // load factory (create if first distribution)
-  let network = dataSource.network() as string;
-  let stakingRewardsFactoryAddress =
-    networks.StakingRewardsFactory[network].address;
+
+  let stakingRewardsFactoryAddress = getStakingRewardsFactoryAddress();
   let factory = StakingRewardsFactory.load(stakingRewardsFactoryAddress);
   if (factory === null) {
     // bail if factory is null
