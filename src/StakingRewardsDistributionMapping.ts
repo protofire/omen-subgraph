@@ -182,3 +182,23 @@ export function handleClaim(event: Claimed): void {
   }
   claim.save();
 }
+
+export function handleRecovery(event: Recovered): void {
+  let campaign = LiquidityMiningCampaign.load(event.address.toHexString());
+
+  // populating the recovery entity
+  let recovery = new LMRecovery(event.transaction.hash.toHexString());
+  recovery.amounts = [];
+  recovery.liquidityMiningCampaign = campaign.id;
+  recovery.timestamp = event.block.timestamp;
+
+  let distributionRewardTokens = campaign.rewardTokens;
+  let recoveredAmounts = event.params.amounts;
+  for (let i = 0; i < distributionRewardTokens.length; i++) {
+    let token = Token.load(distributionRewardTokens[i]) as Token;
+    recovery.amounts.push(
+      convertTokenToDecimal(recoveredAmounts[i], token.decimals)
+    );
+  }
+  recovery.save();
+}
