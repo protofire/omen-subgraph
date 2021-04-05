@@ -1,0 +1,112 @@
+import {
+  log,
+  DataSourceContext,
+  dataSource,
+  Bytes,
+  Address,
+  BigDecimal,
+} from "@graphprotocol/graph-ts";
+import {
+  StakingRewardsFactory,
+  FixedProductMarketMaker,
+  Token,
+  LiquidityMiningCampaign,
+  LMDeposit,
+  LMWithdrawal,
+  LMClaim,
+  LMRecovery,
+} from "../generated/schema";
+import {
+  Distribution as DistributionTemplate,
+  ERC20Detailed,
+} from "../generated/templates";
+import { DistributionCreated } from "../generated/StakingRewardsFactory/StakingRewardsFactory";
+import {
+  Canceled,
+  Claimed,
+  Initialized,
+  Recovered,
+  Staked,
+  Withdrawn,
+} from "../generated/templates/Distribution/StakingRewardsDistribution";
+import networks from "../networks.json";
+import { one, ten } from "./utils/constants";
+import { convertTokenToDecimal, ZERO_BD } from "./utils/helpers";
+
+export function handleDistributionInitialization(event: Initialized): void {
+  // load factory (create if first distribution)
+  let network = dataSource.network() as string;
+  let stakingRewardsFactoryAddress =
+    networks.StakingRewardsFactory[network].address;
+  let factory = StakingRewardsFactory.load(stakingRewardsFactoryAddress);
+  if (factory === null) {
+    factory = new StakingRewardsFactory(stakingRewardsFactoryAddress);
+    factory.initializedCampaignsCount = 0;
+  }
+  factory.initializedCampaignsCount = factory.initializedCampaignsCount + 1;
+  factory.save();
+
+  if (
+    event.params.rewardsTokenAddresses.length !==
+    event.params.rewardsAmounts.length
+  ) {
+    // bail if the passed reward-related arrays have a different length
+    log.error("inconsistent reward tokens and amounts", []);
+    return;
+  }
+  let fpmm = FixedProductMarketMaker.load(
+    event.params.stakableTokenAddress.toHexString()
+  );
+  if (fpmm === null) {
+    // bail if the passed stakable token is not a registered pair (LP token)
+    log.error("could not get pair for address", [
+      event.params.stakableTokenAddress.toString(),
+    ]);
+    return;
+  }
+  let context = dataSource.context();
+  let hexDistributionAddress = context.getString("address");
+  // distribution needs to be loaded since it's possible to cancel and then reinitialize
+  // an already-existing instance
+  let distribution = LiquidityMiningCampaign.load(hexDistributionAddress);
+  if (distribution === null) {
+    distribution = new LiquidityMiningCampaign(hexDistributionAddress);
+  }
+  distribution.owner = Bytes.fromHexString(context.getString("owner")) as Bytes;
+  distribution.startsAt = event.params.startingTimestamp;
+  distribution.endsAt = event.params.endingTimestamp;
+  let duration = distribution.endsAt.minus(distribution.startsAt);
+  distribution.duration = duration;
+  distribution.locked = event.params.locked;
+  distribution.fpmm = fpmm.id;
+  let rewardTokenAddresses = event.params.rewardsTokenAddresses;
+  let eventRewardAmounts = event.params.rewardsAmounts;
+  let rewardAmounts: BigDecimal[] = [];
+  let rewardTokenIds: string[] = [];
+  for (let index = 0; index < rewardTokenAddresses.length; index++) {
+    let address: Address = rewardTokenAddresses[index];
+    let hexTokenAddress = address.toHexString();
+    let rewardToken = Token.load(hexTokenAddress);
+    if (rewardToken === null) {
+      rewardToken = new Token(hexTokenAddress);
+      let erc20 = ERC20Detailed.bind(address);
+      let decimalsResult = erc20.try_decimals();
+
+      rewardToken.scale =
+        decimalsResult.reverted || decimalsResult.value > 18
+          ? one
+          : ten.pow(<u8>decimalsResult.value);
+
+      rewardToken.save();
+    }
+    rewardAmounts.push(
+      convertTokenToDecimal(eventRewardAmounts[index], rewardToken.decimals)
+    );
+    rewardTokenIds.push(rewardToken.id);
+  }
+  distribution.stakedAmount = ZERO_BD;
+  distribution.rewardAmounts = rewardAmounts;
+  distribution.rewardTokens = rewardTokenIds;
+  distribution.initialized = true;
+  distribution.save();
+}
