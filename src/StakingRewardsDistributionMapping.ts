@@ -146,3 +146,18 @@ export function handleDeposit(event: Staked): void {
   deposit.amount = stakedAmount;
   deposit.save();
 }
+
+export function handleWithdrawal(event: Withdrawn): void {
+  let campaign = LiquidityMiningCampaign.load(event.address.toHexString());
+  let withdrawnAmount = convertTokenToDecimal(event.params.amount, BI_18);
+  campaign.stakedAmount = campaign.stakedAmount.minus(withdrawnAmount);
+  campaign.save();
+
+  // populating the withdrawal entity
+  let withdrawal = new LMWithdrawal(event.transaction.hash.toHexString());
+  withdrawal.liquidityMiningCampaign = campaign.id;
+  withdrawal.user = event.params.withdrawer;
+  withdrawal.timestamp = event.block.timestamp;
+  withdrawal.amount = withdrawnAmount;
+  withdrawal.save();
+}
