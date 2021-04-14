@@ -322,10 +322,10 @@ templates:
       language: wasm/assemblyscript
       file: ./src/StakingRewardsDistributionMapping.ts
       entities:
-        - Deposit
-        - Withdrawal
-        - Claim
-        - Recovery
+        - LMDeposit
+        - LMWithdrawal
+        - LMClaim
+        - LMRecovery
       abis:
         - name: StakingRewardsDistribution
           file: ./abis/StakingRewardsDistribution.json

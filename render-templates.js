@@ -50,7 +50,9 @@ module.exports = function (callback) {
           startBlock: (await web3.eth.getTransactionReceipt(C.transactionHash))
             .blockNumber,
         };
-      } catch (e) {}
+      } catch (e) {
+        console.error("Error rendering templates: ", e);
+      }
     }
 
     for (const templatedFileDesc of [
