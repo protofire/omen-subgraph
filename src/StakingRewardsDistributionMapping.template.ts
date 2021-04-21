@@ -5,6 +5,7 @@ import {
   Bytes,
   Address,
   BigDecimal,
+  BigInt,
 } from "@graphprotocol/graph-ts";
 import {
   StakingRewardsFactory,
@@ -30,16 +31,19 @@ import {
 } from "../generated/templates/Distribution/StakingRewardsDistribution";
 import { getStakingRewardsFactoryAddress } from "./utils/addresses";
 import { one, ten } from "./utils/constants";
-import { BI_18, convertTokenToDecimal, ZERO_BD } from "./utils/helpers";
+import { BI_18, ZERO_BD, ZERO_BI } from "./utils/helpers";
 
 export function handleDistributionInitialization(event: Initialized): void {
+  log.info("handleDistributionInitialization", []);
   // load factory (create if first distribution)
   let stakingRewardsFactoryAddress = getStakingRewardsFactoryAddress();
+  log.info("stakingRewardsFactoryAddress: ", [stakingRewardsFactoryAddress]);
   let factory = StakingRewardsFactory.load(stakingRewardsFactoryAddress);
   if (factory === null) {
     factory = new StakingRewardsFactory(stakingRewardsFactoryAddress);
     factory.initializedCampaignsCount = 0;
   }
+  log.info("factory.id: ", [factory.id]);
   factory.initializedCampaignsCount = factory.initializedCampaignsCount + 1;
   factory.save();
 
@@ -51,24 +55,28 @@ export function handleDistributionInitialization(event: Initialized): void {
     log.error("inconsistent reward tokens and amounts", []);
     return;
   }
+  log.info("event.params.stakableTokenAddress.toHexString(): ", [event.params.stakableTokenAddress.toHexString()]);
   let fpmm = FixedProductMarketMaker.load(
     event.params.stakableTokenAddress.toHexString()
   );
+  log.info("fpmm.id: ", [fpmm.id]);
   if (fpmm === null) {
-    // bail if the passed stakable token is not a registered pair (LP token)
-    log.error("could not get pair for address", [
+    // bail if the passed stakable token is not an fpmm
+    log.error("could not get fpmm for address", [
       event.params.stakableTokenAddress.toString(),
     ]);
     return;
   }
   let context = dataSource.context();
   let hexDistributionAddress = context.getString("address");
+  log.info("hexDistributionAddress: ", [hexDistributionAddress]);
   // distribution needs to be loaded since it's possible to cancel and then reinitialize
   // an already-existing instance
   let distribution = LiquidityMiningCampaign.load(hexDistributionAddress);
   if (distribution === null) {
     distribution = new LiquidityMiningCampaign(hexDistributionAddress);
   }
+  log.info("distribution.id: ", [distribution.id]);
   distribution.owner = Bytes.fromHexString(context.getString("owner")) as Bytes;
   distribution.startsAt = event.params.startingTimestamp;
   distribution.endsAt = event.params.endingTimestamp;
@@ -78,7 +86,7 @@ export function handleDistributionInitialization(event: Initialized): void {
   distribution.fpmm = fpmm.id;
   let rewardTokenAddresses = event.params.rewardsTokenAddresses;
   let eventRewardAmounts = event.params.rewardsAmounts;
-  let rewardAmounts: BigDecimal[] = [];
+  let rewardAmounts: BigInt[] = [];
   let rewardTokenIds: string[] = [];
   for (let index = 0; index < rewardTokenAddresses.length; index++) {
     let address: Address = rewardTokenAddresses[index];
@@ -96,16 +104,15 @@ export function handleDistributionInitialization(event: Initialized): void {
 
       rewardToken.save();
     }
-    rewardAmounts.push(
-      convertTokenToDecimal(eventRewardAmounts[index], rewardToken.scale)
-    );
+    rewardAmounts.push(eventRewardAmounts[index]);
     rewardTokenIds.push(rewardToken.id);
   }
-  distribution.stakedAmount = ZERO_BD;
+  distribution.stakedAmount = ZERO_BI;
   distribution.rewardAmounts = rewardAmounts;
   distribution.rewardTokens = rewardTokenIds;
   distribution.initialized = true;
   distribution.save();
+  log.info('Distribution initialization successful: {}', [distribution.id])
 }
 
 export function handleDistributionCancelation(event: Canceled): void {
@@ -130,22 +137,32 @@ export function handleDistributionCancelation(event: Canceled): void {
 
 export function handleDeposit(event: Staked): void {
   let campaign = LiquidityMiningCampaign.load(event.address.toHexString());
-  let stakedAmount = convertTokenToDecimal(event.params.amount, BI_18); // lp tokens have hardcoded 18 decimals
+  log.info('campaign: {}', [campaign.id])
+  let stakedAmount = event.params.amount;
+  log.info('stakedAmount: {}', [stakedAmount.toString()])
   campaign.stakedAmount = campaign.stakedAmount.plus(stakedAmount);
+  log.info('updated stakedAmount: {}', [campaign.stakedAmount.toString()])
   campaign.save();
+  log.info('successfully created campaign', [])
 
   // populating the stake deposit entity
   let deposit = new LMDeposit(event.transaction.hash.toHexString());
   deposit.liquidityMiningCampaign = campaign.id;
+  log.info('deposit.liquidityMiningCampaign: {}', [deposit.liquidityMiningCampaign])
   deposit.user = event.params.staker;
+  log.info('deposit.user: {}', [deposit.user.toString()])
   deposit.timestamp = event.block.timestamp;
+  log.info('deposit.timestamp: {}', [deposit.timestamp.toString()])
   deposit.amount = stakedAmount;
+  log.info('deposit.amount: {}', [deposit.amount.toString()])
+
   deposit.save();
+  log.info('successfully added deposit entry', [])
 }
 
 export function handleWithdrawal(event: Withdrawn): void {
   let campaign = LiquidityMiningCampaign.load(event.address.toHexString());
-  let withdrawnAmount = convertTokenToDecimal(event.params.amount, BI_18);
+  let withdrawnAmount = event.params.amount;
   campaign.stakedAmount = campaign.stakedAmount.minus(withdrawnAmount);
   campaign.save();
 
@@ -172,9 +189,7 @@ export function handleClaim(event: Claimed): void {
   let claimedAmounts = event.params.amounts;
   for (let i = 0; i < distributionRewardTokens.length; i++) {
     let token = Token.load(distributionRewardTokens[i]) as Token;
-    claim.amounts.push(
-      convertTokenToDecimal(claimedAmounts[i], token.scale)
-    );
+    claim.amounts.push(claimedAmounts[i]);
   }
   claim.save();
 }
@@ -192,9 +207,7 @@ export function handleRecovery(event: Recovered): void {
   let recoveredAmounts = event.params.amounts;
   for (let i = 0; i < distributionRewardTokens.length; i++) {
     let token = Token.load(distributionRewardTokens[i]) as Token;
-    recovery.amounts.push(
-      convertTokenToDecimal(recoveredAmounts[i], token.scale)
-    );
+    recovery.amounts.push(recoveredAmounts[i]);
   }
   recovery.save();
 }

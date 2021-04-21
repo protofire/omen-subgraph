@@ -436,8 +436,8 @@ type LiquidityMiningCampaign @entity {
   locked: Boolean!
   fpmm: FixedProductMarketMaker!
   rewardTokens: [Token!]!
-  rewardAmounts: [BigDecimal!]!
-  stakedAmount: BigDecimal!
+  rewardAmounts: [BigInt!]!
+  stakedAmount: BigInt!
   deposits: [LMDeposit!]! @derivedFrom(field: "liquidityMiningCampaign")
   withdrawals: [LMWithdrawal!]! @derivedFrom(field: "liquidityMiningCampaign")
   claims: [LMClaim!]! @derivedFrom(field: "liquidityMiningCampaign")
@@ -450,7 +450,7 @@ type LMDeposit @entity {
   user: Bytes!
   timestamp: BigInt!
   liquidityMiningCampaign: LiquidityMiningCampaign!
-  amount: BigDecimal!
+  amount: BigInt!
 }
 
 # Pool tokens withdrawing from liquidity mining contract
@@ -459,7 +459,7 @@ type LMWithdrawal @entity {
   user: Bytes!
   timestamp: BigInt!
   liquidityMiningCampaign: LiquidityMiningCampaign!
-  amount: BigDecimal!
+  amount: BigInt!
 }
 
 # Reward tokens claiming from liquidity mining contract
@@ -468,7 +468,7 @@ type LMClaim @entity {
   user: Bytes!
   timestamp: BigInt!
   liquidityMiningCampaign: LiquidityMiningCampaign!
-  amounts: [BigDecimal!]!
+  amounts: [BigInt!]!
 }
 
 # Reward tokens recovery from distribution owner
@@ -476,5 +476,5 @@ type LMRecovery @entity {
   id: ID!
   timestamp: BigInt!
   liquidityMiningCampaign: LiquidityMiningCampaign!
-  amounts: [BigDecimal!]!
+  amounts: [BigInt!]!
 }
