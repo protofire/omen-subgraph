@@ -32,16 +32,13 @@ import { one, ten } from "./utils/constants";
 import { BI_18, ZERO_BD, ZERO_BI } from "./utils/helpers";
 
 export function handleDistributionInitialization(event: Initialized): void {
-  log.info("handleDistributionInitialization", []);
   // load factory (create if first distribution)
   let stakingRewardsFactoryAddress = getStakingRewardsFactoryAddress();
-  log.info("stakingRewardsFactoryAddress: ", [stakingRewardsFactoryAddress]);
   let factory = StakingRewardsFactory.load(stakingRewardsFactoryAddress);
   if (factory === null) {
     factory = new StakingRewardsFactory(stakingRewardsFactoryAddress);
     factory.initializedCampaignsCount = 0;
   }
-  log.info("factory.id: ", [factory.id]);
   factory.initializedCampaignsCount = factory.initializedCampaignsCount + 1;
   factory.save();
 
@@ -53,13 +50,9 @@ export function handleDistributionInitialization(event: Initialized): void {
     log.error("inconsistent reward tokens and amounts", []);
     return;
   }
-  log.info("event.params.stakableTokenAddress.toHexString(): ", [
-    event.params.stakableTokenAddress.toHexString(),
-  ]);
   let fpmm = FixedProductMarketMaker.load(
     event.params.stakableTokenAddress.toHexString()
   );
-  log.info("fpmm.id: ", [fpmm.id]);
   if (fpmm === null) {
     // bail if the passed stakable token is not an fpmm
     log.error("could not get fpmm for address", [
@@ -69,14 +62,12 @@ export function handleDistributionInitialization(event: Initialized): void {
   }
   let context = dataSource.context();
   let hexDistributionAddress = context.getString("address");
-  log.info("hexDistributionAddress: ", [hexDistributionAddress]);
   // distribution needs to be loaded since it's possible to cancel and then reinitialize
   // an already-existing instance
   let distribution = LiquidityMiningCampaign.load(hexDistributionAddress);
   if (distribution === null) {
     distribution = new LiquidityMiningCampaign(hexDistributionAddress);
   }
-  log.info("distribution.id: ", [distribution.id]);
   distribution.owner = Bytes.fromHexString(context.getString("owner")) as Bytes;
   distribution.startsAt = event.params.startingTimestamp;
   distribution.endsAt = event.params.endingTimestamp;
@@ -112,7 +103,6 @@ export function handleDistributionInitialization(event: Initialized): void {
   distribution.rewardTokens = rewardTokenIds;
   distribution.initialized = true;
   distribution.save();
-  log.info("Distribution initialization successful: {}", [distribution.id]);
 }
 
 export function handleDistributionCancelation(event: Canceled): void {
@@ -137,29 +127,18 @@ export function handleDistributionCancelation(event: Canceled): void {
 
 export function handleDeposit(event: Staked): void {
   let campaign = LiquidityMiningCampaign.load(event.address.toHexString());
-  log.info("campaign: {}", [campaign.id]);
   let stakedAmount = event.params.amount;
-  log.info("stakedAmount: {}", [stakedAmount.toString()]);
   campaign.stakedAmount = campaign.stakedAmount.plus(stakedAmount);
-  log.info("updated stakedAmount: {}", [campaign.stakedAmount.toString()]);
   campaign.save();
-  log.info("successfully created campaign", []);
 
   // populating the stake deposit entity
   let deposit = new LMDeposit(event.transaction.hash.toHexString());
   deposit.liquidityMiningCampaign = campaign.id;
-  log.info("deposit.liquidityMiningCampaign: {}", [
-    deposit.liquidityMiningCampaign,
-  ]);
   deposit.user = event.params.staker;
-  log.info("deposit.user: {}", [deposit.user.toString()]);
   deposit.timestamp = event.block.timestamp;
-  log.info("deposit.timestamp: {}", [deposit.timestamp.toString()]);
   deposit.amount = stakedAmount;
-  log.info("deposit.amount: {}", [deposit.amount.toString()]);
 
   deposit.save();
-  log.info("successfully added deposit entry", []);
 }
 
 export function handleWithdrawal(event: Withdrawn): void {
