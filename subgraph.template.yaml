@@ -330,7 +330,7 @@ templates:
         - name: StakingRewardsDistribution
           file: ./abis/StakingRewardsDistribution.json
       eventHandlers:
-        - event: Initialized(address[],address,uint256[],uint64,uint64,bool)
+        - event: Initialized(address[],address,uint256[],uint64,uint64,bool,uint256)
           handler: handleDistributionInitialization
         - event: Canceled()
           handler: handleCancelation

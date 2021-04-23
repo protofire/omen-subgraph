@@ -14,7 +14,7 @@
     "deploy:xdai": "graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ protofire/omen-xdai",
     "fix-schema.ts": "replace-in-file '/(;\\s*if \\()value === null/mg' '$1value === null || value.kind === ValueKind.NULL' generated/schema.ts --isRegex",
     "codegen": "truffle exec render-templates.js && graph codegen && yarn fix-schema.ts",
-    "codegen:rinkeby": "tnt iN && truffle exec --network=rinkeby render-templates.js && graph codegen && yarn fix-schema.ts",
+    "codegen:rinkeby": "tnt iN && truffle exec --network=rinkeby render-templates.js && graph codegen",
     "codegen:mainnet": "tnt iN && truffle exec --network=mainnet render-templates.js && graph codegen && yarn fix-schema.ts",
     "codegen:sokol": "tnt iN && truffle exec --network=sokol render-templates.js && graph codegen && yarn fix-schema.ts",
     "codegen:xdai": "tnt iN && truffle exec --network=xdai render-templates.js && graph codegen && yarn fix-schema.ts",
