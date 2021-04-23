@@ -416,3 +416,65 @@ type _Schema_
       { entity: "FixedProductMarketMaker", fields: [{ name: "title" }] }
     ]
   )
+
+# Staking rewards distribution factory
+type StakingRewardsFactory @entity {
+  # factory address
+  id: ID!
+  initializedCampaignsCount: Int!
+}
+
+# Liquidity mining campaign
+type LiquidityMiningCampaign @entity {
+  # campaign address
+  id: ID!
+  initialized: Boolean!
+  owner: Bytes!
+  startsAt: BigInt!
+  endsAt: BigInt!
+  duration: BigInt!
+  locked: Boolean!
+  fpmm: FixedProductMarketMaker!
+  rewardTokens: [Token!]!
+  rewardAmounts: [BigInt!]!
+  stakedAmount: BigInt!
+  deposits: [LMDeposit!]! @derivedFrom(field: "liquidityMiningCampaign")
+  withdrawals: [LMWithdrawal!]! @derivedFrom(field: "liquidityMiningCampaign")
+  claims: [LMClaim!]! @derivedFrom(field: "liquidityMiningCampaign")
+  recoveries: [LMRecovery!]! @derivedFrom(field: "liquidityMiningCampaign")
+}
+
+# Pool tokens depositing into liquidity mining contract
+type LMDeposit @entity {
+  id: ID!
+  user: Bytes!
+  timestamp: BigInt!
+  liquidityMiningCampaign: LiquidityMiningCampaign!
+  amount: BigInt!
+}
+
+# Pool tokens withdrawing from liquidity mining contract
+type LMWithdrawal @entity {
+  id: ID!
+  user: Bytes!
+  timestamp: BigInt!
+  liquidityMiningCampaign: LiquidityMiningCampaign!
+  amount: BigInt!
+}
+
+# Reward tokens claiming from liquidity mining contract
+type LMClaim @entity {
+  id: ID!
+  user: Bytes!
+  timestamp: BigInt!
+  liquidityMiningCampaign: LiquidityMiningCampaign!
+  amounts: [BigInt!]!
+}
+
+# Reward tokens recovery from distribution owner
+type LMRecovery @entity {
+  id: ID!
+  timestamp: BigInt!
+  liquidityMiningCampaign: LiquidityMiningCampaign!
+  amounts: [BigInt!]!
+}
