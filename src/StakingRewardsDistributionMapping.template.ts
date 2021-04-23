@@ -130,11 +130,7 @@ export function handleDistributionCancelation(event: Canceled): void {
 export function handleDeposit(event: Staked): void {
   let campaign = LiquidityMiningCampaign.load(event.address.toHexString());
   let stakedAmount = event.params.amount;
-  if (campaign.stakedAmount) {
-    campaign.stakedAmount = campaign.stakedAmount.plus(stakedAmount);
-  } else {
-    campaign.stakedAmount = stakedAmount;
-  }
+  campaign.stakedAmount = campaign.stakedAmount.plus(stakedAmount);
   campaign.save();
 
   // populating the stake deposit entity
