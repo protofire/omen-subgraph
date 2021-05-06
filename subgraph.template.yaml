@@ -344,3 +344,5 @@ templates:
           handler: handleClaim
         - event: Recovered(uint256[])
           handler: handleRecovery
+        - event: UpdatedRewards(uint256[])
+          handler: handleUpdatedRewards
