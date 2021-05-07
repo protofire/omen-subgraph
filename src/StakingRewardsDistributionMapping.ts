@@ -25,6 +25,7 @@ import {
   Initialized,
   Recovered,
   Staked,
+  UpdatedRewards,
   Withdrawn,
 } from "../generated/templates/Distribution/StakingRewardsDistribution";
 import { getStakingRewardsFactoryAddress } from "./utils/addresses";
@@ -191,4 +192,11 @@ export function handleRecovery(event: Recovered): void {
     recovery.amounts.push(recoveredAmounts[i]);
   }
   recovery.save();
+}
+
+export function handleUpdatedRewards(event: UpdatedRewards): void {
+  let campaign = LiquidityMiningCampaign.load(event.address.toHexString());
+
+  campaign.rewardAmounts = event.params.amounts;
+  campaign.save();
 }
