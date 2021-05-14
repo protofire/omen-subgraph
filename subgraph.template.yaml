@@ -169,6 +169,32 @@ dataSources:
         - event: FixedProductMarketMakerCreation(indexed address,address,address,address,bytes32[],uint256)
           handler: handleFixedProductMarketMakerCreation
       file: ./src/FPMMDeterministicFactoryMapping.ts
+  - kind: ethereum/contract
+    name: FPMMDeterministicFactoryV2
+    network: {{network}}
+    source:
+      address: '{{FPMMDeterministicFactoryV2.address}}'
+      abi: FPMMDeterministicFactory
+      startBlock: {{FPMMDeterministicFactoryV2.startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.3
+      language: wasm/assemblyscript
+      entities:
+        - FixedProductMarketMaker
+        - Condition
+        - Question
+        - Token
+        - Global
+      abis:
+        - name: FPMMDeterministicFactory
+          file: ./abis/FPMMDeterministicFactoryV2.json
+        - name: ERC20Detailed
+          file: ./abis/ERC20Detailed.json
+      eventHandlers:
+        - event: FixedProductMarketMakerCreation(indexed address,address,address,address,bytes32[],uint256)
+          handler: handleFixedProductMarketMakerCreation
+      file: ./src/FPMMDeterministicFactoryMapping.ts
 {{#GeneralizedTCR.address}}
   - kind: ethereum/contract
     name: GeneralizedTCR

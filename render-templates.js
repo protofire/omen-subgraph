@@ -20,6 +20,7 @@ module.exports = function (callback) {
 
     for (const contractName of [
       "FPMMDeterministicFactory",
+      "FPMMDeterministicFactoryV2",
       "FixedProductMarketMaker",
       "ConditionalTokens",
       "Realitio",
