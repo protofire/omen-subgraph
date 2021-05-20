@@ -102,7 +102,8 @@ function updateEthPerToken(
     return;
   }
 
-  if (tokenReserve.gt(zero) && wethReserve.gt(zero)) {
+  if (tokenReserve.gt(zero) && wethReserve.gt(zero) && (!token.liquidity || tokenReserve.gt(token.liquidity))) {
+    token.liquidity = tokenReserve;
     token.ethPerToken = wethReserve
       .times(token.scale)
       .divDecimal(tokenReserve.times(weth.scale).toBigDecimal());

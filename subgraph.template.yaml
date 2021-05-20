@@ -222,7 +222,7 @@ dataSources:
     network: {{network}}
     source:
       address: '{{SwaprFactory.address}}'
-      abi: UniswapV2Factory
+      abi: SwaprFactory
       startBlock: {{SwaprFactory.startBlock}}
     mapping:
       kind: ethereum/events
@@ -233,8 +233,8 @@ dataSources:
         - Token
         - Global
       abis:
-        - name: UniswapV2Factory
-          file: ./abis/UniswapV2Factory.json
+        - name: SwaprFactory
+          file: ./abis/SwaprFactory.json
         - name: UniswapV2Pair
           file: ./abis/UniswapV2Pair.json
         - name: ERC20Detailed
