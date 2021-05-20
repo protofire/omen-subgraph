@@ -197,6 +197,13 @@ export function handleRecovery(event: Recovered): void {
 export function handleUpdatedRewards(event: UpdatedRewards): void {
   let campaign = LiquidityMiningCampaign.load(event.address.toHexString());
 
+  if (campaign === null) {
+    // if campaign cannot be returned it's likely from old fpmm factory
+    log.error("could not get campaign for address", [
+      event.address.toHexString(),
+    ]);
+    return;
+  }
   campaign.rewardAmounts = event.params.amounts;
   campaign.save();
 }
