@@ -3,23 +3,18 @@ import { UniswapPair, Token } from "../generated/schema";
 import { UniswapV2Factory } from "../generated/UniswapV2Factory/UniswapV2Factory";
 import {
   Sync,
-  UniswapV2Pair,
 } from "../generated/templates/UniswapV2Pair/UniswapV2Pair";
 import { usdStablecoins, isUSDStablecoin, isWETH } from "./utils/token";
 import { requireGlobal } from "./utils/global";
 import { zero, zeroDec } from "./utils/constants";
 import {
   ADDRESS_ZERO,
-  getSwaprFactoryAddress,
   getUniswapV2FactoryAddress,
   getWethAddress,
 } from "./utils/addresses";
 
 let uniswapV2Factory = UniswapV2Factory.bind(
   Address.fromString(getUniswapV2FactoryAddress())
-);
-let swaprFactory = UniswapV2Factory.bind(
-  Address.fromString(getSwaprFactoryAddress())
 );
 
 export function handleSync(event: Sync): void {
