@@ -91,6 +91,7 @@ function updateEthPerToken(
   wethReserve: BigInt
 ): void {
   let weth = Token.load(getWethAddress());
+  let global = requireGlobal();
   if (weth == null) {
     log.error("could not find weth", []);
     return;
@@ -107,6 +108,7 @@ function updateEthPerToken(
     token.ethPerToken = wethReserve
       .times(token.scale)
       .divDecimal(tokenReserve.times(weth.scale).toBigDecimal());
+    token.usdPerToken = token.ethPerToken.times(global.usdPerEth)
   } else {
     token.ethPerToken = null;
   }
