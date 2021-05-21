@@ -130,6 +130,13 @@ export function handleDistributionCancelation(event: Canceled): void {
 
 export function handleDeposit(event: Staked): void {
   let campaign = LiquidityMiningCampaign.load(event.address.toHexString());
+  if (campaign === null) {
+    // if campaign cannot be returned it's likely from old fpmm factory
+    log.error("could not get campaign for address", [
+      event.address.toHexString(),
+    ]);
+    return;
+  }
   let stakedAmount = event.params.amount;
   campaign.stakedAmount = campaign.stakedAmount.plus(stakedAmount);
   campaign.save();
@@ -146,6 +153,13 @@ export function handleDeposit(event: Staked): void {
 
 export function handleWithdrawal(event: Withdrawn): void {
   let campaign = LiquidityMiningCampaign.load(event.address.toHexString());
+  if (campaign === null) {
+    // if campaign cannot be returned it's likely from old fpmm factory
+    log.error("could not get campaign for address", [
+      event.address.toHexString(),
+    ]);
+    return;
+  }
   let withdrawnAmount = event.params.amount;
   campaign.stakedAmount = campaign.stakedAmount.minus(withdrawnAmount);
   campaign.save();
@@ -161,6 +175,13 @@ export function handleWithdrawal(event: Withdrawn): void {
 
 export function handleClaim(event: Claimed): void {
   let campaign = LiquidityMiningCampaign.load(event.address.toHexString());
+  if (campaign === null) {
+    // if campaign cannot be returned it's likely from old fpmm factory
+    log.error("could not get campaign for address", [
+      event.address.toHexString(),
+    ]);
+    return;
+  }
 
   // populating the claim entity
   let claim = new LMClaim(event.transaction.hash.toHexString());
@@ -180,6 +201,13 @@ export function handleClaim(event: Claimed): void {
 
 export function handleRecovery(event: Recovered): void {
   let campaign = LiquidityMiningCampaign.load(event.address.toHexString());
+  if (campaign === null) {
+    // if campaign cannot be returned it's likely from old fpmm factory
+    log.error("could not get campaign for address", [
+      event.address.toHexString(),
+    ]);
+    return;
+  }
 
   // populating the recovery entity
   let recovery = new LMRecovery(event.transaction.hash.toHexString());
