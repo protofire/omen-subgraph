@@ -1,4 +1,4 @@
-import { log, Address, BigInt } from "@graphprotocol/graph-ts";
+import { log, Address, BigDecimal, BigInt } from "@graphprotocol/graph-ts";
 import { UniswapPair, Token } from "../generated/schema";
 import { UniswapV2Factory } from "../generated/UniswapV2Factory/UniswapV2Factory";
 import {
@@ -103,12 +103,12 @@ function updateEthPerToken(
     return;
   }
 
-  if (tokenReserve.gt(zero) && wethReserve.gt(zero) && (!token.liquidity || tokenReserve.gt(token.liquidity))) {
+  if (tokenReserve.gt(zero) && wethReserve.gt(zero) && (!token.liquidity || tokenReserve.gt(token.liquidity as BigInt))) {
     token.liquidity = tokenReserve;
     token.ethPerToken = wethReserve
       .times(token.scale)
       .divDecimal(tokenReserve.times(weth.scale).toBigDecimal());
-    token.usdPerToken = token.ethPerToken.times(global.usdPerEth)
+      token.usdPerToken = token.ethPerToken.times(global.usdPerEth as BigDecimal);
   } else {
     token.ethPerToken = null;
   }
