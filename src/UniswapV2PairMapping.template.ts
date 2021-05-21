@@ -9,12 +9,10 @@ import { requireGlobal } from "./utils/global";
 import { zero, zeroDec } from "./utils/constants";
 import {
   ADDRESS_ZERO,
-  getUniswapV2FactoryAddress,
-  getWethAddress,
 } from "./utils/addresses";
 
 let uniswapV2Factory = UniswapV2Factory.bind(
-  Address.fromString(getUniswapV2FactoryAddress())
+  Address.fromString("{{UniswapV2Factory.address}}")
 );
 
 export function handleSync(event: Sync): void {
@@ -38,12 +36,12 @@ export function handleSync(event: Sync): void {
   }
 }
 
-let wethAddress = Address.fromString(getWethAddress());
+let wethAddress = Address.fromString("{{WETH9.address}}");
 
 function refreshUsdPerEth(): void {
   let global = requireGlobal();
 
-  let weth = Token.load(getWethAddress());
+  let weth = Token.load("{{WETH9.addressLowerCase}}");
   if (weth == null) return;
 
   let wethReserves = zero;
@@ -90,7 +88,7 @@ function updateEthPerToken(
   tokenReserve: BigInt,
   wethReserve: BigInt
 ): void {
-  let weth = Token.load(getWethAddress());
+  let weth = Token.load("{{WETH9.addressLowerCase}}");
   let global = requireGlobal();
   if (weth == null) {
     log.error("could not find weth", []);
