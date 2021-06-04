@@ -36,6 +36,8 @@ module.exports = function (callback) {
       "USDC",
       "USDT",
       "GelatoCore",
+      "StakingRewardsFactory",
+      "StakingRewardsDistribution",
     ]) {
       const { abi } = fs.readJsonSync(`build/contracts/${contractName}.json`);
       fs.outputJsonSync(`abis/${contractName}.json`, abi, { spaces: 2 });
@@ -49,7 +51,9 @@ module.exports = function (callback) {
           startBlock: (await web3.eth.getTransactionReceipt(C.transactionHash))
             .blockNumber,
         };
-      } catch (e) {}
+      } catch (e) {
+        console.error("Error rendering templates: ", e);
+      }
     }
 
     for (const templatedFileDesc of [
@@ -59,6 +63,7 @@ module.exports = function (callback) {
       ["src/ConditionalTokensMapping", "ts"],
       ["src/RealitioMapping", "ts"],
       ["src/UniswapV2PairMapping", "ts"],
+      ["src/StakingRewardsDistributionMapping", "ts"],
     ]) {
       const template = fs
         .readFileSync(
