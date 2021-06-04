@@ -109,8 +109,7 @@ dist
 build/
 
 # Exception for dxDAO contract build artifacts
-!/build/contracts/DX*.json
-!/build/contracts/Gelato*.json
+!/build/contracts
 
 # Subgraph stuff
 abis/
