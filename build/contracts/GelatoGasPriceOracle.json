@@ -2798,6 +2798,7 @@
       "links": {},
       "address": "0xAd8eD425afEa1fF9bEBE47f425a631608289F478",
       "transactionHash": "0x7f05f19db16113c92c0445ba0c0063e55a2f477dffd36139c3c09c2de79ef12a"
+<<<<<<< HEAD
     },
     "1620340422930": {
       "events": {
@@ -2866,5 +2867,11 @@
   },
   "schemaVersion": "3.3.2",
   "updatedAt": "2021-05-06T22:34:31.880Z",
+=======
+    }
+  },
+  "schemaVersion": "3.3.2",
+  "updatedAt": "2021-04-23T15:14:01.378Z",
+>>>>>>> master
   "networkType": "ethereum"
 }

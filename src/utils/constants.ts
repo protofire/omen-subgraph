@@ -8,3 +8,5 @@ export let hoursPerDay = BigInt.fromI32(24);
 
 export let zeroDec = zero.toBigDecimal();
 export let oneDec = one.toBigDecimal();
+
+export let zeroAddress = "0x0000000000000000000000000000000000000000";
