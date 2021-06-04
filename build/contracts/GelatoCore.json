@@ -32492,9 +32492,721 @@
       "links": {},
       "address": "0x13c65dB759Ef1a02Ad64bb468B13b5EF4fA61Bb5",
       "transactionHash": "0x1fe64597db038858de0f4fc83deb69a034cf51d59c2edf5639fe8604576f4ed5"
+<<<<<<< HEAD
+    },
+    "1620340422930": {
+      "events": {
+        "0x5d326d4f0aa3ba9e690e44880c6750bdb3b93089be85717401ac419ae2c942a2": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "executor",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "internalType": "uint256",
+              "name": "taskReceiptId",
+              "type": "uint256"
+            },
+            {
+              "indexed": false,
+              "internalType": "string",
+              "name": "reason",
+              "type": "string"
+            }
+          ],
+          "name": "LogCanExecFailed",
+          "type": "event"
+        },
+        "0x582386e898e6a2854d5cc88154e27da9816ef33b0a260f010f2c17f3b385f9e6": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "executor",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "internalType": "uint256",
+              "name": "taskReceiptId",
+              "type": "uint256"
+            },
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "executorRefund",
+              "type": "uint256"
+            },
+            {
+              "indexed": false,
+              "internalType": "string",
+              "name": "reason",
+              "type": "string"
+            }
+          ],
+          "name": "LogExecReverted",
+          "type": "event"
+        },
+        "0x24676369d56b822255a2ba8afa7c68231dbbb5d324cd311d023fd37554da594e": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "executor",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "internalType": "uint256",
+              "name": "taskReceiptId",
+              "type": "uint256"
+            },
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "executorSuccessFee",
+              "type": "uint256"
+            },
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "sysAdminSuccessFee",
+              "type": "uint256"
+            }
+          ],
+          "name": "LogExecSuccess",
+          "type": "event"
+        },
+        "0xd71c850483c235524c816dbe9b5c11d4c3097788bf44f3cea4c969d91432681a": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "provider",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "oldExecutor",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "newExecutor",
+              "type": "address"
+            }
+          ],
+          "name": "LogExecutorAssignedExecutor",
+          "type": "event"
+        },
+        "0x79dc947028ead97dc90a91709ac7d54ce368511fc330841f2279299375933889": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "executor",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "withdrawAmount",
+              "type": "uint256"
+            }
+          ],
+          "name": "LogExecutorBalanceWithdrawn",
+          "type": "event"
+        },
+        "0xeb86fbd76202b1fb8ea477263ebbaa0ca039911aebfaa0d93aeaaf8f422d7772": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "executor",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "oldStake",
+              "type": "uint256"
+            },
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "newStake",
+              "type": "uint256"
+            }
+          ],
+          "name": "LogExecutorStaked",
+          "type": "event"
+        },
+        "0x0e2413d9141d1b6412c7ba967d457bf348f597f0e5bf6d5f82991c38f8b29230": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "oldShare",
+              "type": "uint256"
+            },
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "newShare",
+              "type": "uint256"
+            },
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "total",
+              "type": "uint256"
+            }
+          ],
+          "name": "LogExecutorSuccessShareSet",
+          "type": "event"
+        },
+        "0xfa9bbf66bded823e4fb9b6e3b204382872af75ef0fe0a330d82af5f84256b00e": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "executor",
+              "type": "address"
+            }
+          ],
+          "name": "LogExecutorUnstaked",
+          "type": "event"
+        },
+        "0x7eb3336aae9a3b461018823bcfbd81627ab3872ec4760568cb69599b3f572c87": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "provider",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "amount",
+              "type": "uint256"
+            },
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "newProviderFunds",
+              "type": "uint256"
+            }
+          ],
+          "name": "LogFundsProvided",
+          "type": "event"
+        },
+        "0xffd57c770591833d795262faf39af705c4e7f7428a2857f5a15b4c6d1c01e09f": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "provider",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "realWithdrawAmount",
+              "type": "uint256"
+            },
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "newProviderFunds",
+              "type": "uint256"
+            }
+          ],
+          "name": "LogFundsUnprovided",
+          "type": "event"
+        },
+        "0x3d30b06f36978acd3a6f74d861ea1b0e6d1ebe3d9d65a0e4c738d1b680a70f3a": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "oldOracle",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "newOracle",
+              "type": "address"
+            }
+          ],
+          "name": "LogGelatoGasPriceOracleSet",
+          "type": "event"
+        },
+        "0xc6e11d62bd8aab57eb4e534cf62d7f0c9670522681d2559de9ac3ff7ef8325d3": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "oldMaxGas",
+              "type": "uint256"
+            },
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "newMaxGas",
+              "type": "uint256"
+            }
+          ],
+          "name": "LogGelatoMaxGasSet",
+          "type": "event"
+        },
+        "0xabed28d8267464321e12f0e7fb50f149327ccd924ca4f97169a81350c0000fcc": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "oldRequirment",
+              "type": "uint256"
+            },
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "newRequirment",
+              "type": "uint256"
+            }
+          ],
+          "name": "LogInternalGasRequirementSet",
+          "type": "event"
+        },
+        "0x7ad23e704ae3ade0a94213eb580d92e6e1bce7243aab9eca2584936485d29e1c": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "oldMin",
+              "type": "uint256"
+            },
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "newMin",
+              "type": "uint256"
+            }
+          ],
+          "name": "LogMinExecutorStakeSet",
+          "type": "event"
+        },
+        "0x980ecf343395980880528aff1988eab2b3c7284da56044b30cc0af8cb72bac35": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "bytes",
+              "name": "oldData",
+              "type": "bytes"
+            },
+            {
+              "indexed": false,
+              "internalType": "bytes",
+              "name": "newData",
+              "type": "bytes"
+            }
+          ],
+          "name": "LogOracleRequestDataSet",
+          "type": "event"
+        },
+        "0x1a8b0d27a5b7dcaa3d4823d6e62cb91475b6db3711f348acd68dfd2456470461": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "provider",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "oldExecutor",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "newExecutor",
+              "type": "address"
+            }
+          ],
+          "name": "LogProviderAssignedExecutor",
+          "type": "event"
+        },
+        "0x0b25d15701a5ba475e30812c6fb077ee6ecaa9337afe94b54fa2d673a7e264b9": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "provider",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "internalType": "contract IGelatoProviderModule",
+              "name": "module",
+              "type": "address"
+            }
+          ],
+          "name": "LogProviderModuleAdded",
+          "type": "event"
+        },
+        "0x7a88170de70a4f05aedbab44658e05b07a34686b1c3044c0a130763e613c34de": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "provider",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "internalType": "contract IGelatoProviderModule",
+              "name": "module",
+              "type": "address"
+            }
+          ],
+          "name": "LogProviderModuleRemoved",
+          "type": "event"
+        },
+        "0x555f142d04d5fd169d7709fec5eda01b4d671371a74cda4734159a9863a13cd1": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "oldBalance",
+              "type": "uint256"
+            },
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "newBalance",
+              "type": "uint256"
+            }
+          ],
+          "name": "LogSysAdminFundsWithdrawn",
+          "type": "event"
+        },
+        "0x67e5ac0a08ca541e78d867cdf9766fb1e2e572cc4f1fe4a4f338ba5c585fd20c": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "oldShare",
+              "type": "uint256"
+            },
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "newShare",
+              "type": "uint256"
+            },
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "total",
+              "type": "uint256"
+            }
+          ],
+          "name": "LogSysAdminSuccessShareSet",
+          "type": "event"
+        },
+        "0x744b8104621eb036ccd898df8af9eca45fdef9a44758a759b9a02edfc3c2253d": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "uint256",
+              "name": "taskReceiptId",
+              "type": "uint256"
+            },
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "cancellor",
+              "type": "address"
+            }
+          ],
+          "name": "LogTaskCancelled",
+          "type": "event"
+        },
+        "0xc9fec98da4403e7d178ac928f2d08614c7121b0e1ae2fc4f607ebd48c623b487": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "provider",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "internalType": "bytes32",
+              "name": "taskSpecHash",
+              "type": "bytes32"
+            },
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "oldTaskSpecGasPriceCeil",
+              "type": "uint256"
+            },
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "newTaskSpecGasPriceCeil",
+              "type": "uint256"
+            }
+          ],
+          "name": "LogTaskSpecGasPriceCeilSet",
+          "type": "event"
+        },
+        "0x57eba0f5699d16b2cdc399006d21f172c68772b9eb995702bb087eace7604fe8": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "provider",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "internalType": "bytes32",
+              "name": "taskSpecHash",
+              "type": "bytes32"
+            }
+          ],
+          "name": "LogTaskSpecProvided",
+          "type": "event"
+        },
+        "0xb1bd71728ee07f94bcab41c157fcdce5fbdeef0932e50955da5b60dfcb5c02f6": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "provider",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "internalType": "bytes32",
+              "name": "taskSpecHash",
+              "type": "bytes32"
+            }
+          ],
+          "name": "LogTaskSpecUnprovided",
+          "type": "event"
+        },
+        "0x77be3ee486c6101ef6d894d85101234637da624e1bc54f11bd8e97174564b08e": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "uint256",
+              "name": "taskReceiptId",
+              "type": "uint256"
+            },
+            {
+              "indexed": true,
+              "internalType": "bytes32",
+              "name": "taskReceiptHash",
+              "type": "bytes32"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "uint256",
+                  "name": "id",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "address",
+                  "name": "userProxy",
+                  "type": "address"
+                },
+                {
+                  "components": [
+                    {
+                      "internalType": "address",
+                      "name": "addr",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "contract IGelatoProviderModule",
+                      "name": "module",
+                      "type": "address"
+                    }
+                  ],
+                  "internalType": "struct Provider",
+                  "name": "provider",
+                  "type": "tuple"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "index",
+                  "type": "uint256"
+                },
+                {
+                  "components": [
+                    {
+                      "components": [
+                        {
+                          "internalType": "contract IGelatoCondition",
+                          "name": "inst",
+                          "type": "address"
+                        },
+                        {
+                          "internalType": "bytes",
+                          "name": "data",
+                          "type": "bytes"
+                        }
+                      ],
+                      "internalType": "struct Condition[]",
+                      "name": "conditions",
+                      "type": "tuple[]"
+                    },
+                    {
+                      "components": [
+                        {
+                          "internalType": "address",
+                          "name": "addr",
+                          "type": "address"
+                        },
+                        {
+                          "internalType": "bytes",
+                          "name": "data",
+                          "type": "bytes"
+                        },
+                        {
+                          "internalType": "enum Operation",
+                          "name": "operation",
+                          "type": "uint8"
+                        },
+                        {
+                          "internalType": "enum DataFlow",
+                          "name": "dataFlow",
+                          "type": "uint8"
+                        },
+                        {
+                          "internalType": "uint256",
+                          "name": "value",
+                          "type": "uint256"
+                        },
+                        {
+                          "internalType": "bool",
+                          "name": "termsOkCheck",
+                          "type": "bool"
+                        }
+                      ],
+                      "internalType": "struct Action[]",
+                      "name": "actions",
+                      "type": "tuple[]"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "selfProviderGasLimit",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "selfProviderGasPriceCeil",
+                      "type": "uint256"
+                    }
+                  ],
+                  "internalType": "struct Task[]",
+                  "name": "tasks",
+                  "type": "tuple[]"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "expiryDate",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "cycleId",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "submissionsLeft",
+                  "type": "uint256"
+                }
+              ],
+              "indexed": false,
+              "internalType": "struct TaskReceipt",
+              "name": "taskReceipt",
+              "type": "tuple"
+            }
+          ],
+          "name": "LogTaskSubmitted",
+          "type": "event"
+        },
+        "0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "previousOwner",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "newOwner",
+              "type": "address"
+            }
+          ],
+          "name": "OwnershipTransferred",
+          "type": "event"
+        }
+      },
+      "links": {},
+      "address": "0x1875Ad520c06f78b8e0E47A973b425BB908c242f",
+      "transactionHash": "0xa0b010d6e48c4992e2073a080a15490a9c16687244cd3628d40de68cdda1e9f0"
+    }
+  },
+  "schemaVersion": "3.3.2",
+  "updatedAt": "2021-05-06T22:34:31.874Z",
+=======
     }
   },
   "schemaVersion": "3.3.2",
   "updatedAt": "2021-04-23T15:14:01.372Z",
+>>>>>>> master
   "networkType": "ethereum"
 }
