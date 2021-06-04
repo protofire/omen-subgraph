@@ -352,6 +352,8 @@ type Token @entity {
   id: ID!
   scale: BigInt!
   ethPerToken: BigDecimal
+  liquidity: BigInt
+  usdPerToken: BigDecimal
 }
 
 type RegisteredToken @entity {

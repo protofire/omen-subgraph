@@ -265,6 +265,32 @@ dataSources:
         - event: PairCreated(indexed address,indexed address,address,uint256)
           handler: handleNewPair
       file: ./src/UniswapV2FactoryMapping.ts
+  - kind: ethereum/contract
+    name: SwaprFactory
+    network: {{network}}
+    source:
+      address: '{{SwaprFactory.address}}'
+      abi: SwaprFactory
+      startBlock: {{SwaprFactory.startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.3
+      language: wasm/assemblyscript
+      entities:
+        - UniswapPair
+        - Token
+        - Global
+      abis:
+        - name: SwaprFactory
+          file: ./abis/SwaprFactory.json
+        - name: UniswapV2Pair
+          file: ./abis/UniswapV2Pair.json
+        - name: ERC20Detailed
+          file: ./abis/ERC20Detailed.json
+      eventHandlers:
+        - event: PairCreated(indexed address,indexed address,address,uint256)
+          handler: handleNewPair
+      file: ./src/UniswapV2FactoryMapping.ts
 templates:
   - name: FixedProductMarketMaker
     kind: ethereum/contract

@@ -161,6 +161,24 @@
       "transactionHash": "0x446de52c460bed3f49a4342eab247bb4b2fe2993962c284fb9bc14a983c7a3d4"
     }
   },
+  "SwaprFactory": {
+    "1": {
+      "address": "0xd34971BaB6E5E356fd250715F5dE0492BB070452",
+      "transactionHash": "0x364e94a6b58caf7db437cf88bf5f3b0cdccb56db43429778928a4af103a826c5"
+    },
+    "4": {
+      "address": "0x02f45e773436C6D96Cc73600fe94a660ec67734C",
+      "transactionHash": "0x668f9f2033ca4a109c0fb8363833dad96a41ca18526b83455011f7aa21660ec0"
+    },
+    "77": {
+      "address": "0x30FB5b5a25D211B91B1d7FFb07d1a059452452aE",
+      "transactionHash": "0xa984278b97528753fcc4b725218df2ef78db012ea4bf477940f3d3009a546429"
+    },
+    "100": {
+      "address": "0x5D48C95AdfFD4B40c1AAADc4e08fc44117E02179",
+      "transactionHash": "0x4639f9039e92b50d6fddb2ec785e3c741a6461a67ff74b85834068d47af52fc3"
+    }
+  },
   "WETH9": {
     "1": {
       "address": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
