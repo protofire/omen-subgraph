@@ -12,6 +12,11 @@
           "internalType": "address",
           "name": "_stakableTokenValidatorAddress",
           "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_implementation",
+          "type": "address"
         }
       ],
       "stateMutability": "nonpayable",
@@ -53,6 +58,19 @@
         }
       ],
       "name": "OwnershipTransferred",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "implementation",
+          "type": "address"
+        }
+      ],
+      "name": "Upgraded",
       "type": "event"
     },
     {
@@ -125,6 +143,19 @@
           "internalType": "uint256",
           "name": "",
           "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "implementation",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
         }
       ],
       "stateMutability": "view",
@@ -214,6 +245,19 @@
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "newImplementation",
+          "type": "address"
+        }
+      ],
+      "name": "upgradeTo",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
     }
   ],
   "networks": {
@@ -222,8 +266,8 @@
       "transactionHash": "0x0000000000000000000000000000000000000000000000000000000000000000"
     },
     "4": {
-      "address": "0x1f743b7239B0c215186717Bd5598af7Ae48B4b1A",
-      "transactionHash": "0x716f40a55a202fc530c7928bd82a22841360242a9992f07428d550b1616be8aa"
+      "address": "0x6FF4E7cFb9d912A4f62EC721Ef4864494AFB2259",
+      "transactionHash": "0x1b2f45c9ce6aad6c728f78f5664c2d31d6d116559aad657f476e28c33417fb32"
     },
     "72": {
       "address": "0x0000000000000000000000000000000000000000",

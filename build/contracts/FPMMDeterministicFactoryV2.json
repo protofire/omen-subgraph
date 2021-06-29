@@ -35,6 +35,62 @@
       "type": "function"
     },
     {
+      "constant": true,
+      "inputs": [],
+      "name": "protocolFeeDenominator",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint8"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "protocolFeeOn",
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "factoryAddress",
+      "outputs": [
+        {
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "protocolFeeSetter",
+      "outputs": [
+        {
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
       "inputs": [],
       "payable": false,
       "stateMutability": "nonpayable",
@@ -333,6 +389,66 @@
       "payable": false,
       "stateMutability": "nonpayable",
       "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_tokens",
+          "type": "address[]"
+        },
+        {
+          "name": "_recipient",
+          "type": "address"
+        }
+      ],
+      "name": "withdrawProtocolFees",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_protocolFeeOn",
+          "type": "bool"
+        }
+      ],
+      "name": "setProtocolFeeOn",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_protocolFeeDenominator",
+          "type": "uint8"
+        }
+      ],
+      "name": "setProtocolFeeDenominator",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_protocolFeeSetter",
+          "type": "address"
+        }
+      ],
+      "name": "setProtocolFeeSetter",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
     }
   ],
   "networks": {
@@ -341,8 +457,8 @@
       "transactionHash": "0x0000000000000000000000000000000000000000000000000000000000000000"
     },
     "4": {
-      "address": "0xAD0B1f3F537A32D6BA53053F70D56c3535499B68",
-      "transactionHash": "0xf6ae51379a8a99035cce6a6f975ca0a2ccb27ddb936949883bafab8095210c75"
+      "address": "0xa85B0807F9692685630657A1974f8957f7e41DAA",
+      "transactionHash": "0x877727def1363007e52bd4dfda22886db408e8c68a91ed5bbf3d7c807439e6ec"
     },
     "77": {
       "address": "0x0000000000000000000000000000000000000000",

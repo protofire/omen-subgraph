@@ -32,6 +32,7 @@ export function handleFixedProductMarketMakerCreation(
 
   fpmm.creator = event.params.creator;
   fpmm.creationTimestamp = event.block.timestamp;
+  fpmm.factory = event.transaction.from.toString();
 
   fpmm.collateralToken = event.params.collateralToken;
   fpmm.fee = event.params.fee;

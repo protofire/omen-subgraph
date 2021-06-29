@@ -166,6 +166,7 @@ type FixedProductMarketMaker @entity {
   klerosTCRregistered: Boolean!
 
   curatedByDxDaoOrKleros: Boolean!
+  factory: String!
 }
 
 type FpmmPoolMembership @entity {
