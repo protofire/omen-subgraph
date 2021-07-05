@@ -18,7 +18,7 @@ export function getFPMMDeterministicFactoryV2Address(): string {
   let network = dataSource.network() as string;
   // not using a switch-case because using strings is not yet supported (only u32)
   if (network == "mainnet") return ADDRESS_ZERO;
-  if (network == "rinkeby") return "0xa85B0807F9692685630657A1974f8957f7e41DAA";
+  if (network == "rinkeby") return "0x3A8eDb904ee335Fb828EC71e080d8BfA2CDb8167";
   if (network == "xdai") return ADDRESS_ZERO;
   log.warning("no fpmm v2 factory address for unsupported network {}", [
     network,
