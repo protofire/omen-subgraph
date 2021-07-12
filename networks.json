@@ -251,24 +251,6 @@
       "transactionHash": "0xad2eb5418b3011ee5173e6f90f354e8b6caf89877c8bba5b5fc10b21f00ee173"
     }
   },
-  "GelatoCore": {
-    "1": {
-      "address": "0x025030BdAa159f281cAe63873E68313a703725A5",
-      "transactionHash": "0xe1525de7b17464c90d5dfaa71098745058c42ef36c1d7854139115a48b5bf1e6"
-    },
-    "4": {
-      "address": "0x733aDEf4f8346FD96107d8d6605eA9ab5645d632",
-      "transactionHash": "0xc91a3d72644877eb695e4b1e232655963d87f5f5b74dba7342118188ffdbe85b"
-    },
-    "77": {
-      "address": "0x985B5011c850C27ee1cE0a0982B8E9c230596960",
-      "transactionHash": "0x8dc8fb74638c3ad27ae356e1a76786580d814b5fe5ea29e6f9f2106c4ae3481b"
-    },
-    "100": {
-      "address": "0xA818b4F111Ccac7AA31D0BCc0806d64F2E0737D7",
-      "transactionHash": "0x446de52c460bed3f49a4342eab247bb4b2fe2993962c284fb9bc14a983c7a3d4"
-    }
-  },
   "StakingRewardsFactory": {
     "1": {
       "address": "0x0000000000000000000000000000000000000000",
