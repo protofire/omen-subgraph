@@ -36,7 +36,6 @@ module.exports = function (callback) {
       "DAI",
       "USDC",
       "USDT",
-      "GelatoCore",
       "StakingRewardsFactory",
       "StakingRewardsDistribution",
     ]) {
