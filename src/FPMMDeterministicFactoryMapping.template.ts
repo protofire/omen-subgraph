@@ -80,6 +80,7 @@ export function handleFixedProductMarketMakerCreation(
     fpmm.question = questionIdStr;
     fpmm.scalarLow = condition.scalarLow;
     fpmm.scalarHigh = condition.scalarHigh;
+    fpmm.oracle = condition.oracle
 
     let question = Question.load(questionIdStr);
     if (question != null) {
