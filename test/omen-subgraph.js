@@ -169,14 +169,14 @@ function advanceBlock() {
   });
 }
 
-describe("Omen subgraph", function () {
+describe("Omen subgraph", function() {
   function checkMarketMakerState({
     traderParticipated,
     shareholderParticipated,
     creatorParticipated,
     isScalar,
   }) {
-    step("check subgraph market maker data matches chain", async function () {
+    step("check subgraph market maker data matches chain", async function() {
       await waitForGraphSync();
 
       const mm = isScalar ? scalarFpmm : fpmm;
@@ -195,6 +195,7 @@ describe("Omen subgraph", function () {
           conditions {
             id
           }
+          oracle
           fee
           collateralVolume
           outcomeTokenAmounts
@@ -348,7 +349,7 @@ describe("Omen subgraph", function () {
   let shareholder;
   let arbitrator;
   let reporter;
-  before("get accounts", async function () {
+  before("get accounts", async function() {
     [
       creator,
       trader,
@@ -367,7 +368,7 @@ describe("Omen subgraph", function () {
   let centralizedArbitrator;
   let marketsTCR;
   let dxTokenRegistry;
-  before("get deployed contracts", async function () {
+  before("get deployed contracts", async function() {
     weth = await WETH9.deployed();
     realitio = await Realitio.deployed();
     oracle = await RealitioProxy.deployed();
@@ -379,7 +380,7 @@ describe("Omen subgraph", function () {
     dxTokenRegistry = await DXTokenRegistry.deployed();
   });
 
-  it("exists", async function () {
+  it("exists", async function() {
     const { subgraphs } = await queryGraph(`{
       subgraphs(first: 1, where: {name: "${subgraphName}"}) {
         id
@@ -410,7 +411,7 @@ describe("Omen subgraph", function () {
   ];
   const questionCategory = "Cat😈猫🂡";
   const questionLanguage = "en-US";
-  step("ask question", async function () {
+  step("ask question", async function() {
     const nonce = randomHex(32);
     const { receipt, logs } = await realitio.askQuestion(
       2, // <- template ID
@@ -484,7 +485,7 @@ describe("Omen subgraph", function () {
   ].join("\u241f");
   const scalarLow = toWei("5");
   const scalarHigh = toWei("40");
-  step("ask scalar question", async function () {
+  step("ask scalar question", async function() {
     const nonce = randomHex(32);
     const { logs } = await realitio.askQuestion(
       1, // <- template ID
@@ -553,7 +554,7 @@ describe("Omen subgraph", function () {
     question.conditions.should.be.empty();
   });
 
-  step("make scalar condition question ID announcement", async function () {
+  step("make scalar condition question ID announcement", async function() {
     await scalarOracle.announceConditionQuestionId(
       scalarQuestionId,
       scalarLow,
@@ -585,7 +586,7 @@ describe("Omen subgraph", function () {
   let conditionId, scalarConditionId;
   let positionIds, scalarPositionIds;
   const outcomeSlotCount = 3;
-  step("prepare conditions", async function () {
+  step("prepare conditions", async function() {
     await conditionalTokens.prepareCondition(
       oracle.address,
       questionId,
@@ -640,7 +641,7 @@ describe("Omen subgraph", function () {
   let fpmmCreationTimestamp;
   const fee = toWei("0.001");
   const initialFunds = toWei("1");
-  step("use factory to create market maker", async function () {
+  step("use factory to create market maker", async function() {
     await weth.deposit({ value: initialFunds, from: creator });
     await weth.approve(factory.address, initialFunds, { from: creator });
 
@@ -674,7 +675,7 @@ describe("Omen subgraph", function () {
 
   step(
     "should not index market makers on different ConditionalTokens",
-    async function () {
+    async function() {
       const altConditionalTokens = await ConditionalTokens.new({
         from: creator,
       });
@@ -725,7 +726,7 @@ describe("Omen subgraph", function () {
   let scalarFpmmCreationTimestamp;
   step(
     "use factory to create another market maker based on scalar question",
-    async function () {
+    async function() {
       await weth.deposit({ value: initialFunds, from: creator });
       await weth.approve(factory.address, initialFunds, { from: creator });
 
@@ -761,7 +762,7 @@ describe("Omen subgraph", function () {
 
   const runningCollateralVolume = toBN(0);
   const investmentAmount = toWei("1");
-  step("have trader buy from market maker", async function () {
+  step("have trader buy from market maker", async function() {
     await weth.deposit({ value: investmentAmount, from: trader });
     await weth.approve(fpmm.address, investmentAmount, { from: trader });
 
@@ -793,7 +794,7 @@ describe("Omen subgraph", function () {
   });
 
   const returnAmount = toWei("0.5");
-  step("have trader sell to market maker", async function () {
+  step("have trader sell to market maker", async function() {
     await conditionalTokens.setApprovalForAll(fpmm.address, true, {
       from: trader,
     });
@@ -825,7 +826,7 @@ describe("Omen subgraph", function () {
     creatorParticipated: true,
   });
 
-  step("transfer pool shares", async function () {
+  step("transfer pool shares", async function() {
     const shareholderPoolAmount = toWei("0.5");
     await fpmm.transfer(shareholder, shareholderPoolAmount, { from: creator });
 
@@ -857,7 +858,7 @@ describe("Omen subgraph", function () {
     creatorParticipated: true,
   });
 
-  step("submit answer", async function () {
+  step("submit answer", async function() {
     const answer = `0x${"0".repeat(63)}1`;
     const bond = toWei("1");
     const { receipt } = await realitio.submitAnswer(questionId, answer, 0, {
@@ -901,7 +902,7 @@ describe("Omen subgraph", function () {
     );
   });
 
-  step("resolve condition", async function () {
+  step("resolve condition", async function() {
     await advanceTime(finalizationTimeout);
 
     const {
@@ -931,7 +932,7 @@ describe("Omen subgraph", function () {
     fixedProductMarketMaker.payouts.should.eql(["0", "1", "0"]);
   });
 
-  step("curate market", async function () {
+  step("curate market", async function() {
     const columns = [
       {
         label: "Question",

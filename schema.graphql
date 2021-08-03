@@ -76,6 +76,7 @@ type FixedProductMarketMaker @entity {
   collateralToken: Bytes!
   conditions: [Condition!]!
   fee: BigInt!
+  oracle: Bytes!
 
   collateralVolume: BigInt!
   scaledCollateralVolume: BigDecimal!
