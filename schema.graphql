@@ -76,7 +76,6 @@ type FixedProductMarketMaker @entity {
   collateralToken: Bytes!
   conditions: [Condition!]!
   fee: BigInt!
-  oracle: Bytes!
 
   collateralVolume: BigInt!
   scaledCollateralVolume: BigDecimal!
@@ -136,6 +135,7 @@ type FixedProductMarketMaker @entity {
   # copy of conditions' content if it is a 1-large array
   condition: Condition
   # lifted from condition
+  oracle: Bytes
   question: Question
   scalarLow: BigInt
   scalarHigh: BigInt
