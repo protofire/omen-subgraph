@@ -17,12 +17,6 @@ import { getFPMMDeterministicFactoryV2Address } from "./utils/addresses";
 export function handleFixedProductMarketMakerCreation(
   event: FixedProductMarketMakerCreation
 ): void {
-  if (
-    event.address.toHexString() == "0x0000000000000000000000000000000000000000"
-  ) {
-    return;
-  }
-
   let address = event.params.fixedProductMarketMaker;
   let addressHexString = address.toHexString();
   let conditionalTokensAddress = event.params.conditionalTokens.toHexString();
