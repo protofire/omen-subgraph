@@ -12,6 +12,7 @@ import { joinDayAndVolume } from "./utils/day-volume";
 import { updateScaledVolumes, setLiquidity } from "./utils/fpmm";
 import { requireToken } from "./utils/token";
 import { requireGlobal } from "./utils/global";
+import { getFPMMDeterministicFactoryV2Address } from "./utils/addresses";
 
 export function handleFixedProductMarketMakerCreation(
   event: FixedProductMarketMakerCreation
@@ -32,6 +33,7 @@ export function handleFixedProductMarketMakerCreation(
 
   fpmm.creator = event.params.creator;
   fpmm.creationTimestamp = event.block.timestamp;
+  fpmm.factory = getFPMMDeterministicFactoryV2Address();
 
   fpmm.collateralToken = event.params.collateralToken;
   fpmm.fee = event.params.fee;
@@ -80,6 +82,7 @@ export function handleFixedProductMarketMakerCreation(
     fpmm.question = questionIdStr;
     fpmm.scalarLow = condition.scalarLow;
     fpmm.scalarHigh = condition.scalarHigh;
+    fpmm.oracle = condition.oracle
 
     let question = Question.load(questionIdStr);
     if (question != null) {
