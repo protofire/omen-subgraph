@@ -11,6 +11,7 @@ import { RealitioProxy } from "realitio-gnosis-proxy/contracts/RealitioProxy.sol
 import { RealitioScalarAdapter } from "realitio-gnosis-proxy/contracts/RealitioScalarAdapter.sol";
 
 import { FPMMDeterministicFactory } from "@gnosis.pm/conditional-tokens-market-makers/contracts/FPMMDeterministicFactory.sol";
+import { FPMMDeterministicFactory as FPMMDeterministicFactoryV2 } from "@kadenzipfel/conditional-tokens-market-makers/contracts/FPMMDeterministicFactory.sol";
 import { FixedProductMarketMaker } from "@gnosis.pm/conditional-tokens-market-makers/contracts/FixedProductMarketMaker.sol";
 
 import { ERC20Detailed } from "openzeppelin-solidity/contracts/token/ERC20/ERC20Detailed.sol";
