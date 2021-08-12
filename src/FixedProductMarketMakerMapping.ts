@@ -138,9 +138,8 @@ function recordFPMMLiquidity(
     } else {
       fpmmLiquidity.collateralTokenAmount = min(outcomeTokenAmounts);
     }
-    fpmmLiquidity.additionalLiquidityParameter = calculateLiquidityParameter(
-      outcomeTokenAmounts
-    );
+    fpmmLiquidity.additionalLiquidityParameter =
+      calculateLiquidityParameter(outcomeTokenAmounts);
 
     fpmmLiquidity.sharesAmount = sharesAmount;
     fpmmLiquidity.collateralRemovedFromFeePool = collateralRemovedFromFeePool;
@@ -451,7 +450,8 @@ export function handleBuy(event: FPMMBuy): void {
     );
   }
 
-  let oldOutcomeTokenMarginalPrices = fpmm.outcomeTokenMarginalPrices as Array<BigDecimal>;
+  let oldOutcomeTokenMarginalPrices =
+    fpmm.outcomeTokenMarginalPrices as Array<BigDecimal>;
   let oldOutcomeTokenMarginalPrice =
     oldOutcomeTokenMarginalPrices != null
       ? (oldOutcomeTokenMarginalPrices[outcomeIndex] as BigDecimal)
@@ -473,7 +473,8 @@ export function handleBuy(event: FPMMBuy): void {
   );
 
   fpmm.save();
-  let newOutcomeTokenMarginalPrices = fpmm.outcomeTokenMarginalPrices as Array<BigDecimal>;
+  let newOutcomeTokenMarginalPrices =
+    fpmm.outcomeTokenMarginalPrices as Array<BigDecimal>;
   let newOutcomeTokenMarginalPrice =
     newOutcomeTokenMarginalPrices != null
       ? (newOutcomeTokenMarginalPrices[outcomeIndex] as BigDecimal)
@@ -542,7 +543,8 @@ export function handleSell(event: FPMMSell): void {
     );
   }
 
-  let oldOutcomeTokenMarginalPrices = fpmm.outcomeTokenMarginalPrices as Array<BigDecimal>;
+  let oldOutcomeTokenMarginalPrices =
+    fpmm.outcomeTokenMarginalPrices as Array<BigDecimal>;
   let oldOutcomeTokenMarginalPrice =
     oldOutcomeTokenMarginalPrices != null
       ? (oldOutcomeTokenMarginalPrices[outcomeIndex] as BigDecimal)
@@ -564,7 +566,8 @@ export function handleSell(event: FPMMSell): void {
   );
 
   fpmm.save();
-  let newOutcomeTokenMarginalPrices = fpmm.outcomeTokenMarginalPrices as Array<BigDecimal>;
+  let newOutcomeTokenMarginalPrices =
+    fpmm.outcomeTokenMarginalPrices as Array<BigDecimal>;
   let newOutcomeTokenMarginalPrice =
     newOutcomeTokenMarginalPrices != null
       ? (newOutcomeTokenMarginalPrices[outcomeIndex] as BigDecimal)

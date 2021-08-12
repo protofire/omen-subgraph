@@ -12,12 +12,10 @@ export function updateScaledVolumes(
   currentDay: BigInt,
   currentHourInDay: i32
 ): void {
-  fpmm.scaledCollateralVolume = fpmm.collateralVolume.divDecimal(
-    collateralScaleDec
-  );
-  fpmm.scaledRunningDailyVolume = fpmm.runningDailyVolume.divDecimal(
-    collateralScaleDec
-  );
+  fpmm.scaledCollateralVolume =
+    fpmm.collateralVolume.divDecimal(collateralScaleDec);
+  fpmm.scaledRunningDailyVolume =
+    fpmm.runningDailyVolume.divDecimal(collateralScaleDec);
 
   fpmm.lastActiveDayAndScaledRunningDailyVolume = joinDayAndScaledVolume(
     currentDay,
@@ -190,13 +188,11 @@ export function setLiquidity(
 
   let liquidityParameter = calculateLiquidityParameter(outcomeTokenAmounts);
   fpmm.liquidityParameter = liquidityParameter;
-  let scaledLiquidityParameter = liquidityParameter.divDecimal(
-    collateralScaleDec
-  );
+  let scaledLiquidityParameter =
+    liquidityParameter.divDecimal(collateralScaleDec);
   fpmm.scaledLiquidityParameter = scaledLiquidityParameter;
-  fpmm.usdLiquidityParameter = scaledLiquidityParameter.times(
-    collateralUSDPrice
-  );
+  fpmm.usdLiquidityParameter =
+    scaledLiquidityParameter.times(collateralUSDPrice);
 
   let weights = new Array<BigInt>(outcomeTokenAmounts.length);
   let sum = zero;
@@ -226,9 +222,8 @@ export function setLiquidity(
       .times(weights[0])
       .div(sum);
     fpmm.liquidityMeasure = liquidityMeasure;
-    let scaledLiquidityMeasure = liquidityMeasure.divDecimal(
-      collateralScaleDec
-    );
+    let scaledLiquidityMeasure =
+      liquidityMeasure.divDecimal(collateralScaleDec);
     fpmm.scaledLiquidityMeasure = scaledLiquidityMeasure;
     fpmm.usdLiquidityMeasure = scaledLiquidityMeasure.times(collateralUSDPrice);
   } else {
