@@ -30,7 +30,7 @@ module.exports = function (callback) {
       "DXTokenRegistry",
       "GeneralizedTCR",
       "UniswapV2Factory",
-      "SwaprFactory",
+      "DXswapFactory",
       "UniswapV2Pair",
       "WETH9",
       "DAI",

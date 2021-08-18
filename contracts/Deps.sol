@@ -22,3 +22,6 @@ import { GeneralizedTCR } from "@kleros/tcr/contracts/GeneralizedTCR.sol";
 
 import { UniswapV2Factory } from "@uniswap/v2-core/contracts/UniswapV2Factory.sol";
 import { UniswapV2Pair } from "@uniswap/v2-core/contracts/UniswapV2Pair.sol";
+
+import { DXswapFactory } from "@levelkdev/dxswap-core/contracts/DXswapFactory.sol";
+import { DXswapPair } from "@levelkdev/dxswap-core/contracts/DXswapPair.sol";

@@ -233,12 +233,12 @@ dataSources:
           handler: handleNewPair
       file: ./src/UniswapV2FactoryMapping.ts
   - kind: ethereum/contract
-    name: SwaprFactory
+    name: DXswapFactory
     network: {{network}}
     source:
-      address: '{{SwaprFactory.address}}'
-      abi: SwaprFactory
-      startBlock: {{SwaprFactory.startBlock}}
+      address: '{{DXswapFactory.address}}'
+      abi: DXswapFactory
+      startBlock: {{DXswapFactory.startBlock}}
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.3
@@ -248,8 +248,8 @@ dataSources:
         - Token
         - Global
       abis:
-        - name: SwaprFactory
-          file: ./abis/SwaprFactory.json
+        - name: DXswapFactory
+          file: ./abis/DXswapFactory.json
         - name: UniswapV2Pair
           file: ./abis/UniswapV2Pair.json
         - name: ERC20Detailed

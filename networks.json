@@ -161,7 +161,7 @@
       "transactionHash": "0x446de52c460bed3f49a4342eab247bb4b2fe2993962c284fb9bc14a983c7a3d4"
     }
   },
-  "SwaprFactory": {
+  "DXswapFactory": {
     "1": {
       "address": "0xd34971BaB6E5E356fd250715F5dE0492BB070452",
       "transactionHash": "0x364e94a6b58caf7db437cf88bf5f3b0cdccb56db43429778928a4af103a826c5"
