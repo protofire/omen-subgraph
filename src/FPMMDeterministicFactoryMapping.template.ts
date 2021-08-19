@@ -12,7 +12,6 @@ import { joinDayAndVolume } from "./utils/day-volume";
 import { updateScaledVolumes, setLiquidity } from "./utils/fpmm";
 import { requireToken } from "./utils/token";
 import { requireGlobal } from "./utils/global";
-import { getFPMMDeterministicFactoryV2Address } from "./utils/addresses";
 
 export function handleFixedProductMarketMakerCreation(
   event: FixedProductMarketMakerCreation
@@ -33,7 +32,7 @@ export function handleFixedProductMarketMakerCreation(
 
   fpmm.creator = event.params.creator;
   fpmm.creationTimestamp = event.block.timestamp;
-  fpmm.factory = getFPMMDeterministicFactoryV2Address();
+  fpmm.factory = event.address.toHexString();
 
   fpmm.collateralToken = event.params.collateralToken;
   fpmm.fee = event.params.fee;

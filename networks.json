@@ -37,20 +37,20 @@
   },
   "FPMMDeterministicFactoryV2": {
     "1": {
-      "address": "0x0000000000000000000000000000000000000000",
-      "transactionHash": "0x0000000000000000000000000000000000000000000000000000000000000000"
+      "address": "0x325a2e0F3CCA2ddbaeBB4DfC38Df8D19ca165b47",
+      "transactionHash": "0xdc0c21a41e03121c3d3aee7fd9f28a27390020b989294698bf377e89f4536b54"
     },
     "4": {
-      "address": "0x3A8eDb904ee335Fb828EC71e080d8BfA2CDb8167",
-      "transactionHash": "0x7d525fcc9425927d175adb7c4697d393bf3f022e1cd173b4ced1425bfc915507"
+      "address": "0x9dd6eB146D7fb98614487617DE608560321E15BE",
+      "transactionHash": "0x557dd1c0e1306486633eb3da086c7f63322643ba2f1916159300bea4e620d2ab"
     },
     "77": {
       "address": "0x9540F19d947204e424c2d7959cF932E47Ab75B3e",
       "transactionHash": "0x1e3249638a970ca73f56f9de896e06c6ae1490543748cd92c9cd580b82b6ae0c"
     },
     "100": {
-      "address": "0x0000000000000000000000000000000000000000",
-      "transactionHash": "0x0000000000000000000000000000000000000000000000000000000000000000"
+      "address": "0x79e32aE03fb27B07C89c0c568F80287C01ca2E57",
+      "transactionHash": "0xc7b626f6c8e7e3276ec2dc00e99e5d8b8c1348cb54f9dee213e715b055e0872a"
     }
   },
   "Realitio": {
@@ -253,8 +253,8 @@
   },
   "StakingRewardsFactory": {
     "1": {
-      "address": "0x0000000000000000000000000000000000000000",
-      "transactionHash": "0x0000000000000000000000000000000000000000000000000000000000000000"
+      "address": "0xdAC17F958D2ee523a2206206994597C13D831ec7",
+      "transactionHash": "0x2f1c5c2b44f771e942a8506148e256f94f1a464babc938ae0690c6e34cd79190"
     },
     "4": {
       "address": "0xf50d900859da289a34204bC5FcA14c77575BD910",
