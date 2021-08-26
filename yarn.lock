@@ -1651,7 +1651,7 @@
 
 "@realitio/realitio-contracts@github:kadenzipfel/realitio-contracts":
   version "2.2.9"
-  resolved "https://codeload.github.com/kadenzipfel/realitio-contracts/tar.gz/06a9e90bf69f3cd37170511ae6e6aa168bf52549"
+  resolved "https://codeload.github.com/kadenzipfel/realitio-contracts/tar.gz/454b8b4ac4386e7e7f3b458674fca6c507ae1da1"
 
 "@redux-saga/core@^1.0.0":
   version "1.1.3"
