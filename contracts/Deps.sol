@@ -2,7 +2,7 @@ pragma solidity ^0.5.11;
 
 import { WETH9 } from "canonical-weth/contracts/WETH9.sol";
 
-import { Realitio_v2_1 as Realitio } from "@realitio/realitio-contracts/truffle/contracts/Realitio_v2_1.sol";
+import { Realitio } from "@realitio/realitio-contracts/truffle/contracts/Realitio.sol";
 import { Arbitrator } from "@realitio/realitio-contracts/truffle/contracts/Arbitrator.sol";
 
 import { ConditionalTokens } from "@gnosis.pm/conditional-tokens-contracts/contracts/ConditionalTokens.sol";
