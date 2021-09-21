@@ -67,7 +67,7 @@
     "@truffle/contract": "^4.3.0",
     "@truffle/hdwallet-provider": "^1.0.33",
     "@uniswap/v2-core": "^1.0.1",
-    "axios": "^0.21.1",
+    "axios": "^0.21.2",
     "canonical-weth": "^1.4.0",
     "delay": "^4.3.0",
     "fs-extra": "^8.1.0",
